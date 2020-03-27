@@ -2,12 +2,15 @@ import sys
 import os
 import pickle
 import operator
+from pathlib import Path
 
 import tqdm
 from numpy import dot
 from gensim import matutils
 from collections import defaultdict
 from nltk.data import load
+from size_comparisons.inference.baseline_numeric_gaussians import load_and_update_baseline
+from size_comparisons.scraping.analyze import fill_dataframe
 
 from breds.seed import Seed
 from breds.pattern import Pattern
@@ -25,12 +28,13 @@ PRINT_PATTERNS = True
 
 class BREDS(object):
 
-    def __init__(self, config_file, seeds_file, negative_seeds, similarity, confidence):
+    def __init__(self, config_file, seeds_file, negative_seeds, similarity, confidence, numeric_data_dir):
         self.curr_iteration = 0
         self.patterns = list()
         self.processed_tuples = list()
         self.candidate_tuples = defaultdict(list)
         self.config = Config(config_file, seeds_file, negative_seeds, similarity, confidence)
+        self.numeric_seed = load_and_update_baseline(data_dir=numeric_data_dir)
 
     def generate_tuples(self, sentences_file):
         """
@@ -62,6 +66,7 @@ class BREDS(object):
                     if count % 10000 == 0:
                         sys.stdout.write(".")
 
+                    # TODO here I should change how tuples are found (i.e. all combinations of anchor objects)
                     sentence = Sentence(line.strip(),
                                         self.config.e1_type,
                                         self.config.e2_type,
@@ -367,9 +372,9 @@ class BREDS(object):
 
 
 def main():
-    if len(sys.argv) != 7:
+    if len(sys.argv) != 8:
         print("\nBREDS.py parameters sentences positive_seeds negative_seeds "
-              "similarity confidence\n")
+              "similarity confidence numeric_data_dir\n")
         sys.exit(0)
     else:
         configuration = sys.argv[1]
@@ -378,8 +383,9 @@ def main():
         negative_seeds = sys.argv[4]
         similarity = float(sys.argv[5])
         confidence = float(sys.argv[6])
+        numeric_data_dir = Path(sys.argv[7])
 
-        breads = BREDS(configuration, seeds_file, negative_seeds, similarity, confidence)
+        breads = BREDS(configuration, seeds_file, negative_seeds, similarity, confidence, numeric_data_dir)
 
         if sentences_file.endswith('.pkl'):
             print("Loading pre-processed sentences", sentences_file)
