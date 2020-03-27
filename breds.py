@@ -3,6 +3,7 @@ import os
 import pickle
 import operator
 
+import tqdm
 from numpy import dot
 from gensim import matutils
 from collections import defaultdict
@@ -19,7 +20,7 @@ __email__ = "dsbatista@inesc-id.pt"
 
 # useful for debugging
 PRINT_TUPLES = False
-PRINT_PATTERNS = False
+PRINT_PATTERNS = True
 
 
 class BREDS(object):
@@ -54,7 +55,7 @@ class BREDS(object):
             print("\nGenerating relationship instances from sentences")
             with open(sentences_file, encoding='utf-8') as f_sentences:
                 count = 0
-                for line in f_sentences:
+                for line in tqdm.tqdm(f_sentences):
                     if line.startswith("#"):
                         continue
                     count += 1
@@ -277,6 +278,7 @@ class BREDS(object):
                             )
 
                 # update all patterns confidence
+                # TODO EVALUATION IS HERE!!!
                 for p in self.patterns:
                     p.update_confidence(self.config)
 
