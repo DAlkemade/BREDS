@@ -106,3 +106,6 @@ sentences.txt
 
 # IDE Specific files
 .idea/
+relationships.txt
+relationships_gold.zip
+sentences_small.txt
