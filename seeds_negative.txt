@@ -1,5 +1,5 @@
-e1:ORG
-e2:LOC
+e1:OBJECT
+e2:OBJECT
 
-Daiwa Bank Holdings Inc.;Osaka
-Adelphia;Coudersport
+dog;tiger
+insect;tiger

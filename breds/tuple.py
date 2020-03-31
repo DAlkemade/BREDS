@@ -6,7 +6,8 @@ __email__ = "dsbatista@inesc-id.pt"
 
 class Tuple(object):
     # http://www.ling.upenn.edu/courses/Fall_2007/ling001/penn_treebank_pos.html
-    filter_pos = ['JJ', 'JJR', 'JJS', 'RB', 'RBR', 'RBS', 'WRB']
+    # filter_pos = ['JJ', 'JJR', 'JJS', 'RB', 'RBR', 'RBS', 'WRB']
+    filter_pos = []
 
     def __init__(self, _e1, _e2, _sentence, _before, _between, _after, config):
         self.e1 = _e1
@@ -56,7 +57,10 @@ class Tuple(object):
 
     def construct_vectors(self, config):
         # Check if BET context contains a ReVerb pattern
+        print(self.bet_words)
+        print(self.bet_tags)
         reverb_pattern = config.reverb.extract_reverb_patterns_tagged_ptb(self.bet_tags)
+        # print(f'reverb_pattern: {reverb_pattern}')
         if len(reverb_pattern) > 0:
             # test for passive voice presence
             self.passive_voice = config.reverb.detect_passive_voice(reverb_pattern)
@@ -67,6 +71,8 @@ class Tuple(object):
 
         self.bet_filtered = [t[0] for t in bet_words if t[0].lower() not in config.stopwords and
                              t[1] not in self.filter_pos]
+
+        # print(f'bet filterd: {self.bet_filtered}')
 
         # compute the vector over the filtered BET context
         self.bet_vector = self.pattern2vector_sum(self.bet_filtered, config)
@@ -87,11 +93,13 @@ class Tuple(object):
                     vector = config.word2vec[t.strip()]
                     pattern_vector += vector
                 except KeyError:
+                    print(f'{t} not in word2vec model; skipping')
                     continue
         elif len(tokens) == 1:
             try:
                 pattern_vector = config.word2vec[tokens[0].strip()]
             except KeyError:
+                print(f'{tokens[0]} not in word2vec model; skipping')
                 pass
-
+        # print(f'pattern vector for tokens {tokens} : {pattern_vector}')
         return pattern_vector

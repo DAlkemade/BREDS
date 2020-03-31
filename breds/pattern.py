@@ -1,7 +1,6 @@
 import uuid
 import numpy as np
-
-from size_comparisons.inference.baseline_numeric_gaussians import load_and_update_baseline, BaselineNumericGaussians
+from size_comparisons.inference.baseline_numeric_gaussians import BaselineNumericGaussians
 
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
@@ -33,7 +32,7 @@ class Pattern(object):
     def update_confidence(self, config):
         if self.p_values is None:
             raise ValueError('First compute confidences for each tuple')
-
+        print(f'Updating confidence using pvalues: {self.p_values}')
         mean_p_value = np.mean(self.p_values)
         self.confidence = 1 - mean_p_value
 

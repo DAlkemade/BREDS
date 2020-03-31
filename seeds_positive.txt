@@ -1,8 +1,7 @@
-e1:ORG
-e2:LOC
+e1:OBJECT
+e2:OBJECT
 
-Citibank;Athens
-Nokia;Espoo
-Motorola;Schaumburg
-Pfizer;New York
-Microsoft;Redmond
+tiger;dog
+tiger;insect
+tiger;cat
+tiger;crown

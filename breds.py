@@ -9,7 +9,8 @@ from numpy import dot
 from gensim import matutils
 from collections import defaultdict
 from nltk.data import load
-from size_comparisons.inference.baseline_numeric_gaussians import load_and_update_baseline
+from size_comparisons.inference.baseline_numeric_gaussians import load_baseline, BaselineNumericGaussians
+from size_comparisons.parse_objects import InputsParser
 from size_comparisons.scraping.analyze import fill_dataframe
 
 from breds.seed import Seed
@@ -24,6 +25,14 @@ __email__ = "dsbatista@inesc-id.pt"
 # useful for debugging
 PRINT_TUPLES = False
 PRINT_PATTERNS = True
+TEST = True
+
+def print_tuple_props(t: Tuple):
+    print(f'tuple: {t.e1} {t.e2}')
+    print(f'before | vector: {t.bef_vector} | words: {t.bef_words} | tags: {t.bef_tags}')
+    print(f'between | vector: {t.bet_vector} | words: {t.bet_words} |  tags: {t.bet_tags}')
+    print(f'after | vector: {t.aft_vector} | words: {t.aft_words} | tags: {t.aft_tags}')
+
 
 
 class BREDS(object):
@@ -34,7 +43,25 @@ class BREDS(object):
         self.processed_tuples = list()
         self.candidate_tuples = defaultdict(list)
         self.config = Config(config_file, seeds_file, negative_seeds, similarity, confidence)
-        self.numeric_seed = load_and_update_baseline(data_dir=numeric_data_dir)
+        # TODO change to full matrix
+        if TEST:
+            input_parser = InputsParser(data_dir=numeric_data_dir)
+
+            labels = input_parser.retrieve_labels()
+            names = input_parser.retrieve_names()
+            data = fill_dataframe(names, labels, datadir=numeric_data_dir)
+            selected = ['tiger', 'insect', 'ocean', 'cat', 'dog', 'crown', 'neuropteron', 'diving suit',
+                        'light-emitting diode',
+                        'stone']
+
+            mask = data['name'].isin(selected)
+            data = data[mask]
+            data.reset_index(inplace=True)
+            self.numeric_graph = BaselineNumericGaussians(data)
+            self.numeric_graph.fill_adjacency_matrix()
+        else:
+            self.numeric_graph = load_baseline(data_dir=numeric_data_dir)
+        print(self.numeric_graph.matrix.shape)
 
     def generate_tuples(self, sentences_file):
         """
@@ -86,8 +113,13 @@ class BREDS(object):
             with open("processed_tuples.pkl", "wb") as f_out:
                 pickle.dump(self.processed_tuples, f_out)
 
-    def similarity_3_contexts(self, p, t):
+    def similarity_3_contexts(self, p: Tuple, t: Tuple):
         (bef, bet, aft) = (0, 0, 0)
+        # print('p:')
+        # print_tuple_props(p)
+        # print('t:')
+        # print_tuple_props(t)
+
 
         if t.bef_vector is not None and p.bef_vector is not None:
             bef = dot(matutils.unitvec(t.bef_vector), matutils.unitvec(p.bef_vector))
@@ -167,7 +199,8 @@ class BREDS(object):
             print("\nLoading processed tuples from disk...")
             self.processed_tuples = pickle.load(f)
             f.close()
-            print(len(self.processed_tuples), "tuples loaded")
+        print(len(self.processed_tuples), "tuples loaded")
+        # print(self.processed_tuples)
 
         self.curr_iteration = 0
         while self.curr_iteration <= self.config.number_iterations:
@@ -178,6 +211,7 @@ class BREDS(object):
                 print(s.e1, '\t', s.e2)
 
             # Looks for sentences matching the seed instances
+            # TODO should not filter for seed instances here. Use ALL!
             count_matches, matched_tuples = self.match_seeds_tuples()
 
             if len(matched_tuples) == 0:
@@ -215,6 +249,8 @@ class BREDS(object):
                     for p in self.patterns:
                         print(count)
                         for t in p.tuples:
+                            print("e1", t.e1)
+                            print("e2", t.e2)
                             print("BEF", t.bef_words)
                             print("BET", t.bet_words)
                             print("AFT", t.aft_words)
@@ -243,6 +279,7 @@ class BREDS(object):
                 count = 0
 
                 for t in self.processed_tuples:
+                    self.numeric_graph.update_distance_matrix()
 
                     count += 1
                     if count % 1000 == 0:
@@ -256,7 +293,7 @@ class BREDS(object):
                         )
                         if accept is True:
                             extraction_pattern.update_selectivity(
-                                t, self.config
+                                t, self.config, self.numeric_graph
                             )
                             if score > sim_best:
                                 sim_best = score
@@ -295,9 +332,9 @@ class BREDS(object):
                             print("BET", t.bet_words)
                             print("AFT", t.aft_words)
                             print("========")
-                        print("Positive", p.positive)
-                        print("Negative", p.negative)
-                        print("Unknown", p.unknown)
+                        # print("Positive", p.positive)
+                        # print("Negative", p.negative)
+                        # print("Unknown", p.unknown)
                         print("Tuples", len(p.tuples))
                         print("Pattern Confidence", p.confidence)
                         print("\n")
@@ -338,6 +375,7 @@ class BREDS(object):
         # this is a single-pass clustering
         # Initialize: if no patterns exist, first tuple goes to first cluster
         if len(self.patterns) == 0:
+            print("There are no patterns, so creating one")
             c1 = Pattern(matched_tuples[0])
             self.patterns.append(c1)
 
