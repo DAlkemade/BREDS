@@ -17,4 +17,5 @@
 <OBJECT>insect</OBJECT> is faster than <OBJECT>tiger</OBJECT>.
 <OBJECT>tiger</OBJECT> is faster than <OBJECT>dog</OBJECT>.
 <OBJECT>tiger</OBJECT> is faster than <OBJECT>crown</OBJECT>.
+<OBJECT>diving suit</OBJECT> is faster than <OBJECT>tiger</OBJECT>.
 

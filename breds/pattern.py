@@ -32,6 +32,9 @@ class Pattern(object):
     def update_confidence(self, config):
         if self.p_values is None:
             raise ValueError('First compute confidences for each tuple')
+        # TODO maybe try one strike and you're out for an extremely inconsitent value
+        # the 'is faster than' should result in 0% confidence
+        # TODO distinguish
         print(f'Updating confidence using pvalues: {self.p_values}')
         mean_p_value = np.mean(self.p_values)
         self.confidence = 1 - mean_p_value

@@ -320,7 +320,6 @@ class BREDS(object):
                             )
 
                 # update all patterns confidence
-                # TODO EVALUATION IS HERE!!!
                 for p in self.patterns:
                     p.update_confidence(self.config)
 
