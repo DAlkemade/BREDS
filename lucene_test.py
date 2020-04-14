@@ -3,7 +3,9 @@ import lucene
 # noinspection PyUnresolvedReferences
 from java.nio.file import Paths
 # noinspection PyUnresolvedReferences
-from org.apache.lucene.search import IndexSearcher, PhraseQuery
+from org.apache.lucene.search import IndexSearcher, PhraseQuery, RegexpQuery
+# noinspection PyUnresolvedReferences
+from org.apache.lucene.search.spans import SpanMultiTermQueryWrapper, SpanNearQuery
 # noinspection PyUnresolvedReferences
 from org.apache.lucene.index import DirectoryReader, Term
 # noinspection PyUnresolvedReferences
@@ -23,6 +25,14 @@ if __name__ == "__main__":
 
      term = Term("contents", "tiger")
      print(f'Tiger frequency: {reader.totalTermFreq(term)}')
+
+     q_regex = RegexpQuery(Term("contents", "[0-9]+\.?[0-9]*"))
+     print(f'regex results: {searcher.search(q_regex,1000000).totalHits}')
+
+     span1 = SpanMultiTermQueryWrapper(q_regex)
+     span2 = SpanMultiTermQueryWrapper(RegexpQuery(Term("contents", "tiger")))
+     spannearquery = SpanNearQuery([span1, span2], 20, True)
+     print(f'spanquery results: {searcher.search(spannearquery, 1000000).totalHits}')
 
      parser = QueryParser('contents', StandardAnalyzer())
      q = parser.parse('"tiger leopard"')

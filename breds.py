@@ -1,3 +1,4 @@
+import logging
 import sys
 import os
 import pickle
@@ -9,15 +10,13 @@ from numpy import dot
 from gensim import matutils
 from collections import defaultdict
 from nltk.data import load
-from size_comparisons.inference.baseline_numeric_gaussians import load_baseline, BaselineNumericGaussians
-from size_comparisons.parse_objects import InputsParser
-from size_comparisons.scraping.analyze import fill_dataframe
 
 from breds.seed import Seed
 from breds.pattern import Pattern
 from breds.config import Config
 from breds.tuple import Tuple
 from breds.sentence import Sentence
+from lucene_looper import find_all_text_occurrences
 
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
@@ -37,42 +36,26 @@ def print_tuple_props(t: Tuple):
 
 class BREDS(object):
 
-    def __init__(self, config_file, seeds_file, negative_seeds, similarity, confidence, numeric_data_dir):
+    def __init__(self, config_file, seeds_file, negative_seeds, similarity, confidence, objects):
         self.curr_iteration = 0
         self.patterns = list()
         self.processed_tuples = list()
         self.candidate_tuples = defaultdict(list)
-        self.config = Config(config_file, seeds_file, negative_seeds, similarity, confidence)
+        self.config = Config(config_file, seeds_file, negative_seeds, similarity, confidence, objects)
         # TODO change to full matrix
-        if TEST:
-            input_parser = InputsParser(data_dir=numeric_data_dir)
 
-            labels = input_parser.retrieve_labels()
-            names = input_parser.retrieve_names()
-            data = fill_dataframe(names, labels, datadir=numeric_data_dir)
-            selected = ['tiger', 'insect', 'ocean', 'cat', 'dog', 'crown', 'neuropteron', 'diving suit',
-                        'light-emitting diode',
-                        'stone']
 
-            mask = data['name'].isin(selected)
-            data = data[mask]
-            data.reset_index(inplace=True)
-            self.numeric_graph = BaselineNumericGaussians(data)
-            self.numeric_graph.fill_adjacency_matrix()
-        else:
-            self.numeric_graph = load_baseline(data_dir=numeric_data_dir)
-        print(self.numeric_graph.matrix.shape)
-
-    def generate_tuples(self, sentences_file):
+    def generate_tuples(self):
         """
         Generate tuples instances from a text file with sentences where named entities are
         already tagged
 
         :param sentences_file:
         """
-        if os.path.exists("processed_tuples.pkl"):
+        fname = "processed_tuples_numeric.pkl"
+        if os.path.exists(fname):
 
-            with open("processed_tuples.pkl", "rb") as f_in:
+            with open(fname, "rb") as f_in:
                 print("\nLoading processed tuples from disk...")
                 self.processed_tuples = pickle.load(f_in)
             print(len(self.processed_tuples), "tuples loaded")
@@ -84,33 +67,37 @@ class BREDS(object):
             tagger = load('taggers/maxent_treebank_pos_tagger/english.pickle')
 
             print("\nGenerating relationship instances from sentences")
-            with open(sentences_file, encoding='utf-8') as f_sentences:
-                count = 0
-                for line in tqdm.tqdm(f_sentences):
-                    if line.startswith("#"):
-                        continue
-                    count += 1
-                    if count % 10000 == 0:
-                        sys.stdout.write(".")
+            object_occurrences, lucene_reader = find_all_text_occurrences(self.config.objects)
+            for object, doc_idxs in tqdm.tqdm(object_occurrences.items()):
+                print(f'Parsing for object {object}')
+                for doc_idx in tqdm.tqdm(doc_idxs):
+                    doc = lucene_reader.document(doc_idx)
+                    text: str = doc.get("contents")
+                    text = text.lower() # TODO should I do this?
+                    sentences = text.split('.')
+                    # TODO split sentences from docs
+                    for line in sentences:
 
-                    # TODO here I should change how tuples are found (i.e. all combinations of anchor objects)
-                    sentence = Sentence(line.strip(),
-                                        self.config.e1_type,
-                                        self.config.e2_type,
-                                        self.config.max_tokens_away,
-                                        self.config.min_tokens_away,
-                                        self.config.context_window_size, tagger,
-                                        self.config)
+                        # TODO here I should change how tuples are found (i.e. all combinations of anchor objects)
+                        sentence = Sentence(line.strip(),
+                                            self.config.e1_type,
+                                            self.config.e2_type,
+                                            self.config.max_tokens_away,
+                                            self.config.min_tokens_away,
+                                            self.config.context_window_size, object, tagger,
+                                            self.config)
 
-                    for rel in sentence.relationships:
-                        t = Tuple(rel.e1, rel.e2,
-                                  rel.sentence, rel.before, rel.between, rel.after,
-                                  self.config)
-                        self.processed_tuples.append(t)
-                print("\n", len(self.processed_tuples), "tuples generated")
+                        for rel in sentence.relationships:
+                            t = Tuple(rel.e1, rel.e2,
+                                      rel.sentence, rel.before, rel.between, rel.after,
+                                      self.config)
+                            self.processed_tuples.append(t)
+            print("\n", len(self.processed_tuples), "tuples generated")
+
+            lucene_reader.close()
 
             print("Writing generated tuples to disk")
-            with open("processed_tuples.pkl", "wb") as f_out:
+            with open(fname, "wb") as f_out:
                 pickle.dump(self.processed_tuples, f_out)
 
     def similarity_3_contexts(self, p: Tuple, t: Tuple):
@@ -158,13 +145,14 @@ class BREDS(object):
         else:
             return False, 0.0
 
-    def match_seeds_tuples(self):
+    def match_seeds_tuples(self, match_only_first_entity=False):
         # checks if an extracted tuple matches seeds tuples
         matched_tuples = list()
         count_matches = dict()
+        logging.warning(f"Edited seed tuple matching; only check first entity overlapping: {match_only_first_entity}")
         for t in self.processed_tuples:
             for s in self.config.positive_seed_tuples:
-                if t.e1 == s.e1 and t.e2 == s.e2:
+                if t.e1 == s.e1 and (match_only_first_entity or t.e2 == s.e2):
                     matched_tuples.append(t)
                     try:
                         count_matches[(t.e1, t.e2)] += 1
@@ -211,8 +199,7 @@ class BREDS(object):
                 print(s.e1, '\t', s.e2)
 
             # Looks for sentences matching the seed instances
-            # TODO should not filter for seed instances here. Use ALL!
-            count_matches, matched_tuples = self.match_seeds_tuples()
+            count_matches, matched_tuples = self.match_seeds_tuples(match_only_first_entity=True)
 
             if len(matched_tuples) == 0:
                 print("\nNo seed matches found")
@@ -279,7 +266,6 @@ class BREDS(object):
                 count = 0
 
                 for t in self.processed_tuples:
-                    self.numeric_graph.update_distance_matrix()
 
                     count += 1
                     if count % 1000 == 0:
@@ -409,27 +395,22 @@ class BREDS(object):
 
 
 def main():
-    if len(sys.argv) != 8:
+    if len(sys.argv) != 7:
         print("\nBREDS.py parameters sentences positive_seeds negative_seeds "
               "similarity confidence numeric_data_dir\n")
         sys.exit(0)
     else:
         configuration = sys.argv[1]
-        sentences_file = sys.argv[2]
-        seeds_file = sys.argv[3]
-        negative_seeds = sys.argv[4]
-        similarity = float(sys.argv[5])
-        confidence = float(sys.argv[6])
-        numeric_data_dir = Path(sys.argv[7])
+        seeds_file = sys.argv[2]
+        negative_seeds = sys.argv[3]
+        similarity = float(sys.argv[4])
+        confidence = float(sys.argv[5])
+        objects = Path(sys.argv[6])
 
-        breads = BREDS(configuration, seeds_file, negative_seeds, similarity, confidence, numeric_data_dir)
+        breads = BREDS(configuration, seeds_file, negative_seeds, similarity, confidence, objects)
 
-        if sentences_file.endswith('.pkl'):
-            print("Loading pre-processed sentences", sentences_file)
-            breads.init_bootstrap(tuples=sentences_file)
-        else:
-            breads.generate_tuples(sentences_file)
-            breads.init_bootstrap(tuples=None)
+        breads.generate_tuples()
+        breads.init_bootstrap(tuples=None)
 
 if __name__ == "__main__":
     main()

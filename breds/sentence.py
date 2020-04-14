@@ -2,12 +2,16 @@ import re
 from nltk import word_tokenize
 from nltk.corpus import stopwords
 
+from breds.config import Config
+
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
 
 # tokens between entities which do not represent relationships
 bad_tokens = [",", "(", ")", ";", "''",  "``", "'s", "-", "vs.", "v", "'", ":", ".", "--"]
-stopwords = stopwords.words('english')
+# stopwords = stopwords.words('english')
+# TODO check wehther this was a good idea. but e.g. 'is' is in there, which is bad
+stopwords = []
 not_valid = bad_tokens + stopwords
 
 
@@ -86,61 +90,50 @@ class Relationship:
 
 class Sentence:
 
-    def __init__(self, sentence, e1_type, e2_type, max_tokens, min_tokens,
-                 window_size, pos_tagger=None, config=None):
+    def __init__(self, sentence_no_tags: str, e1_type, e2_type, max_tokens, min_tokens,
+                 window_size, goal_object: str, pos_tagger=None, config: Config = None):
         self.relationships = list()
         self.tagged_text = None
 
         # determine which type of regex to use according to
         # how named-entities are tagged
-        entities_regex = None
-        if config.tag_type == "simple":
-            entities_regex = config.regex_simple
-        elif config.tag_type == "linked":
-            entities_regex = config.regex_linked
+        numbers_regex = re.compile(rf'[0-9]+\.?[0-9]*')
+        objects_regex = re.compile(rf'{goal_object}')
 
         # find named-entities
-        entities = []
-        for m in re.finditer(entities_regex, sentence):
-            entities.append(m)
+        numbers = []
+        for m in re.finditer(numbers_regex, sentence_no_tags):
+            numbers.append(m)
 
-        if len(entities) >= 2:
-            # clean tags from text
-            sentence_no_tags = None
-            if config.tag_type == "simple":
-                sentence_no_tags = re.sub(
-                    config.regex_clean_simple, "", sentence
-                )
-            elif config.tag_type == "linked":
-                sentence_no_tags = re.sub(
-                    config.regex_clean_linked, "", sentence
-                )
+        objects = []
+        for m in re.finditer(objects_regex, sentence_no_tags):
+            objects.append(m)
+
+
+        if len(numbers) >= 1:
             text_tokens = word_tokenize(sentence_no_tags)
 
             # extract information about the entity, create an Entity instance
             # and store in a structure to hold information collected about
             # all the entities in the sentence
             entities_info = set()
-            for x in range(0, len(entities)):
+            for x in range(0, len(numbers)):
                 if config.tag_type == "simple":
-                    entity = entities[x].group()
-                    e_string = re.findall('<[A-Z]+>([^<]+)</[A-Z]+>', entity)[0]
-                    e_type = re.findall('<([A-Z]+)', entity)[0]
+                    entity = numbers[x].group()
+                    e_string = entity
+                    e_type = 'NUMBER'
+                    e_parts, locations = find_locations(e_string, text_tokens)
+                    e = EntitySimple(e_string, e_parts, e_type, locations)
+                    entities_info.add(e)
+            for x in range(0, len(objects)):
+                if config.tag_type == "simple":
+                    entity = objects[x].group()
+                    e_string = entity
+                    e_type = 'OBJECT'
                     e_parts, locations = find_locations(e_string, text_tokens)
                     e = EntitySimple(e_string, e_parts, e_type, locations)
                     entities_info.add(e)
 
-                elif config.tag_type == "linked":
-                    entity = entities[x].group()
-                    e_url = re.findall('url=([^>]+)', entity)[0]
-                    e_string = re.findall(
-                        '<[A-Z]+ url=[^>]+>([^<]+)</[A-Z]+>', entity)[0]
-                    e_type = re.findall('<([A-Z]+)', entity)[0]
-                    e_parts, locations = find_locations(e_string, text_tokens)
-                    e = EntityLinked(
-                        e_string, e_parts, e_type, locations, e_url
-                    )
-                    entities_info.add(e)
 
             # create an hash table:
             # - key is the starting index in the tokenized sentence of an entity
@@ -193,13 +186,13 @@ class Sentence:
 
                     if config.tag_type == "simple":
                         r = Relationship(
-                            sentence, before, between, after, e1.string,
+                            sentence_no_tags, before, between, after, e1.string,
                             e2.string, e1_type, e2.type
                         )
 
                     elif config.tag_type == "linked":
                         r = Relationship(
-                            sentence, before, between, after, e1.url, e2.url,
+                            sentence_no_tags, before, between, after, e1.url, e2.url,
                             e1.type, e2.type
                         )
 

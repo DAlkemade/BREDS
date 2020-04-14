@@ -1,0 +1,5 @@
+e1:OBJECT
+e2:NUMBER
+
+porcupine;3
+liger;4

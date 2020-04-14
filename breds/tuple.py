@@ -57,8 +57,6 @@ class Tuple(object):
 
     def construct_vectors(self, config):
         # Check if BET context contains a ReVerb pattern
-        print(self.bet_words)
-        print(self.bet_tags)
         reverb_pattern = config.reverb.extract_reverb_patterns_tagged_ptb(self.bet_tags)
         # print(f'reverb_pattern: {reverb_pattern}')
         if len(reverb_pattern) > 0:
@@ -93,13 +91,13 @@ class Tuple(object):
                     vector = config.word2vec[t.strip()]
                     pattern_vector += vector
                 except KeyError:
-                    print(f'{t} not in word2vec model; skipping')
+                    # print(f'{t} not in word2vec model; skipping')
                     continue
         elif len(tokens) == 1:
             try:
                 pattern_vector = config.word2vec[tokens[0].strip()]
             except KeyError:
-                print(f'{tokens[0]} not in word2vec model; skipping')
+                # print(f'{tokens[0]} not in word2vec model; skipping')
                 pass
         # print(f'pattern vector for tokens {tokens} : {pattern_vector}')
         return pattern_vector

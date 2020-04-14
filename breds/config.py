@@ -14,14 +14,16 @@ __email__ = "dsbatista@inesc-id.pt"
 class Config(object):
 
     def __init__(self, config_file, positive_seeds, negative_seeds,
-                 similarity, confidence):
+                 similarity, confidence, objects: list):
 
         # http://www.ling.upenn.edu/courses/Fall_2007/ling001/penn_treebank_pos.html
         # select everything except stopwords, ADJ and ADV
-        self.filter_pos = ['JJ', 'JJR', 'JJS', 'RB', 'RBR', 'RBS', 'WRB']
-        self.regex_clean_simple = re.compile('</?[A-Z]+>', re.U)
-        self.regex_clean_linked = re.compile('</[A-Z]+>|<[A-Z]+ url=[^>]+>', re.U)
-        self.tags_regex = re.compile('</?[A-Z]+>', re.U)
+        # self.filter_pos = ['JJ', 'JJR', 'JJS', 'RB', 'RBR', 'RBS', 'WRB']
+        self.filter_pos = []
+        # self.regex_clean_simple = re.compile('</?[A-Z]+>', re.U)
+
+        # self.regex_clean_linked = re.compile('</[A-Z]+>|<[A-Z]+ url=[^>]+>', re.U)
+        # self.tags_regex = re.compile('</?[A-Z]+>', re.U)
         self.positive_seed_tuples = set()
         self.negative_seed_tuples = set()
         self.vec_dim = 0
@@ -42,6 +44,12 @@ class Config(object):
         # linked tags e.g.:
         # <PER url=http://en.wikipedia.org/wiki/Mark_Zuckerberg>Zuckerberg</PER>
         self.regex_linked = re.compile('<[A-Z]+ url=[^>]+>[^<]+</[A-Z]+>', re.U)
+
+        self.objects = []
+        for line in fileinput.input(objects):
+            object = line.strip()
+            self.objects.append(object)
+
 
         for line in fileinput.input(config_file):
             if line.startswith("#") or len(line) == 1:
@@ -88,6 +96,8 @@ class Config(object):
 
             if line.startswith("tags_type"):
                 self.tag_type = line.split("=")[1].strip()
+                if self.tag_type != 'simple':
+                    raise RuntimeWarning('tags_type not supported')
 
         assert self.alpha+self.beta+self.gamma == 1
 
