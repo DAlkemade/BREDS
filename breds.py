@@ -145,14 +145,17 @@ class BREDS(object):
         else:
             return False, 0.0
 
-    def match_seeds_tuples(self, match_only_first_entity=False):
+    def match_seeds_tuples(self):
         # checks if an extracted tuple matches seeds tuples
+        if self.config.e1_type != 'OBJECT' or self.config.e2_type != 'NUMBER':
+            raise RuntimeError("This function is only suitable for object-numer combinations")
         matched_tuples = list()
         count_matches = dict()
-        logging.warning(f"Edited seed tuple matching; only check first entity overlapping: {match_only_first_entity}")
         for t in self.processed_tuples:
             for s in self.config.positive_seed_tuples:
-                if t.e1 == s.e1 and (match_only_first_entity or t.e2 == s.e2):
+                # TODO convert to floats earlier
+                # TODO make the .2 a hyperparameter
+                if t.e1 == s.e1 and abs(float(t.e2) - float(s.e2)/ float(s.e2)) < self.config.relative_difference_cutoff :
                     matched_tuples.append(t)
                     try:
                         count_matches[(t.e1, t.e2)] += 1

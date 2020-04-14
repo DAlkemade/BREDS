@@ -50,7 +50,7 @@ class Config(object):
             object = line.strip()
             self.objects.append(object)
 
-
+        #TODO clean up config file stuff and use the config library
         for line in fileinput.input(config_file):
             if line.startswith("#") or len(line) == 1:
                 continue
@@ -98,6 +98,10 @@ class Config(object):
                 self.tag_type = line.split("=")[1].strip()
                 if self.tag_type != 'simple':
                     raise RuntimeWarning('tags_type not supported')
+
+            if line.startswith("relative_difference_cutoff"):
+                self.relative_difference_cutoff = line.split("=")[1].strip()
+
 
         assert self.alpha+self.beta+self.gamma == 1
 
