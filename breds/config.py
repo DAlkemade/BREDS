@@ -100,7 +100,7 @@ class Config(object):
                     raise RuntimeWarning('tags_type not supported')
 
             if line.startswith("relative_difference_cutoff"):
-                self.relative_difference_cutoff = line.split("=")[1].strip()
+                self.relative_difference_cutoff = float(line.split("=")[1].strip())
 
 
         assert self.alpha+self.beta+self.gamma == 1

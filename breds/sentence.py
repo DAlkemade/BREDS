@@ -1,6 +1,7 @@
 import re
 from nltk import word_tokenize
 from nltk.corpus import stopwords
+from size_comparisons.scraping.lengths_regex import LengthsFinderRegex
 
 from breds.config import Config
 
@@ -71,6 +72,7 @@ class Relationship:
         self.between = _between
         self.after = _after
         self.e1 = _ent1
+        assert type(_ent2) is float
         self.e2 = _ent2
         self.e1_type = e1_type
         self.e2_type = e2_type
@@ -92,18 +94,26 @@ class Sentence:
 
     def __init__(self, sentence_no_tags: str, e1_type, e2_type, max_tokens, min_tokens,
                  window_size, goal_object: str, pos_tagger=None, config: Config = None):
+
+        if config.e1_type != 'OBJECT' or config.e2_type != 'NUMBER':
+            raise RuntimeError("This function is only suitable for object-numer combinations")
         self.relationships = list()
         self.tagged_text = None
 
         # determine which type of regex to use according to
         # how named-entities are tagged
         numbers_regex = re.compile(rf'[0-9]+\.?[0-9]*')
-        objects_regex = re.compile(rf'{goal_object}')
+        objects_regex = re.compile(rf'({goal_object})s?')
 
         # find named-entities
-        numbers = []
-        for m in re.finditer(numbers_regex, sentence_no_tags):
-            numbers.append(m)
+        # numbers = []
+        # for m in re.finditer(numbers_regex, sentence_no_tags):
+        #     numbers.append(m)
+        # if goal_object == 'tiger':
+        #     print(sentence_no_tags)
+        finder = LengthsFinderRegex(sentence_no_tags)
+        numbers, _ = finder.find_all_matches()
+        # TODO won't work, becaues it's converted to meters, to it won't find it again. use tuple of (string, float_in_meters)
 
         objects = []
         for m in re.finditer(objects_regex, sentence_no_tags):
@@ -119,19 +129,22 @@ class Sentence:
             entities_info = set()
             for x in range(0, len(numbers)):
                 if config.tag_type == "simple":
-                    entity = numbers[x].group()
+                    # entity = numbers[x].group()
+                    entity = numbers[x][0]
+                    number_in_meters = numbers[x][1]
                     e_string = entity
                     e_type = 'NUMBER'
                     e_parts, locations = find_locations(e_string, text_tokens)
-                    e = EntitySimple(e_string, e_parts, e_type, locations)
+                    e = EntitySimple(number_in_meters, e_parts, e_type, locations)
                     entities_info.add(e)
             for x in range(0, len(objects)):
                 if config.tag_type == "simple":
-                    entity = objects[x].group()
-                    e_string = entity
+                    entity_clean = objects[x].group(1)
+                    entity_raw = objects[x].group()
+                    e_string = entity_raw
                     e_type = 'OBJECT'
                     e_parts, locations = find_locations(e_string, text_tokens)
-                    e = EntitySimple(e_string, e_parts, e_type, locations)
+                    e = EntitySimple(entity_clean, e_parts, e_type, locations)
                     entities_info.add(e)
 
 
@@ -152,6 +165,7 @@ class Sentence:
                 distance = sorted_keys[i+1] - sorted_keys[i]
                 e1 = locations[sorted_keys[i]]
                 e2 = locations[sorted_keys[i+1]]
+
                 if max_tokens >= distance >= min_tokens and e1.type == e1_type \
                         and e2.type == e2_type:
 

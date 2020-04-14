@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import sys
 import os
@@ -10,6 +11,8 @@ from numpy import dot
 from gensim import matutils
 from collections import defaultdict
 from nltk.data import load
+from size_comparisons.scraping import html_scraper
+from size_comparisons.scraping.google_ops import create_or_update_results
 
 from breds.seed import Seed
 from breds.pattern import Pattern
@@ -45,6 +48,63 @@ class BREDS(object):
         # TODO change to full matrix
 
 
+    def generate_tuples_lucene(self):
+        """
+        Generate tuples instances from a text file with sentences where named entities are
+        already tagged
+
+        :param sentences_file:
+        """
+        fname = "processed_tuples_numeric_lucene.pkl"
+        if os.path.exists(fname):
+
+            with open(fname, "rb") as f_in:
+                print("\nLoading processed tuples from disk...")
+                self.processed_tuples = pickle.load(f_in)
+            print(len(self.processed_tuples), "tuples loaded")
+
+        else:
+
+            # load needed stuff, word2vec model and a pos-tagger
+            self.config.read_word2vec()
+            tagger = load('taggers/maxent_treebank_pos_tagger/english.pickle')
+
+            print("\nGenerating relationship instances from sentences")
+            object_occurrences, lucene_reader = find_all_text_occurrences(self.config.objects)
+            for object, doc_idxs in tqdm.tqdm(object_occurrences.items()):
+                print(f'Parsing for object {object}')
+                for doc_idx in tqdm.tqdm(doc_idxs):
+                    doc = lucene_reader.document(doc_idx)
+                    text: str = doc.get("contents")
+                    text = text.lower() # TODO should I do this?
+                    #TODO don't do this, ruins thing like lion is 2.5 meters. there should be a package to split into sentences
+                    # sentences = text.split('.')
+
+                    # TODO split sentences from docs
+                    for line in sentences:
+
+                        # TODO here I should change how tuples are found (i.e. all combinations of anchor objects)
+                        sentence = Sentence(line.strip(),
+                                            self.config.e1_type,
+                                            self.config.e2_type,
+                                            self.config.max_tokens_away,
+                                            self.config.min_tokens_away,
+                                            self.config.context_window_size, object, tagger,
+                                            self.config)
+
+                        for rel in sentence.relationships:
+                            t = Tuple(rel.e1, rel.e2,
+                                      rel.sentence, rel.before, rel.between, rel.after,
+                                      self.config)
+                            self.processed_tuples.append(t)
+            print("\n", len(self.processed_tuples), "tuples generated")
+
+            lucene_reader.close()
+
+            print("Writing generated tuples to disk")
+            with open(fname, "wb") as f_out:
+                pickle.dump(self.processed_tuples, f_out)
+
     def generate_tuples(self):
         """
         Generate tuples instances from a text file with sentences where named entities are
@@ -67,14 +127,30 @@ class BREDS(object):
             tagger = load('taggers/maxent_treebank_pos_tagger/english.pickle')
 
             print("\nGenerating relationship instances from sentences")
-            object_occurrences, lucene_reader = find_all_text_occurrences(self.config.objects)
-            for object, doc_idxs in tqdm.tqdm(object_occurrences.items()):
+            names = self.config.objects
+            queries = [f'{name} length' for name in names]
+            urls_fname = 'urls.pkl'
+            urls = create_or_update_results(urls_fname, queries, names)
+            print(urls)
+            loop = asyncio.get_event_loop()
+            htmls_lookup = html_scraper.create_or_update_urls_html(names, urls, loop)
+
+            for object in tqdm.tqdm(names):
+                # TODO think about units. could something automatic be done? it should in theory be possible to learn the meaning of each unit
+                # otherwise reuse the scraper pattern to only find numbers with a length unit for now
+                # TODO I might have to do recognition of 'they' etc. e.g. for lion: With a typical head-to-body length of 184–208 cm (72–82 in) they are larger than females at 160–184 cm (63–72 in).
+                # or 'Generally, males vary in total length from 250 to 390 cm (8.2 to 12.8 ft)'  for tiger
+                # TODO think about plurals, e.g. tigers
+                htmls = htmls_lookup[object]
+
                 print(f'Parsing for object {object}')
-                for doc_idx in tqdm.tqdm(doc_idxs):
-                    doc = lucene_reader.document(doc_idx)
-                    text: str = doc.get("contents")
+                for html in htmls:
+                    text: str = html
                     text = text.lower() # TODO should I do this?
-                    sentences = text.split('.')
+
+                    # TODO ruins something like: ' a lion is 2.5m long'
+                    sentences = text.split('. ')
+
                     # TODO split sentences from docs
                     for line in sentences:
 
@@ -93,8 +169,6 @@ class BREDS(object):
                                       self.config)
                             self.processed_tuples.append(t)
             print("\n", len(self.processed_tuples), "tuples generated")
-
-            lucene_reader.close()
 
             print("Writing generated tuples to disk")
             with open(fname, "wb") as f_out:
@@ -153,9 +227,14 @@ class BREDS(object):
         count_matches = dict()
         for t in self.processed_tuples:
             for s in self.config.positive_seed_tuples:
-                # TODO convert to floats earlier
-                # TODO make the .2 a hyperparameter
-                if t.e1 == s.e1 and abs(float(t.e2) - float(s.e2)/ float(s.e2)) < self.config.relative_difference_cutoff :
+                # only match the first, as long is the second is a number
+                try:
+                    float(t.e2)
+                except ValueError:
+                    # TODO catch correct error
+                    logging.WARN(f'Couldnt cast string to float: {t.e2}')
+                    continue
+                if t.e1 == s.e1:
                     matched_tuples.append(t)
                     try:
                         count_matches[(t.e1, t.e2)] += 1
@@ -169,8 +248,11 @@ class BREDS(object):
         f_output = open("relationships.txt", "w")
         tmp = sorted(list(self.candidate_tuples.keys()), reverse=True)
         for t in tmp:
-            f_output.write("instance: " + t.e1+'\t'+t.e2+'\tscore:'+str(t.confidence)+'\n')
-            f_output.write("sentence: "+t.sentence+'\n')
+            f_output.write("instance: " + t.e1+'\t'+str(t.e2)+'\tscore:'+str(t.confidence)+'\n')
+            try:
+                f_output.write("sentence: "+t.sentence+'\n')
+            except UnicodeEncodeError:
+                f_output.write("sentence: " + "cant encode this in unicode" + '\n')
             f_output.write("pattern_bef: "+t.bef_words+'\n')
             f_output.write("pattern_bet: "+t.bet_words+'\n')
             f_output.write("pattern_aft: "+t.aft_words+'\n')
@@ -202,7 +284,7 @@ class BREDS(object):
                 print(s.e1, '\t', s.e2)
 
             # Looks for sentences matching the seed instances
-            count_matches, matched_tuples = self.match_seeds_tuples(match_only_first_entity=True)
+            count_matches, matched_tuples = self.match_seeds_tuples()
 
             if len(matched_tuples) == 0:
                 print("\nNo seed matches found")
@@ -282,7 +364,7 @@ class BREDS(object):
                         )
                         if accept is True:
                             extraction_pattern.update_selectivity(
-                                t, self.config, self.numeric_graph
+                                t, self.config
                             )
                             if score > sim_best:
                                 sim_best = score

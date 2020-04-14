@@ -2,6 +2,8 @@ import uuid
 import numpy as np
 from size_comparisons.inference.baseline_numeric_gaussians import BaselineNumericGaussians
 
+from breds.config import Config
+
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
 
@@ -10,7 +12,9 @@ class Pattern(object):
 
     def __init__(self, t=None):
         self.id = uuid.uuid4()
-        self.p_values = list() # TODO should this be wiped every iteration? Or will a new object be generated
+        self.positive = 0
+        self.negative = 0
+        self.unknown = 0
         self.confidence = 0
         self.tuples = set()
         self.bet_uniques_vectors = set()
@@ -30,15 +34,15 @@ class Pattern(object):
             return 0
 
     def update_confidence(self, config):
-        if self.p_values is None:
-            raise ValueError('First compute confidences for each tuple')
-        # TODO maybe try one strike and you're out for an extremely inconsitent value
-        # the 'is faster than' should result in 0% confidence
-        # TODO distinguish
-        print(f'Updating confidence using pvalues: {self.p_values}')
-        mean_p_value = np.mean(self.p_values)
-        self.confidence = 1 - mean_p_value
-
+        if self.positive > 0:
+            self.confidence = (
+                float(self.positive) / float(self.positive +
+                                             self.unknown * config.wUnk +
+                                             self.negative * config.wNeg
+                                             )
+            )
+        elif self.positive == 0:
+            self.confidence = 0
 
     def add_tuple(self, t):
         self.tuples.add(t)
@@ -55,6 +59,34 @@ class Pattern(object):
             self.bet_uniques_vectors.add(tuple(t.bet_vector))
             self.bet_uniques_words.add(t.bet_words)
 
-    def update_selectivity(self, t, config, numeric_seed: BaselineNumericGaussians):
-        tuple_pvalue = numeric_seed.shortest_path(t.e1, t.e2)
-        self.p_values.append(tuple_pvalue)
+    def update_selectivity(self, t, config: Config):
+        matched_both = False
+        matched_e1 = False
+
+        for s in config.positive_seed_tuples:
+            if s.e1.strip() == t.e1.strip():
+                matched_e1 = True
+                # TODO convert to floats during tuple parsingv already
+                tuple_number = t.e2
+                seed_number = s.e2
+                if type(s.e2) is str:
+                    seed_number = float(s.e2.strip())
+                # TODO this should be less crude. use the difference in the confidence value
+                if abs((tuple_number - seed_number) / seed_number) < config.relative_difference_cutoff:
+                    self.positive += 1
+                    matched_both = True
+                    break
+
+        if matched_e1 is True and matched_both is False:
+            self.negative += 1
+
+        if matched_both is False:
+            for n in config.negative_seed_tuples:
+                if n.e1.strip() == t.e1.strip():
+                    if n.e2.strip() == t.e2.strip():
+                        self.negative += 1
+                        matched_both = True
+                        break
+
+        if not matched_both and not matched_e1:
+            self.unknown += 1
