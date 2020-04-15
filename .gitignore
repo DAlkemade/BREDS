@@ -113,3 +113,7 @@ sentences_small.txt
 sentences_sizes_small.txt
 wiki_text_index/
 results/
+.google-cookie
+processed_tuples_numeric.pkl
+processed_tuples_numeric_20.pkl
+processed_tuples_numeric_75.pkl

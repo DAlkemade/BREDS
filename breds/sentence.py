@@ -113,14 +113,18 @@ class Sentence:
         #     print(sentence_no_tags)
         finder = LengthsFinderRegex(sentence_no_tags)
         numbers, _ = finder.find_all_matches()
-        # TODO won't work, becaues it's converted to meters, to it won't find it again. use tuple of (string, float_in_meters)
+        # if goal_object == 'statue of liberty':
+        #     # print('sentence:' + sentence_no_tags)
+        #     if 'measures 305' in sentence_no_tags:
+        #         print(repr(sentence_no_tags))
+        #         print(f'numbers: {numbers}')
 
         objects = []
         for m in re.finditer(objects_regex, sentence_no_tags):
             objects.append(m)
 
 
-        if len(numbers) >= 1:
+        if len(numbers) >= 1 and len(objects) >= 1:
             text_tokens = word_tokenize(sentence_no_tags)
 
             # extract information about the entity, create an Entity instance

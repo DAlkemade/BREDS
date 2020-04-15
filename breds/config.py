@@ -45,10 +45,10 @@ class Config(object):
         # <PER url=http://en.wikipedia.org/wiki/Mark_Zuckerberg>Zuckerberg</PER>
         self.regex_linked = re.compile('<[A-Z]+ url=[^>]+>[^<]+</[A-Z]+>', re.U)
 
-        self.objects = []
+        self.objects = set()
         for line in fileinput.input(objects):
-            object = line.strip()
-            self.objects.append(object)
+            object = line.strip().lower()
+            self.objects.add(object)
 
         #TODO clean up config file stuff and use the config library
         for line in fileinput.input(config_file):
@@ -156,6 +156,8 @@ class Config(object):
                 self.e2_type = line.split(":")[1].strip()
             else:
                 e1 = line.split(";")[0].strip()
+                e1 = e1.lower()
                 e2 = line.split(";")[1].strip()
                 seed = Seed(e1, e2)
                 holder.add(seed)
+                self.objects.add(e1)

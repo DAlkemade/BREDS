@@ -5,6 +5,8 @@ import os
 import pickle
 import operator
 from pathlib import Path
+from nltk import tokenize
+import nltk
 
 import tqdm
 from numpy import dot
@@ -21,6 +23,7 @@ from breds.tuple import Tuple
 from breds.sentence import Sentence
 from lucene_looper import find_all_text_occurrences
 
+
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
 
@@ -36,7 +39,6 @@ def print_tuple_props(t: Tuple):
     print(f'after | vector: {t.aft_vector} | words: {t.aft_words} | tags: {t.aft_tags}')
 
 
-
 class BREDS(object):
 
     def __init__(self, config_file, seeds_file, negative_seeds, similarity, confidence, objects):
@@ -46,7 +48,6 @@ class BREDS(object):
         self.candidate_tuples = defaultdict(list)
         self.config = Config(config_file, seeds_file, negative_seeds, similarity, confidence, objects)
         # TODO change to full matrix
-
 
     def generate_tuples_lucene(self):
         """
@@ -72,7 +73,6 @@ class BREDS(object):
             print("\nGenerating relationship instances from sentences")
             object_occurrences, lucene_reader = find_all_text_occurrences(self.config.objects)
             for object, doc_idxs in tqdm.tqdm(object_occurrences.items()):
-                print(f'Parsing for object {object}')
                 for doc_idx in tqdm.tqdm(doc_idxs):
                     doc = lucene_reader.document(doc_idx)
                     text: str = doc.get("contents")
@@ -114,7 +114,6 @@ class BREDS(object):
         """
         fname = "processed_tuples_numeric.pkl"
         if os.path.exists(fname):
-
             with open(fname, "rb") as f_in:
                 print("\nLoading processed tuples from disk...")
                 self.processed_tuples = pickle.load(f_in)
@@ -127,10 +126,11 @@ class BREDS(object):
             tagger = load('taggers/maxent_treebank_pos_tagger/english.pickle')
 
             print("\nGenerating relationship instances from sentences")
-            names = self.config.objects
-            queries = [f'{name} length' for name in names]
+            names = list(self.config.objects)
+            queries = [[f'{name} length', f'{name} size'] for name in names]
             urls_fname = 'urls.pkl'
             urls = create_or_update_results(urls_fname, queries, names)
+
             print(urls)
             loop = asyncio.get_event_loop()
             htmls_lookup = html_scraper.create_or_update_urls_html(names, urls, loop)
@@ -141,18 +141,22 @@ class BREDS(object):
                 # TODO I might have to do recognition of 'they' etc. e.g. for lion: With a typical head-to-body length of 184–208 cm (72–82 in) they are larger than females at 160–184 cm (63–72 in).
                 # or 'Generally, males vary in total length from 250 to 390 cm (8.2 to 12.8 ft)'  for tiger
                 # TODO think about plurals, e.g. tigers
-                htmls = htmls_lookup[object]
+                try:
+                    htmls = htmls_lookup[object]
+                except KeyError:
+                    print(f'No htmls for {object}')
+                    continue
 
-                print(f'Parsing for object {object}')
                 for html in htmls:
                     text: str = html
-                    text = text.lower() # TODO should I do this?
+                    del html
 
                     # TODO ruins something like: ' a lion is 2.5m long'
-                    sentences = text.split('. ')
+                    sentences = tokenize.sent_tokenize(text)
 
                     # TODO split sentences from docs
                     for line in sentences:
+                        line = line.lower()  # TODO should I do this?
 
                         # TODO here I should change how tuples are found (i.e. all combinations of anchor objects)
                         sentence = Sentence(line.strip(),
@@ -250,12 +254,13 @@ class BREDS(object):
         for t in tmp:
             f_output.write("instance: " + t.e1+'\t'+str(t.e2)+'\tscore:'+str(t.confidence)+'\n')
             try:
-                f_output.write("sentence: "+t.sentence+'\n')
+                # f_output.write("sentence: "+t.sentence+'\n')
+                f_output.write("pattern_bef: " + t.bef_words + '\n')
+                f_output.write("pattern_bet: " + t.bet_words + '\n')
+                f_output.write("pattern_aft: " + t.aft_words + '\n')
             except UnicodeEncodeError:
-                f_output.write("sentence: " + "cant encode this in unicode" + '\n')
-            f_output.write("pattern_bef: "+t.bef_words+'\n')
-            f_output.write("pattern_bet: "+t.bet_words+'\n')
-            f_output.write("pattern_aft: "+t.aft_words+'\n')
+                f_output.write("cant encode one of the words in unicode" + '\n')
+
             if t.passive_voice is False:
                 f_output.write("passive voice: False\n")
             elif t.passive_voice is True:
@@ -276,6 +281,7 @@ class BREDS(object):
         # print(self.processed_tuples)
 
         self.curr_iteration = 0
+        newly_added_seeds = []
         while self.curr_iteration <= self.config.number_iterations:
             print("==========================================")
             print("\nStarting iteration", self.curr_iteration)
@@ -433,12 +439,14 @@ class BREDS(object):
                     str(self.config.instance_confidence)))
                 for t in list(self.candidate_tuples.keys()):
                     if t.confidence >= self.config.instance_confidence:
+                        newly_added_seeds.append((t.e1, t.e2))
                         seed = Seed(t.e1, t.e2)
                         self.config.positive_seed_tuples.add(seed)
 
                 # increment the number of iterations
                 self.curr_iteration += 1
 
+        print(newly_added_seeds)
         self.write_relationships_to_disk()
 
     def cluster_tuples(self, matched_tuples):
@@ -449,12 +457,7 @@ class BREDS(object):
             c1 = Pattern(matched_tuples[0])
             self.patterns.append(c1)
 
-        count = 0
-        for t in matched_tuples:
-            count += 1
-            if count % 1000 == 0:
-                sys.stdout.write(".")
-                sys.stdout.flush()
+        for t in tqdm.tqdm(matched_tuples):
             max_similarity = 0
             max_similarity_cluster_index = 0
 
