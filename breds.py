@@ -6,7 +6,6 @@ import pickle
 import operator
 from pathlib import Path
 from nltk import tokenize
-import nltk
 
 import tqdm
 from numpy import dot
@@ -21,7 +20,7 @@ from breds.pattern import Pattern
 from breds.config import Config
 from breds.tuple import Tuple
 from breds.sentence import Sentence
-from lucene_looper import find_all_text_occurrences
+# from lucene_looper import find_all_text_occurrences
 
 
 __author__ = "David S. Batista"
