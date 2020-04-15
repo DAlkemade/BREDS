@@ -1,58 +1,4 @@
-e1:OBJECT
-e2:NUMBER
-
-Burj Khalifa;829.8
-Shanghai Tower;632
-Abraj Al-Bait Towers;601
-Ping An Finance Center;599
-Goldin Finance 117;596.6
-Lotte World Tower;555.7
-One World Trade Center;546.2
-Guangzhou CTF Finance Centre;530
-Tianjin CTF Finance Centre;530
-China Zun;528
-Willis Tower;527
-Taipei 101;508
-Shanghai World Financial Center;494.3
-International Commerce Centre;484
-Wuhan Greenland Center;475.6
-Central Park Tower;472.4
-Landmark 81;469.5
-Lakhta Center;462
-John Hancock Center;456.9
-The Exchange 106;453.5
-Changsha IFS Tower T1;452
-Petronas Tower 1;451.9
-Petronas Tower 2;451.9
-Zifeng Tower;450
-Suzhou IFS;450
-Empire State Building;443.2
-Kingkey 100;442
-Guangzhou International Finance Center;438.6
-Wuhan Center;438
-111 West 57th Street;435.3
-Dongguan International Trade Center 1;426.9
-One Vanderbilt;427
-432 Park Avenue;425.5
-Marina 101;425
-Trump International Hotel and Tower;423.2
-Jin Mao Tower;421
-Princess Tower;414
-Al Hamra Tower;412.6
-Two International Finance Centre;412
-Haeundae LCT The Sharp Landmark Tower;411.6
-Guangxi China Resources Tower;402.7
-Guiyang Financial Center Tower 1;401
-
-Suzuki Alto;3.195
-Kia Rio;4.215
-Audi A4;4.520
-Audi A6;4.800
-Ford Escape;4.400
-Cadillac Escalade;5.110
-Nissan Navara;4.981
-Chevrolet Silverado;5.614
-
+﻿Name;Height
 Martin Luther King; Jr.;1.7018
 Bruce Lee;1.7018
 Winston Churchill;1.7018
@@ -152,23 +98,3 @@ Sergey Brin;1.7272
 Giorgio Armani;1.7272
 George Lucas;1.7018
 Isaac Newton;1.6764
-
-Eiffel tower;300
-Burj Khalifa;828
-Statue of Liberty;93
-Empire State Building;381
-Usain Bolt;1.95
-Mount Everest;8848
-Toyota Prius;4.6
-Rhine;1232E3
-Elizabeth II;162
-AH-64 Apache;18
-Escalade;5
-Model S;4.98
-Outlander;4.695
-Michael Phelps;1.94
-Volkswagen Polo;4.053
-Elon Musk;1.867
-
-
-
