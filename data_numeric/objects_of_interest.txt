@@ -118,3 +118,3199 @@ scissors
 teddy bear
 hair drier
 toothbrush
+palace
+stately home
+manor
+summer house
+dacha
+villa
+chateau
+manse
+religious residence
+glebe house
+parsonage
+palace
+monastery
+abbey
+abbey
+day school
+conservatory
+music school
+opera
+music hall
+cinema
+little theater
+home theater
+control center
+settlement house
+call center
+cornice
+cog
+knob
+bill
+flange
+brim
+tine
+eaves
+tooth
+pinhead
+football stadium
+hippodrome
+dome
+ballpark
+bullring
+amphitheater
+patio
+corner
+baggage claim
+hideaway
+choir
+breakfast area
+quad
+chancel
+auditorium
+court
+dining area
+room
+assembly hall
+enclosure
+nave
+aisle
+storage space
+goalmouth
+food court
+atrium
+cloister
+forecourt
+toilet
+sun parlor
+engineering
+surgery
+rotunda
+classroom
+gallery
+manor hall
+cell
+lounge
+sauna
+dressing room
+billiard room
+belfry
+kitchen
+library
+storeroom
+workroom
+sewing room
+anechoic chamber
+dining room
+recreation room
+hospital room
+reading room
+booth
+conference room
+bedroom
+clean room
+living room
+door
+hall
+reception room
+boardroom
+study
+locker room
+cocktail lounge
+television room
+compartment
+court
+poolroom
+bathroom
+control room
+anteroom
+water closet
+men's room
+washroom
+public toilet
+home room
+lecture room
+study hall
+pantry
+stockroom
+vault
+refectory
+dining-hall
+canteen
+family room
+rumpus room
+emergency room
+recovery room
+operating room
+telephone booth
+voting booth
+confessional
+shower stall
+master bedroom
+motel room
+guestroom
+hotel room
+dormitory
+nursery
+day nursery
+great hall
+concert hall
+palace
+exhibition hall
+parlor
+drawing room
+press box
+command module
+cabin
+pilothouse
+cab
+luggage compartment
+cabinet
+cockpit
+stateroom
+car
+cable car
+stall
+drawing room
+terrarium
+cage
+playpen
+pen
+vivarium
+pound
+lock
+chicken yard
+chamber
+recess
+birdcage
+rabbit hutch
+hutch
+cow pen
+rodeo
+fold
+sounding board
+burial chamber
+firing chamber
+resonator
+furnace
+bomb shelter
+hyperbaric chamber
+repository
+mausoleum
+kiln
+blast furnace
+oast
+gas oven
+incinerator
+mihrab
+columbarium
+fire
+fireplace
+apse
+cellar
+cupboard
+stacks
+gallery
+amphitheater
+organ loft
+stoop
+sun deck
+front porch
+veranda
+deck
+back porch
+portico
+marina
+dry dock
+block
+dwelling
+tennis camp
+living quarters
+mobile home
+condominium
+apartment
+ward
+cellblock
+condominium
+yurt
+lodge
+vacation home
+hearth
+fixer-upper
+cliff dwelling
+homestead
+semi-detached house
+wigwam
+tepee
+accommodation
+first class
+cabin class
+bedsitting room
+flatlet
+chassis
+support
+framework
+pedestal
+buttress
+flying buttress
+abutment
+ribbing
+bustle
+window frame
+frame
+gantry
+honeycomb
+truss
+lattice
+cornice
+picture frame
+window
+climbing frame
+trellis
+airframe
+grate
+grape arbor
+walker
+casing
+tambour
+arbor
+rack
+mounting
+sash
+casement
+oriel
+bay window
+stained-glass window
+skylight
+display window
+rose window
+porthole
+transom
+clerestory
+dormer
+dormer window
+lancet window
+fanlight
+plate rack
+barbecue
+bicycle rack
+luggage rack
+dish rack
+towel rack
+passe-partout
+pave
+mount
+stronghold
+fortress
+fortification
+bastion
+keep
+kremlin
+acropolis
+alcazar
+martello tower
+fieldwork
+bastion
+escarpment
+palisade
+castle
+cenotaph
+megalith
+Seven Wonders of the Ancient World
+brass
+national monument
+pantheon
+dolmen
+menhir
+place of business
+institution
+university
+mercantile establishment
+office
+cabaret
+health spa
+plaza
+country store
+department store
+shop
+marketplace
+boutique
+salon
+shoe shop
+bookshop
+package store
+thriftshop
+junk shop
+toyshop
+cleaners
+bazaar
+gift shop
+florist
+drugstore
+garage
+delicatessen
+small stores
+barbershop
+stall
+tobacco shop
+newsstand
+butcher shop
+pizzeria
+confectionery
+convenience store
+bazaar
+agora
+grocery store
+open-air market
+supermarket
+hypermarket
+greengrocery
+souk
+farmer's market
+flea market
+newsroom
+box office
+headquarters
+correctional institution
+orphanage
+jail
+penitentiary
+prison
+toiletry
+weaponry
+equipment
+connection
+implement
+furnishing
+device
+ceramic
+system
+container
+conveyance
+medium
+deodorant
+bath oil
+cream
+lotion
+shaving cream
+hair spray
+mousse
+perfume
+hairdressing
+antiperspirant
+powder
+cosmetic
+bath salts
+hand cream
+cold cream
+sunscreen
+lanolin
+body lotion
+toner
+hand lotion
+after-shave
+potpourri
+patchouli
+perfumery
+cologne
+toilet water
+pomade
+brilliantine
+toilet powder
+talcum
+depilatory
+highlighter
+makeup
+face powder
+lip-gloss
+eyeshadow
+mascara
+lipstick
+rouge
+eyeliner
+eyebrow pencil
+armament
+defense system
+bomb
+ammunition
+naval weaponry
+bazooka
+artillery
+launcher
+cannon
+field artillery
+mortar
+basilisk
+hydrogen bomb
+atom bomb
+round
+shotgun shell
+recorder
+sports equipment
+photographic equipment
+naval equipment
+parasail
+gear
+satellite
+game equipment
+parachute
+electronic equipment
+apparatus
+automation
+material
+baggage
+tape recorder
+cassette recorder
+Dictaphone
+videocassette recorder
+baseball equipment
+croquet mallet
+clay pigeon
+skate
+wrestling mat
+cricket equipment
+basketball equipment
+javelin
+shuttlecock
+golf equipment
+spike
+stick
+boxing equipment
+boxing glove
+gymnastic apparatus
+weight
+baseball glove
+batting cage
+batting glove
+base
+batting helmet
+baseball bat
+home plate
+first base
+third base
+second base
+in-line skate
+Rollerblade
+roller skate
+ice skate
+hockey skate
+speed skate
+figure skate
+cricket bat
+wicket
+golfcart
+golf glove
+tee
+golf club
+wood
+iron
+driver
+spoon
+wedge
+midiron
+putter
+niblick
+pitching wedge
+sand wedge
+hockey stick
+polo mallet
+horizontal bar
+horse
+uneven parallel bars
+parallel bars
+trampoline
+balance beam
+vaulting horse
+pommel horse
+dumbbell
+barbell
+enlarger
+camera
+clapperboard
+film
+light meter
+box camera
+flash camera
+Polaroid camera
+point-and-shoot camera
+webcam
+motion-picture camera
+digital camera
+portrait camera
+reflex camera
+X-ray film
+reel
+negative
+regalia
+kit
+rig
+fishing gear
+stable gear
+rigging
+crown
+crown jewels
+sewing kit
+first-aid kit
+carpenter's kit
+layette
+drill rig
+drilling platform
+harness
+snaffle
+headgear
+saddle blanket
+halter
+bridle
+sputnik
+space station
+backboard
+ball
+puzzle
+pool table
+bowling pin
+man
+chip
+roulette wheel
+goal
+volleyball net
+pinball machine
+soccer ball
+pool ball
+bowling ball
+softball
+field hockey ball
+punching bag
+billiard ball
+croquet ball
+cricket ball
+tennis ball
+golf ball
+rugby ball
+cue ball
+medicine ball
+basketball
+eight ball
+ping-pong ball
+handball
+baseball
+racquetball
+bocce ball
+volleyball
+jigsaw puzzle
+crossword puzzle
+chessman
+white
+pawn
+basket
+net
+electronic fetal monitor
+monitor
+monitor
+television monitor
+telephone
+oscilloscope
+peripheral
+booster
+cassette player
+CD player
+receiver
+audio system
+lens
+playback
+television equipment
+circuitry
+cassette deck
+central processing unit
+mixer
+scanner
+tape player
+detector
+modem
+equalizer
+tape deck
+amplifier
+cellular telephone
+speakerphone
+desk phone
+pay-phone
+handset
+dial telephone
+radiotelephone
+television receiver
+radio receiver
+satellite receiver
+heterodyne receiver
+clock radio
+reproducer
+hi-fi
+stereo
+iPod
+Walkman
+video iPod
+ghetto blaster
+camcorder
+television camera
+pendulum
+purifier
+sequencer
+reformer
+duplicator
+heat pump
+semaphore
+tomograph
+ultracentrifuge
+generator
+incubator
+burner
+Foucault pendulum
+clock pendulum
+metronome
+Photostat
+photocopier
+Xerox
+facsimile
+mimeograph
+positron emission tomography scanner
+computerized axial tomography scanner
+gas burner
+blowtorch
+bunsen burner
+gas ring
+packaging
+blister pack
+roofing
+temporary hookup
+slip ring
+telephone line
+ligament
+junction
+hot line
+digital subscriber line
+land line
+binder
+wire
+chain
+concertina
+barbed wire
+paper chain
+anchor chain
+fob
+bicycle chain
+tire chain
+chatelaine
+joint
+contact
+dovetail
+welt
+hinge
+scarf joint
+weld
+seam
+mortise joint
+butt hinge
+strap hinge
+distributor point
+tread
+wiper
+bar
+tool
+utensil
+rubber eraser
+needle
+eraser
+stick
+brush
+hook
+sharpener
+sports implement
+leather strip
+swatter
+fire iron
+oar
+stick
+cleaning implement
+rod
+writing implement
+shovel
+split rail
+fret
+bolt
+rotor
+towel rail
+lever
+track
+handlebar
+crowbar
+stick
+key
+tappet
+pedal
+rocker arm
+gun trigger
+space bar
+backspace key
+shift key
+telegraph key
+accelerator
+sustaining pedal
+hand tool
+jack
+pestle
+garden tool
+plow
+comb
+drill
+cutting implement
+tamp
+garden rake
+rake
+stamp
+locking pliers
+pestle
+plunger
+pincer
+pliers
+soldering iron
+spade
+hammer
+pipe cutter
+wrench
+screwdriver
+trowel
+saw
+opener
+scraper
+shovel
+brick trowel
+spatula
+carpenter's hammer
+gavel
+mallet
+maul
+torque wrench
+pipe wrench
+adjustable wrench
+open-end wrench
+Allen wrench
+box wrench
+hacksaw
+folding saw
+handsaw
+pruner
+pruning saw
+corkscrew
+bottle opener
+can opener
+hedge trimmer
+lawn mower
+power mower
+riding mower
+power drill
+electric drill
+cutter
+twist bit
+bit
+blade
+knife blade
+bolt cutter
+cigar cutter
+edge tool
+scissors
+knife
+ax
+razor
+wire cutter
+chisel
+plane
+shears
+snips
+pruning shears
+secateurs
+carving knife
+Bowie knife
+pocketknife
+cleaver
+hunting knife
+case knife
+parer
+letter opener
+switchblade
+penknife
+battle-ax
+hatchet
+shaver
+straight razor
+safety razor
+cold chisel
+wood chisel
+jointer
+smooth plane
+spokeshave
+kitchen utensil
+ceramic ware
+funnel
+rolling pin
+reamer
+masher
+kitchenware
+squeezer
+mixer
+cookie cutter
+cooking utensil
+grater
+mincer
+eggbeater
+whisk
+blender
+pan
+Crock Pot
+chafing dish
+spatula
+griddle
+enamelware
+steamer
+cookie sheet
+cooker
+turner
+omelet pan
+stewing pan
+frying pan
+roaster
+wok
+saucepan
+graniteware
+cloisonne
+porcelain
+earthenware
+stoneware
+pottery
+Spode
+china
+bone china
+majolica
+faience
+knitting needle
+crochet needle
+walking stick
+matchstick
+club
+fiddlestick
+spindle
+stob
+staff
+drumstick
+mallet
+cane
+sword cane
+bat
+table-tennis racquet
+truncheon
+alpenstock
+flagpole
+crutch
+electric toothbrush
+toothbrush
+sable
+scrub brush
+hairbrush
+bristle brush
+shaving brush
+pencil sharpener
+steel
+cue
+racket
+squash racket
+tennis racket
+badminton racket
+thong
+strap
+cheekpiece
+rein
+noseband
+leading rein
+scull
+paddle
+besom
+scouring pad
+dustmop
+squeegee
+broom
+swab
+rotating shaft
+wand
+shaft
+piston rod
+kickstand
+axle
+pole
+fishing rod
+connecting rod
+tie rod
+driveshaft
+crankshaft
+transmission shaft
+spindle
+camshaft
+boom
+stilt
+ski pole
+clothes tree
+caber
+spar
+mast
+mast
+bowsprit
+yard
+mizzenmast
+royal mast
+mainmast
+foremast
+fly rod
+spinning rod
+pencil
+pen
+highlighter
+chalk
+crayon
+lead pencil
+ballpoint
+Sharpie
+quill
+fountain pen
+felt-tip pen
+furniture
+office furniture
+dining-room furniture
+wardrobe
+bedroom furniture
+table
+table
+wall unit
+lamp
+dining-room table
+washstand
+buffet
+cabinet
+baby bed
+bedstead
+lawn furniture
+credenza
+bookcase
+entertainment center
+etagere
+seat
+sectional
+chest of drawers
+file
+Rolodex
+card index
+vertical file
+clothes closet
+armoire
+bed
+berth
+platform bed
+hospital bed
+bunk
+trundle bed
+four-poster
+couch
+bunk bed
+twin bed
+sleigh bed
+single bed
+hammock
+Murphy bed
+double bed
+gaming table
+gueridon
+table-tennis table
+counter
+altar
+breakfast table
+stand
+conference table
+pedestal table
+kitchen table
+operating table
+tea table
+lectern
+worktable
+gateleg table
+dressing table
+desk
+drop-leaf table
+coffee table
+trestle table
+console table
+checkout
+bar
+meat counter
+reception desk
+salad bar
+snack bar
+drafting table
+lab bench
+writing desk
+secretary
+davenport
+dining table
+dinner table
+refectory table
+floor lamp
+table lamp
+reading lamp
+dresser
+china cabinet
+medicine chest
+bassinet
+crib
+carrycot
+cradle
+chair
+toilet seat
+stool
+sofa
+ottoman
+bench
+lawn chair
+chaise longue
+rocking chair
+swivel chair
+throne
+straight chair
+ladder-back
+highchair
+armchair
+Windsor chair
+folding chair
+wheelchair
+motorized wheelchair
+barber chair
+easy chair
+recliner
+Morris chair
+wing chair
+deck chair
+camp chair
+music stool
+taboret
+footstool
+settee
+daybed
+convertible
+love seat
+chesterfield
+studio couch
+park bench
+flat bench
+pew
+settle
+window seat
+chiffonier
+highboy
+bird feeder
+heater
+lighter
+signal
+converter
+crusher
+drive
+knocker
+peeler
+musical instrument
+shoehorn
+shock absorber
+machine
+conductor
+bait
+stabilizer
+filter
+mechanism
+acoustic device
+trap
+charger
+airfoil
+router
+pick
+energizer
+fan
+hydrofoil
+dental appliance
+adapter
+toy
+support
+optical device
+straightener
+tongs
+phonograph needle
+instrument
+comb
+remote control
+exercise device
+comforter
+washboard
+shredder
+water ski
+blower
+ventilator
+breathing device
+applicator
+skeleton key
+guitar pick
+restraint
+keyboard
+electrical device
+appliance
+fire extinguisher
+corrective
+reflector
+alarm
+electronic device
+snowshoe
+holding device
+memory device
+key
+noisemaker
+source of illumination
+indicator
+detector
+breathalyzer
+imprint
+afterburner
+horn
+elastic device
+ski
+lifting device
+solar heater
+electric heater
+radiator
+gas heater
+convector
+space heater
+stove
+cigar lighter
+match
+cairn
+sign
+street sign
+traffic light
+electrical converter
+catalytic converter
+inverter
+synchronous converter
+external drive
+CD-ROM drive
+internal drive
+stringed instrument
+electronic instrument
+keyboard instrument
+wind instrument
+bass
+percussion instrument
+dulcimer
+chordophone
+banjo
+zither
+samisen
+guitar
+bowed stringed instrument
+sitar
+lute
+mandola
+mandolin
+harp
+acoustic guitar
+Hawaiian guitar
+uke
+electric guitar
+viol
+violin
+cello
+viola
+viola da gamba
+Stradavarius
+theremin
+electric organ
+synthesizer
+piano
+clavier
+organ
+accordion
+grand piano
+upright
+spinet
+mechanical piano
+baby grand
+concert grand
+harpsichord
+spinet
+ocarina
+woodwind
+brass
+organ pipe
+free-reed instrument
+whistle
+pipe
+kazoo
+flute
+beating-reed instrument
+double-reed instrument
+single-reed instrument
+bassoon
+oboe
+clarinet
+sax
+baritone
+bugle
+flugelhorn
+French horn
+trombone
+cornet
+harmonium
+harmonica
+concertina
+chanter
+panpipe
+bagpipe
+fipple flute
+pennywhistle
+drone
+bass fiddle
+bass horn
+bass guitar
+euphonium
+handbell
+bones
+gong
+vibraphone
+steel drum
+marimba
+glockenspiel
+chime
+kettle
+maraca
+drum
+cymbal
+bongo
+bass drum
+tambourine
+snare drum
+tenor drum
+slot machine
+power shovel
+press
+backhoe
+printer
+machine tool
+motor
+snow thrower
+cash machine
+farm machine
+computer
+Zamboni
+mill
+staple gun
+power tool
+concrete mixer
+stapler
+slicer
+textile machine
+record player
+calculator
+vending machine
+slot
+automat
+garlic press
+bench press
+hydraulic press
+punch press
+character printer
+impact printer
+printer
+drum printer
+line printer
+laser printer
+Linotype
+thermal printer
+portable
+typewriter
+bar printer
+wire matrix printer
+dot matrix printer
+bubble jet printer
+ink-jet printer
+shaper
+drill press
+grinder
+lathe
+miller
+engine
+electric motor
+heat engine
+jet engine
+automobile engine
+aircraft engine
+generator
+steam engine
+internal-combustion engine
+wind turbine
+gasoline engine
+diesel
+outboard motor
+radial engine
+rocket
+fanjet
+booster
+space rocket
+alternator
+windmill
+starter
+kick starter
+cultivator
+haymaker
+combine
+thresher
+harvester
+disk harrow
+harrow
+slide rule
+web site
+home computer
+server
+digital computer
+supercomputer
+workstation
+personal computer
+portable computer
+desktop computer
+notebook
+planner
+laptop
+hand-held computer
+pepper mill
+water mill
+meat grinder
+coffee mill
+treadmill
+windmill
+electric hammer
+power saw
+buffer
+circular saw
+chain saw
+table saw
+saber saw
+bandsaw
+spinning wheel
+loom
+jukebox
+gramophone
+abacus
+adding machine
+hand calculator
+semiconductor device
+wire
+cord
+heat sink
+cable
+microprocessor
+transistor
+light-emitting diode
+chip
+filament
+jumper cable
+telephone wire
+patchcord
+telephone cord
+power cord
+extension cord
+ethernet cable
+electrical cable
+printer cable
+power line
+fisherman's lure
+fly
+dry fly
+wet fly
+streamer fly
+outrigger
+vane
+strainer
+air filter
+oil filter
+sieve
+tea-strainer
+colander
+fusee drive
+android
+radiator
+mechanical device
+rotating mechanism
+rotor head
+carriage
+control
+power steering
+automaton
+action
+cooling system
+gear
+tape drive
+film advance
+sprinkler
+propeller
+anchor
+golf-club head
+weathervane
+machine
+seeder
+pump
+gearshift
+ride
+bumper
+hook
+ski binding
+coupling
+record changer
+swing
+windshield wiper
+winder
+winder
+diaphragm
+shutter
+escapement
+broadcaster
+curler
+splint
+compressor
+air compressor
+carburetor
+dildo
+cartridge holder
+trapeze
+gearing
+stator
+airplane propeller
+screw
+pulley
+wheel
+idle pulley
+lever
+inclined plane
+millwheel
+waterwheel
+roller
+bicycle wheel
+caster
+grinding wheel
+rowel
+fifth wheel
+wagon wheel
+waterwheel
+car wheel
+sprocket
+pinwheel
+potter's wheel
+gear
+driving wheel
+paddlewheel
+roulette
+spur gear
+bevel gear
+pinion
+ramp
+ax head
+screw
+grease-gun
+gas pump
+bicycle pump
+sump pump
+hand pump
+centrifugal pump
+Ferris wheel
+roller coaster
+carousel
+universal joint
+clutch
+freewheel
+disk clutch
+bobbin
+reel
+shuttle
+blade
+gyroscope
+circle
+rotor
+paddle
+impeller
+fan blade
+disk
+puck
+brake disk
+token
+Frisbee
+planchet
+tail rotor
+main rotor
+valve
+steering wheel
+governor
+joystick
+regulator
+switch
+ball valve
+butterfly valve
+timer
+flywheel
+faucet
+thermostat
+aperture
+mixing faucet
+stopcock
+toggle switch
+push button
+dial
+horn button
+mouse button
+doorbell
+bell push
+flintlock
+movement
+gunlock
+cooling tower
+evaporative cooler
+air conditioner
+gearset
+four-wheel drive
+whistle
+silencer
+megaphone
+hearing aid
+bell
+cowbell
+church bell
+dinner bell
+spider web
+mousetrap
+lobster pot
+web
+net
+landing net
+fishnet
+vertical stabilizer
+spoiler
+spoiler
+rotor blade
+flap
+rudder
+horizontal stabilizer
+wing
+exhaust fan
+electric fan
+brace
+denture
+backboard
+stirrup
+pier
+pier
+back
+shelf
+landing gear
+baluster
+spoke
+base
+step
+brace
+pillow block
+bearing
+rocker
+coat hanger
+harp
+rest
+bracket
+tailstock
+bookend
+structural member
+headstock
+seat
+thrust bearing
+hanger
+rack
+harness
+cantle
+ladder-back
+bookshelf
+mantel
+neck brace
+knee brace
+ankle brace
+back brace
+arm
+headrest
+chin rest
+armrest
+sconce
+corbel
+shelf bracket
+sill
+riser
+upright
+brace
+tread
+beam
+windowsill
+doorsill
+stile
+jamb
+column
+post
+support column
+caryatid
+goalpost
+newel post
+bollard
+lamppost
+telephone pole
+maypole
+timber
+rundle
+tie
+rafter
+girder
+timber
+floor joist
+joist
+car seat
+pillion
+plane seat
+saddle
+chair
+bicycle seat
+bucket seat
+backseat
+stock saddle
+English saddle
+tripod
+spice rack
+magazine rack
+music stand
+camera tripod
+easel
+autofocus
+projector
+finder
+laser
+lens
+objective
+condenser
+camera lens
+anastigmat
+contact
+sunglass
+eyepiece
+field lens
+Fresnel lens
+portrait lens
+closeup lens
+telephoto lens
+wide-angle lens
+plotter
+scientific instrument
+measuring instrument
+weapon
+guillotine
+drafting instrument
+analyzer
+navigational instrument
+optical instrument
+medical instrument
+instrument of punishment
+catapult
+extractor
+theodolite
+riding crop
+tachymeter
+collider
+microtome
+accelerator
+stroboscope
+magnifier
+console
+telescope
+microscope
+astronomical telescope
+equatorial
+optical telescope
+radio telescope
+refracting telescope
+field glass
+reflecting telescope
+Cassegrainian telescope
+Newtonian telescope
+Schmidt telescope
+Maksutov telescope
+electron microscope
+field-emission microscope
+light microscope
+binocular microscope
+hand glass
+operating microscope
+compound microscope
+loupe
+oximeter
+dropper
+refractometer
+rangefinder
+barometer
+pedometer
+thermometer
+astrolabe
+measuring stick
+gauge
+timepiece
+aneroid barometer
+caliper
+potentiometer
+tachometer
+scale
+tape
+meter
+hygrometer
+sextant
+rule
+altazimuth
+pyrometer
+meat thermometer
+water gauge
+vacuum gauge
+anemometer
+gasoline gauge
+pressure gauge
+manometer
+sphygmomanometer
+atomic clock
+clock
+watch
+sundial
+timer
+hourglass
+grandfather clock
+digital clock
+alarm clock
+wall clock
+analog clock
+pendulum clock
+cuckoo clock
+digital watch
+analog watch
+pocket watch
+wristwatch
+stopwatch
+parking meter
+chronograph
+vernier caliper
+micrometer
+balance
+analytical balance
+electronic balance
+electric meter
+odometer
+ammeter
+speedometer
+ohmmeter
+water meter
+voltmeter
+magnetometer
+tomahawk
+gun
+bow
+bow and arrow
+brass knucks
+knife
+sword
+stun gun
+projectile
+antiaircraft
+firearm
+set gun
+air gun
+gas gun
+paintball gun
+cannon
+autoloader
+pistol
+twenty-two
+Mauser
+muzzle loader
+rifle
+repeating firearm
+semiautomatic firearm
+automatic firearm
+Garand rifle
+Luger
+semiautomatic pistol
+automatic rifle
+assault rifle
+automatic pistol
+machine gun
+submachine gun
+burp gun
+Uzi
+Kalashnikov
+Tommy gun
+Colt
+derringer
+revolver
+gat
+flintlock
+musket
+sniper rifle
+Winchester
+carbine
+crossbow
+longbow
+khukuri
+bayonet
+machete
+dagger
+rapier
+fencing sword
+broadsword
+cavalry sword
+saber
+epee
+foil
+bullet
+cannonball
+compass
+protractor
+artificial horizon
+depth finder
+magnetic compass
+compass
+binoculars
+spectacles
+projector
+telescopic sight
+goggles
+sunglasses
+slide projector
+front projector
+movie projector
+overhead projector
+hypodermic syringe
+cardiograph
+syringe
+stethoscope
+laryngoscope
+otoscope
+surgical instrument
+retractor
+hemostat
+pillory
+rattan
+exercise bike
+treadmill
+respirator
+snorkel
+oxygen mask
+aqualung
+paintbrush
+spray gun
+brake
+handcuff
+fastener
+seat belt
+leash
+safety belt
+brake system
+muzzle
+chain
+bolt
+buckle
+knot
+cleat
+clothespin
+catch
+pin
+dowel
+screw
+slide fastener
+button
+seal
+paper fastener
+lock
+thumbtack
+locker
+clasp
+clip
+carabiner
+nail
+toggle
+nut and bolt
+bowline
+bow
+latch
+hasp
+rivet
+hairpin
+skewer
+hatpin
+brochette
+bobby pin
+barrette
+safety pin
+shirt button
+coat button
+washer
+gasket
+head gasket
+O ring
+padlock
+sash fastener
+latch
+combination lock
+doorlock
+paper clip
+bulldog clip
+hair slide
+hydraulic brake
+disk brake
+drum brake
+typewriter keyboard
+QWERTY keyboard
+computer keyboard
+piano keyboard
+circuit
+Segway
+jack
+control panel
+telephone jack
+circuit breaker
+plug
+electrolytic
+dashboard
+transducer
+solar cell
+antenna
+capacitor
+spark plug
+relay
+surge suppressor
+solar array
+battery
+Tesla coil
+closed circuit
+wiring
+computer circuit
+integrated circuit
+module
+printed circuit
+interface
+CPU board
+circuit board
+mosaic
+electro-acoustic transducer
+earphone
+microphone
+loudspeaker
+telephone receiver
+headset
+condenser microphone
+cardioid microphone
+tweeter
+bullhorn
+tannoy
+woofer
+subwoofer
+omnidirectional antenna
+directional antenna
+radio antenna
+television antenna
+dish
+scanner
+yagi
+voltaic battery
+flashlight battery
+lead-acid battery
+pack
+prosthesis
+solar dish
+mirror
+hand glass
+car mirror
+rearview mirror
+outside mirror
+burglar alarm
+automobile horn
+shofar
+fire alarm
+readout
+scanner
+tube
+display
+personal digital assistant
+dongle
+trackball
+mouse
+answering machine
+hearing aid
+beeper
+triode
+pentode
+computer monitor
+monitor
+screen
+digital display
+liquid crystal display
+flat panel display
+window
+dialog box
+caller ID
+computer screen
+background
+C-clamp
+chuck
+collet
+holder
+vise
+candlestick
+cigarette holder
+candelabrum
+menorah
+Menorah
+cache
+optical disk
+magnetic disk
+memory
+magnetic tape
+recording
+auxiliary storage
+compact disk
+videodisk
+CD-ROM
+CD-R
+audio CD
+hard disc
+diskette
+flash memory
+random-access memory
+videotape
+cassette tape
+tape
+phonograph record
+LP
+seventy-eight
+lamp
+light
+flash
+lantern
+candle
+neon lamp
+vigil light
+taillight
+gas lamp
+oil lamp
+hurricane lamp
+fluorescent lamp
+streetlight
+spotlight
+electric lamp
+jack-o'-lantern
+Chinese lantern
+flashlight
+light bulb
+penlight
+headlight
+room light
+strip lighting
+fairy light
+sconce
+searchlight
+night-light
+blinker
+torch
+flood
+fuel gauge
+gnomon
+dial
+vernier scale
+pointer
+light pen
+hand
+sweep hand
+minute hand
+second hand
+hour hand
+spring
+rubber band
+coil spring
+box spring
+hoist
+winch
+elevator
+crane
+wheel and axle
+derrick
+maze
+communication system
+network
+Global Positioning System
+resonator
+exhaust
+mechanical system
+computer system
+scaffolding
+reticle
+walkie-talkie
+radio
+telecommunication system
+telephone system
+intercommunication system
+interphone
+television
+satellite television
+surveillance system
+color television
+local area network
+superhighway
+ethernet
+wireless local area network
+production line
+linkage
+suspension
+fuel injection
+planter
+trophy case
+wastepaper basket
+dish
+bread-bin
+dispenser
+pot
+bunker
+reliquary
+cup
+bag
+cassette
+Dumpster
+bag
+measuring cup
+glass
+paintball
+measure
+envelope
+shaker
+piggy bank
+basket
+sewing basket
+savings bank
+powder horn
+can
+wheeled vehicle
+workbasket
+bin
+canister
+mold
+cargo container
+videocassette
+case
+case
+vessel
+drawer
+receptacle
+package
+watering can
+box
+cocotte
+Petri dish
+gravy boat
+serving dish
+tureen
+sugar bowl
+bowl
+casserole
+ramekin
+butter dish
+salad bowl
+mixing bowl
+porringer
+cereal bowl
+soup bowl
+punch bowl
+roll-on
+aerosol
+soap dispenser
+atomizer
+inhaler
+demitasse
+beaker
+kylix
+coffee cup
+chalice
+teacup
+Dixie cup
+evening bag
+shoulder bag
+clutch bag
+reticule
+backpack
+sachet
+beanbag
+sandbag
+carryall
+pannier
+duffel bag
+book bag
+tool bag
+mailbag
+purse
+drawstring bag
+envelope
+saddlebag
+sack
+pouch
+shopping bag
+toilet bag
+gamebag
+kitbag
+plastic bag
+golf bag
+sleeping bag
+gunnysack
+grocery bag
+sporran
+pocket
+waist pack
+fanny pack
+hip pocket
+patch pocket
+flute
+tumbler
+water glass
+bumper
+liqueur glass
+snifter
+shot glass
+beer glass
+rummer
+goblet
+wineglass
+cocktail shaker
+saltshaker
+pepper shaker
+pannier
+clothes hamper
+hamper
+breadbasket
+shopping basket
+wicker basket
+milk can
+beer can
+soda can
+pedicab
+camper trailer
+rolling stock
+motor scooter
+self-propelled vehicle
+unicycle
+wagon
+bassinet
+handcart
+baby buggy
+bicycle
+horse-drawn vehicle
+trailer
+car
+tricycle
+armored vehicle
+recreational vehicle
+tracked vehicle
+snowmobile
+bulldozer
+locomotive
+streetcar
+motor vehicle
+tractor
+forklift
+armored personnel carrier
+armored car
+dune buggy
+camper
+van
+shunter
+diesel locomotive
+electric locomotive
+tank engine
+traction engine
+steam locomotive
+diesel-electric locomotive
+diesel-hydraulic locomotive
+hearse
+truck
+amphibian
+four-wheel drive
+motorcycle
+go-kart
+car
+snowplow
+fire engine
+van
+trailer truck
+transporter
+garbage truck
+ladder truck
+tow truck
+dump truck
+tractor
+pickup
+delivery truck
+moving van
+passenger van
+police van
+bookmobile
+trail bike
+moped
+beach wagon
+loaner
+Model T
+electric
+minivan
+convertible
+compact
+cab
+shooting brake
+racer
+hatchback
+roadster
+berlin
+sport utility
+sedan
+jeep
+limousine
+cruiser
+ambulance
+used-car
+stock car
+subcompact
+pace car
+hot rod
+sports car
+coupe
+covered wagon
+cart
+horse cart
+dumpcart
+jinrikisha
+pony cart
+oxcart
+tea cart
+laundry cart
+serving cart
+barrow
+shopping cart
+hand truck
+bicycle-built-for-two
+safety bicycle
+push-bike
+mountain bike
+carriage
+gharry
+buggy
+stagecoach
+four-wheeler
+baggage car
+freight car
+passenger car
+cabin car
+boxcar
+tank car
+nonsmoker
+Pullman
+dining car
+smoker
+recycling bin
+ashcan
+litterbin
+sandbox
+pig bed
+briefcase
+compact
+dispatch case
+kit
+wallet
+cardcase
+portfolio
+ditty bag
+cigarette case
+shoe
+gun case
+attache case
+locket
+writing desk
+watch case
+baggage
+glasses case
+hand luggage
+satchel
+bag
+trunk
+hatbox
+garment bag
+weekender
+carpetbag
+portmanteau
+overnighter
+valise
+boiler
+flagon
+bowl
+ladle
+bottle
+bottle
+pot
+pitcher
+bathtub
+mortar
+bucket
+drinking vessel
+cream pitcher
+wine bucket
+pressure cooker
+tub
+inkwell
+tin
+basin
+monstrance
+autoclave
+churn
+barrel
+tank
+jar
+censer
+toilet bowl
+fishbowl
+scoop
+soup ladle
+smelling bottle
+pop bottle
+water bottle
+jug
+catsup bottle
+gourd
+pill bottle
+carboy
+flask
+beer bottle
+ink bottle
+demijohn
+whiskey bottle
+cruet
+wine bottle
+carafe
+phial
+whiskey jug
+water jug
+hipflask
+Erlenmeyer flask
+thermos
+canteen
+vacuum flask
+magnum
+jeroboam
+saucepot
+teapot
+Dutch oven
+urn
+stockpot
+kettle
+caldron
+percolator
+teakettle
+coffeepot
+coffee urn
+samovar
+tea urn
+sitz bath
+hot tub
+footbath
+mug
+loving cup
+tankard
+coffee mug
+toby
+beer mug
+bidet
+birdbath
+washbasin
+baptismal font
+beer barrel
+wine cask
+keg
+gas tank
+water heater
+septic tank
+aquarium
+reservoir
+water tower
+rain barrel
+canopic jar
+amphora
+cookie jar
+beaker
+urn
+Mason jar
+vase
+crock
+jampot
+plate
+tray
+cat box
+dustpan
+chamberpot
+salver
+garbage
+in-basket
+hot-water bottle
+ossuary
+socket
+ashtray
+packet
+bundle
+deck
+bale
+hay bale
+pack
+ballot box
+carton
+coffin
+shoebox
+snuffbox
+pencil box
+crate
+bandbox
+window box
+chest
+strongbox
+cereal box
+mailbox
+casket
+bier
+packing box
+toolbox
+toy box
+coffer
+hope chest
+treasure chest
+cedar chest
+cash register
+safe-deposit
+cashbox
+safe
+tramway
+chairlift
+sidecar
+public transport
+semitrailer
+horsebox
+vehicle
+ski tow
+roll-on roll-off
+trailer
+shipping
+litter
+express
+shuttle bus
+train
+bus
+local
+freight liner
+passenger train
+subway train
+mail train
+freight train
+commuter
+bullet train
+trolleybus
+minibus
+school bus
+steamroller
+bumper car
+rocket
+military vehicle
+missile
+craft
+sled
+half track
+tank
+panzer
+personnel carrier
+Humvee
+aircraft
+vessel
+spacecraft
+hovercraft
+heavier-than-air craft
+stealth aircraft
+lighter-than-air craft
+hang glider
+glider
+helicopter
+warplane
+airplane
+autogiro
+bomber
+amphibian
+propeller plane
+airliner
+biplane
+floatplane
+jet
+fighter
+stealth bomber
+seaplane
+airbus
+widebody aircraft
+jumbojet
+jetliner
+stealth fighter
+interceptor
+airship
+blimp
+balloon
+hot-air balloon
+boat
+trawler
+yacht
+ship
+sailing vessel
+bareboat
+lifeboat
+police boat
+gondola
+sea boat
+barge
+river boat
+tugboat
+punt
+pilot boat
+small boat
+ferry
+tender
+canal boat
+fireboat
+motorboat
+dredger
+pontoon
+houseboat
+skiff
+canoe
+dinghy
+racing boat
+coracle
+yawl
+gig
+jolly boat
+rowing boat
+kayak
+outrigger canoe
+dugout canoe
+racing gig
+racing skiff
+speedboat
+outboard motorboat
+cabin cruiser
+hydrofoil
+shipwreck
+wreck
+passenger ship
+pirate
+lightship
+hospital ship
+steamer
+cargo ship
+sister ship
+warship
+liner
+luxury liner
+cargo liner
+cruise ship
+paddle steamer
+sternwheeler
+bottom
+container ship
+banana boat
+oil tanker
+submarine
+guided missile cruiser
+frigate
+battleship
+guided missile frigate
+aircraft carrier
+man-of-war
+destroyer
+attack submarine
+nautilus
+yawl
+clipper
+felucca
+sloop
+ketch
+dhow
+sailboat
+bark
+schooner
+windjammer
+trimaran
+catamaran
+catboat
+space shuttle
+space capsule
+dogsled
+bobsled
+bobsled
+stretcher
+covered couch
+telecommunication
+vehicle
+print media
+broadcasting
+telephone
+radiotelephone
+television
+reception
+radio
+cable television
+high-definition television
+three-way calling
+call
+voice mail
+press
+journalism
+magazine
+newspaper
+pulp
+slick
+comic book
+news magazine
+tabloid
+daily
+gazette
+Fleet Street
+yellow journalism
+pillow
+pad
+sanitary napkin
+beer mat
+futon
+carpet pad
+range hood
+screen
+top
+footwear
+protective covering
+cloak
+wrapping
+upholstery
+cloth covering
+mask
+finger
+floor cover
+coating
+canopy
+flap
+domino
+folder
+planking
+earmuff
+camouflage
+shoji
+cap
+manhole cover
+lid
+radiator cap
+bottlecap
+nipple
+clog
+shoe
+arctic
+boot
+flats
+slipper
+overshoe
+sabot
+slingback
+chukka
+saddle oxford
+spectator pump
+brogan
+wing tip
+walker
+blucher
+anklet
+cleats
+gaiter
+Loafer
+running shoe
+oxford
+bowling shoe
+plimsoll
+pump
+sandal
+chopine
+pusher
+talaria
+flip-flop
+espadrille
+jodhpur
+buskin
+ski boot
+hip boot
+riding boot
+rubber boot
+Hessian boot
+waders
+cowboy boot
+mule
+bootee
+cold frame
+cloche
+washboard
+toecap
+mulch
+shield
+bracer
+screen
+sheathing
+bell jar
+shade
+shelter
+splashboard
+testudo
+roof
+faceplate
+hood
+sheath
+cap
+mask
+facing
+crystal
+calash
+armor
+binder
+binding
+housing
+blind
+lining
+plate
+horseshoe
+armor plate
+breastplate
+helmet
+cannon
+knee piece
+pickelhaube
+sallet
+window screen
+fire screen
+windshield
+mosquito net
+lampshade
+parasol
+lean-to
+bell cote
+sentry box
+birdhouse
+canopy
+kennel
+awning
+umbrella
+gamp
+gable roof
+sunroof
+mansard
+dome
+hip roof
+tile roof
+housetop
+vault
+slate roof
+gambrel
+thatch
+cupola
+geodesic dome
+onion dome
+barrel vault
+ribbed vault
+holster
+scabbard
+shoulder holster
+hubcap
+thimble
+distributor cap
+lens cap
+gasmask
+face mask
+ski mask
+catcher's mask
+body armor
+shield
+chain mail
+bulletproof vest
+corselet
+cuirass
+cabinet
+radome
+boot
+window blind
+jalousie
+curtain
+shutter
+Venetian blind
+window shade
+roller blind
+theater curtain
+shower curtain
+bushing
+brake lining
+gift wrapping
+envelope
+cellophane
+book jacket
+jacket
+plastic wrap
+shoulder
+pant leg
+leg
+back
+cosy
+bandage
+bosom
+slipcover
+bedclothes
+sleeve
+blindfold
+eyepatch
+skirt
+seat
+Band Aid
+swathe
+cast
+elastic bandage
+quilt
+afghan
+blanket
+bedspread
+mattress cover
+patchwork
+eiderdown
+crazy quilt
+coverlet
+quilted bedspread
+raglan sleeve
+long sleeve
+rug
+doormat
+mat
+scatter rug
+shag rug
+prayer rug
+broadloom
+stair-carpet
+red carpet
+Brussels carpet
+fixative
+gold plate
+verdigris
+paint
+nail polish
+gilt
+couch
+enamel
+veneer
+finger paint
+enamel
+encaustic
+oil paint
+water-base paint
+latex paint
+whitewash
+earflap
+pocket flap
+lapel
+tongue
+revers
+tent-fly
+file folder
+matchbook
+plush
+muslin
+tarpaulin
+velvet
+batik
+khaki
+belting
+sacking
+diaper
+voile
+duffel
+chenille
+cotton flannel
+toweling
+crinoline
+panting
+chintz
+felt
+cotton
+velveteen
+satin
+knit
+sateen
+print
+flannel
+webbing
+gabardine
+camouflage
+worsted
+cashmere
+tartan
+mohair
+brocade
+velour
+shirttail
+boucle
+madras
+net
+paisley
+yoke
+percale
+piece of cloth
+moquette
+terry
+rayon
+acetate rayon
+cord
+permanent press
+chiffon
+burlap
+ticking
+basket weave
+lace
+sheeting
+georgette
+poplin
+denim
+flannelette
+shantung
+camel's hair
+nylon
+drapery
+gauze
+organza
+foulard
+gingham
+wool
+suede cloth
+taffeta
+leatherette
+tweed
+organdy
+canopy
+etamine
+damask
+oilcloth
+tapestry
+broadcloth
+pique
+homespun
+tricot
+double knit
+jersey
+gauze
+tulle
+chicken wire
+handkerchief
+groundsheet
+dustcloth
+dishrag
+towel
+bandanna
+gusset
+bib
+sail
+patch
+hand towel
+paper towel
+dishtowel
+fore-and-aft sail
+foresail
+spinnaker
+headsail
+topsail
+mainsail
+balloon sail
+jib
+mizzen
+gaff topsail
+lugsail
+staysail
+lateen
+flash
+shoulder patch
+narrow wale
+Bedford cord
+macrame
+pillow lace
+raft
+life preserver
+life buoy
+Mae West
+life jacket
+stone
+brick
+lumber
+bricks and mortar
+tile
+concrete
+quoin
+millstone
+stele
+hone
+grindstone
+curbstone
+gravestone
+firebrick
+mud brick
+clinker
+adobe
+strip
+chipboard
+slat
+fingerboard
+toothpick
+hip tile
+pantile
+cornice
+embellishment
+graffito
+epergne
+necklet
+marquetry
+brass
+garnish
+arabesque
+design
+adornment
+frieze
+lambrequin
+tattoo
+mihrab
+emblem
+swastika
+herringbone
+spot
+flag
+banner
+totem pole
+crucifix
+fleur-de-lis
