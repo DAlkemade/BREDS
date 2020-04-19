@@ -4,6 +4,7 @@ import sys
 import os
 import pickle
 import operator
+import time
 from pathlib import Path
 from nltk import tokenize
 
@@ -249,7 +250,8 @@ class BREDS(object):
 
     def write_relationships_to_disk(self):
         print("\nWriting extracted relationships to disk")
-        f_output = open("relationships.txt", "w")
+        timestr = time.strftime("%Y%m%d-%H%M%S")
+        f_output = open(f"relationships{timestr}.txt", "w")
         tmp = sorted(list(self.candidate_tuples.keys()), reverse=True)
         for t in tmp:
             f_output.write("instance: " + t.e1+'\t'+str(t.e2)+'\tscore:'+str(t.confidence)+'\n')
