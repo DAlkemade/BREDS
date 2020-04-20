@@ -18,6 +18,7 @@ from size_comparisons.scraping import html_scraper
 from size_comparisons.scraping.google_ops import create_or_update_results
 import neuralcoref
 import spacy
+import numpy as np
 
 from breds.config import Config
 from breds.pattern import Pattern
@@ -145,6 +146,8 @@ class BREDS(object):
             nlp = spacy.load('en_core_web_sm')
             neuralcoref.add_to_pipe(nlp)
 
+            coreference_times: List[float] = list()
+
             for object in tqdm.tqdm(names):
                 # TODO think about units. could something automatic be done? it should in theory be possible to learn the meaning of each unit
                 # otherwise reuse the scraper pattern to only find numbers with a length unit for now
@@ -162,7 +165,7 @@ class BREDS(object):
                         time_before = time.time()
                         doc = nlp(html)
                         html = doc._.coref_resolved
-                        print(f'time: {time.time()-time_before}')
+                        coreference_times.append(time.time()-time_before)
                     sentences = tokenize.sent_tokenize(html)
 
                     # TODO split sentences from docs
@@ -188,6 +191,12 @@ class BREDS(object):
             print("Writing generated tuples to disk")
             with open(fname, "wb") as f_out:
                 pickle.dump(self.processed_tuples, f_out)
+
+            coref_comp = np.mean(coreference_times)
+            print(f'Average coreference comp time: {coref_comp}')
+            f = open('coref_computation_time.txt', 'w')
+            f.write(f'coref_comp: {coref_comp}')
+            f.close()
 
     def similarity_3_contexts(self, p: Tuple, t: Tuple):
         (bef, bet, aft) = (0, 0, 0)
