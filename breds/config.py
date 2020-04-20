@@ -103,6 +103,9 @@ class Config(object):
             if line.startswith("relative_difference_cutoff"):
                 self.relative_difference_cutoff = float(line.split("=")[1].strip())
 
+            if line.startswith("coreference"):
+                self.coreference = bool(line.split("=")[1].strip())
+
 
         assert self.alpha+self.beta+self.gamma == 1
 

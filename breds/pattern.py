@@ -63,10 +63,10 @@ class Pattern(object):
         matched_both = False
         matched_e1 = False
 
+        #TODO think about whether it's fair that EVERY value for a seed counts equally. maybe it should use a mean from all the sizes in seed.sizes?
         for s in config.positive_seed_tuples.values():
             if s.e1.strip() == t.e1.strip():
                 matched_e1 = True
-                # TODO convert to floats during tuple parsingv already
                 tuple_number = t.e2
                 for seed_size in s.sizes:
 

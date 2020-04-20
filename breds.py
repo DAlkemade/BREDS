@@ -7,6 +7,7 @@ import sys
 import time
 from collections import defaultdict
 from pathlib import Path
+from typing import List
 
 import tqdm
 from gensim import matutils
@@ -15,6 +16,8 @@ from nltk.data import load
 from numpy import dot
 from size_comparisons.scraping import html_scraper
 from size_comparisons.scraping.google_ops import create_or_update_results
+import neuralcoref
+import spacy
 
 from breds.config import Config
 from breds.pattern import Pattern
@@ -113,7 +116,10 @@ class BREDS(object):
 
         :param sentences_file:
         """
-        fname = "processed_tuples_numeric.pkl"
+        if self.config.coreference:
+            fname = "processed_tuples_numeric_coreference.pkl"
+        else:
+            fname = "processed_tuples_numeric.pkl"
         if os.path.exists(fname):
             with open(fname, "rb") as f_in:
                 print("\nLoading processed tuples from disk...")
@@ -136,6 +142,9 @@ class BREDS(object):
             loop = asyncio.get_event_loop()
             htmls_lookup = html_scraper.create_or_update_urls_html(names, urls, loop)
 
+            nlp = spacy.load('en_core_web_sm')
+            neuralcoref.add_to_pipe(nlp)
+
             for object in tqdm.tqdm(names):
                 # TODO think about units. could something automatic be done? it should in theory be possible to learn the meaning of each unit
                 # otherwise reuse the scraper pattern to only find numbers with a length unit for now
@@ -143,17 +152,18 @@ class BREDS(object):
                 # or 'Generally, males vary in total length from 250 to 390 cm (8.2 to 12.8 ft)'  for tiger
                 # TODO think about plurals, e.g. tigers
                 try:
-                    htmls = htmls_lookup[object]
+                    htmls: List[str] = htmls_lookup[object]
                 except KeyError:
                     print(f'No htmls for {object}')
                     continue
 
                 for html in htmls:
-                    text: str = html
-                    del html
-
-                    # TODO ruins something like: ' a lion is 2.5m long'
-                    sentences = tokenize.sent_tokenize(text)
+                    if self.config.coreference:
+                        time_before = time.time()
+                        doc = nlp(html)
+                        html = doc._.coref_resolved
+                        print(f'time: {time.time()-time_before}')
+                    sentences = tokenize.sent_tokenize(html)
 
                     # TODO split sentences from docs
                     for line in sentences:
@@ -250,7 +260,7 @@ class BREDS(object):
     def write_relationships_to_disk(self):
         print("\nWriting extracted relationships to disk")
         timestr = time.strftime("%Y%m%d-%H%M%S")
-        f_output = open(f"relationships{timestr}.txt", "w")
+        f_output = open(os.path.join('relationships_output', f"relationships{timestr}.txt", "w"))
         tmp = sorted(list(self.candidate_tuples.keys()), reverse=True)
         for t in tmp:
             f_output.write("instance: " + t.e1 + '\t' + str(t.e2) + '\tscore:' + str(t.confidence) + '\n')
@@ -313,7 +323,7 @@ class BREDS(object):
 
                     # Cluster the matched instances, to generate
                     # patterns/update patterns
-                    print("\nClustering matched instances to generate patterns")
+                    print(f"\nClustering matched instances to generate patterns in iteration {self.curr_iteration}")
                     self.cluster_tuples(matched_tuples)
 
                     # Eliminate patterns supported by less than
@@ -356,7 +366,7 @@ class BREDS(object):
                     # that extracted it each with an associated degree of match.
                     print("Number of tuples to be analyzed:", len(self.processed_tuples))
 
-                    print("\nCollecting instances based on extraction patterns")
+                    print(f"\nCollecting instances based on extraction patterns in iteration {self.curr_iteration}")
 
                     for t in tqdm.tqdm(self.processed_tuples):
 
