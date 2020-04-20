@@ -53,7 +53,7 @@ Cadillac Escalade;5.110
 Nissan Navara;4.981
 Chevrolet Silverado;5.614
 
-Martin Luther King; Jr.;1.7018
+Martin Luther King Jr.;1.7018
 Bruce Lee;1.7018
 Winston Churchill;1.7018
 Napoleon Boneparte;1.6764
@@ -66,7 +66,7 @@ Prince;1.5748
 Andrew Carnegie;1.5748
 Robin Williams;1.7018
 Bob Marley;1.7272
-Robert Downey; Jr.;1.7272
+Robert Downey Jr.;1.7272
 Martin Short;1.7018
 Paul Simon;1.6002
 Yuri Gagarin;1.5748

@@ -14,6 +14,7 @@ from breds.tuple import Tuple
 class TestPattern(TestCase):
 
     def setUp(self):
+        raise NotImplementedError('Tests have not been updated for numeric')
         seed_set = set()
         Entry = namedtuple('Entry', ['name', 'sizes'])
         data_list = list()

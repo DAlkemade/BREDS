@@ -1,26 +1,26 @@
 import asyncio
 import logging
-import sys
+import operator
 import os
 import pickle
-import operator
+import sys
 import time
+from collections import defaultdict
 from pathlib import Path
-from nltk import tokenize
 
 import tqdm
-from numpy import dot
 from gensim import matutils
-from collections import defaultdict
+from nltk import tokenize
 from nltk.data import load
+from numpy import dot
 from size_comparisons.scraping import html_scraper
 from size_comparisons.scraping.google_ops import create_or_update_results
 
-from breds.seed import Seed
-from breds.pattern import Pattern
 from breds.config import Config
-from breds.tuple import Tuple
+from breds.pattern import Pattern
 from breds.sentence import Sentence
+from breds.tuple import Tuple
+
 # from lucene_looper import find_all_text_occurrences
 
 
@@ -31,6 +31,7 @@ __email__ = "dsbatista@inesc-id.pt"
 PRINT_TUPLES = False
 PRINT_PATTERNS = False
 PRINT_SEED_MATCHES = False
+
 
 def print_tuple_props(t: Tuple):
     print(f'tuple: {t.e1} {t.e2}')
@@ -76,8 +77,8 @@ class BREDS(object):
                 for doc_idx in tqdm.tqdm(doc_idxs):
                     doc = lucene_reader.document(doc_idx)
                     text: str = doc.get("contents")
-                    text = text.lower() # TODO should I do this?
-                    #TODO don't do this, ruins thing like lion is 2.5 meters. there should be a package to split into sentences
+                    text = text.lower()  # TODO should I do this?
+                    # TODO don't do this, ruins thing like lion is 2.5 meters. there should be a package to split into sentences
                     # sentences = text.split('.')
 
                     # TODO split sentences from docs
@@ -185,7 +186,6 @@ class BREDS(object):
         # print('t:')
         # print_tuple_props(t)
 
-
         if t.bef_vector is not None and p.bef_vector is not None:
             bef = dot(matutils.unitvec(t.bef_vector), matutils.unitvec(p.bef_vector))
 
@@ -195,7 +195,7 @@ class BREDS(object):
         if t.aft_vector is not None and p.aft_vector is not None:
             aft = dot(matutils.unitvec(t.aft_vector), matutils.unitvec(p.aft_vector))
 
-        return self.config.alpha*bef + self.config.beta*bet + self.config.gamma*aft
+        return self.config.alpha * bef + self.config.beta * bet + self.config.gamma * aft
 
     def similarity_all(self, t, extraction_pattern):
 
@@ -230,7 +230,7 @@ class BREDS(object):
         matched_tuples = list()
         count_matches = dict()
         for t in self.processed_tuples:
-            for s in self.config.positive_seed_tuples:
+            for s in self.config.positive_seed_tuples.values():
                 # only match the first, as long is the second is a number
                 try:
                     float(t.e2)
@@ -253,7 +253,7 @@ class BREDS(object):
         f_output = open(f"relationships{timestr}.txt", "w")
         tmp = sorted(list(self.candidate_tuples.keys()), reverse=True)
         for t in tmp:
-            f_output.write("instance: " + t.e1+'\t'+str(t.e2)+'\tscore:'+str(t.confidence)+'\n')
+            f_output.write("instance: " + t.e1 + '\t' + str(t.e2) + '\tscore:' + str(t.confidence) + '\n')
             try:
                 # f_output.write("sentence: "+t.sentence+'\n')
                 f_output.write("pattern_bef: " + t.bef_words + '\n')
@@ -288,8 +288,8 @@ class BREDS(object):
                 print("==========================================")
                 print("\nStarting iteration", self.curr_iteration)
                 print("\nLooking for seed matches of:")
-                for s in self.config.positive_seed_tuples:
-                    print(s.e1, '\t', s.e2)
+                for s in self.config.positive_seed_tuples.values():
+                    print(s.e1, '\t', s.sizes)
 
                 # Looks for sentences matching the seed instances
                 count_matches, matched_tuples = self.match_seeds_tuples()
@@ -357,14 +357,9 @@ class BREDS(object):
                     print("Number of tuples to be analyzed:", len(self.processed_tuples))
 
                     print("\nCollecting instances based on extraction patterns")
-                    count = 0
 
-                    for t in self.processed_tuples:
+                    for t in tqdm.tqdm(self.processed_tuples):
 
-                        count += 1
-                        if count % 1000 == 0:
-                            sys.stdout.write(".")
-                            sys.stdout.flush()
 
                         sim_best = 0
                         for extraction_pattern in self.patterns:
@@ -442,15 +437,15 @@ class BREDS(object):
                         str(self.config.instance_confidence)))
                     for t in list(self.candidate_tuples.keys()):
                         if t.confidence >= self.config.instance_confidence:
-                            newly_added_seeds.append((t.e1, t.e2))
-                            seed = Seed(t.e1, t.e2)
-                            self.config.positive_seed_tuples.add(seed)
+                            # TODO check if it's already in the list
+                            new = self.config.add_seed_to_dict(t.e1, t.e2, self.config.positive_seed_tuples)
+                            if new:
+                                newly_added_seeds.append((t.e1, t.e2))
 
                     # increment the number of iterations
                     self.curr_iteration += 1
         except KeyboardInterrupt:
             pass
-
 
         print(newly_added_seeds)
         self.write_relationships_to_disk()
@@ -505,6 +500,7 @@ def main():
 
         breads.generate_tuples()
         breads.init_bootstrap(tuples=None)
+
 
 if __name__ == "__main__":
     main()

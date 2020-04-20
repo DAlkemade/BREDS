@@ -1,5 +1,6 @@
 import fileinput
 import re
+from typing import Dict
 
 from nltk.corpus import stopwords
 from nltk import WordNetLemmatizer
@@ -24,8 +25,8 @@ class Config(object):
 
         # self.regex_clean_linked = re.compile('</[A-Z]+>|<[A-Z]+ url=[^>]+>', re.U)
         # self.tags_regex = re.compile('</?[A-Z]+>', re.U)
-        self.positive_seed_tuples = set()
-        self.negative_seed_tuples = set()
+        self.positive_seed_tuples: Dict[str, Seed] = dict()
+        self.negative_seed_tuples: Dict[str, Seed] = dict()
         self.vec_dim = 0
         self.e1_type = None
         self.e2_type = None
@@ -146,7 +147,7 @@ class Config(object):
         self.vec_dim = self.word2vec.vector_size
         print(self.vec_dim, "dimensions")
 
-    def read_seeds(self, seeds_file, holder):
+    def read_seeds(self, seeds_file, holder: Dict[str, Seed]):
         for line in fileinput.input(seeds_file):
             if line.startswith("#") or len(line) == 1:
                 continue
@@ -158,6 +159,23 @@ class Config(object):
                 e1 = line.split(";")[0].strip()
                 e1 = e1.lower()
                 e2 = line.split(";")[1].strip()
-                seed = Seed(e1, e2)
-                holder.add(seed)
+                e2 = float(e2)
                 self.objects.add(e1)
+                self.add_seed_to_dict(e1, e2, holder)
+
+    def add_seed_to_dict(self, e1: str, size: float, seed_dict: Dict[str, Seed]):
+        """Add seed to seeds.
+
+        :param e1:
+        :param size:
+        :param seed_dict:
+        :return: True if a new seed was added
+        """
+        try:
+            seed_dict[e1].add_size(size)
+            return False
+        except KeyError:
+            seed_dict[e1] = Seed(e1, size)
+            return True
+
+

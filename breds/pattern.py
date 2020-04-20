@@ -63,30 +63,30 @@ class Pattern(object):
         matched_both = False
         matched_e1 = False
 
-        for s in config.positive_seed_tuples:
+        for s in config.positive_seed_tuples.values():
             if s.e1.strip() == t.e1.strip():
                 matched_e1 = True
                 # TODO convert to floats during tuple parsingv already
                 tuple_number = t.e2
-                seed_number = s.e2
-                if type(s.e2) is str:
-                    seed_number = float(s.e2.strip())
-                # TODO this should be less crude. use the difference in the confidence value
-                if abs((tuple_number - seed_number) / seed_number) < config.relative_difference_cutoff:
-                    self.positive += 1
-                    matched_both = True
-                    break
+                for seed_size in s.sizes:
+
+                    # TODO this should be less crude. use the difference in the confidence value
+                    if abs((tuple_number - seed_size) / seed_size) < config.relative_difference_cutoff:
+                        self.positive += 1
+                        matched_both = True
+                        break
 
         if matched_e1 is True and matched_both is False:
             self.negative += 1
 
         if matched_both is False:
-            for n in config.negative_seed_tuples:
+            for n in config.negative_seed_tuples.values():
                 if n.e1.strip() == t.e1.strip():
-                    if n.e2.strip() == t.e2.strip():
-                        self.negative += 1
-                        matched_both = True
-                        break
+                    for seed_size in n.sizes:
+                        if seed_size == t.e2.strip():
+                            self.negative += 1
+                            matched_both = True
+                            break
 
         if not matched_both and not matched_e1:
             self.unknown += 1
