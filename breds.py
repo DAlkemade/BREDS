@@ -29,8 +29,7 @@ __email__ = "dsbatista@inesc-id.pt"
 
 # useful for debugging
 PRINT_TUPLES = False
-PRINT_PATTERNS = True
-TEST = True
+PRINT_PATTERNS = False
 PRINT_SEED_MATCHES = False
 
 def print_tuple_props(t: Tuple):
