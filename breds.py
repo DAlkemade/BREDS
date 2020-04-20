@@ -119,6 +119,7 @@ class BREDS(object):
         """
         if self.config.coreference:
             fname = "processed_tuples_numeric_coreference.pkl"
+
         else:
             fname = "processed_tuples_numeric.pkl"
         if os.path.exists(fname):
@@ -139,9 +140,15 @@ class BREDS(object):
             urls_fname = 'urls.pkl'
             urls = create_or_update_results(urls_fname, queries, names)
 
-            print(urls)
-            loop = asyncio.get_event_loop()
-            htmls_lookup = html_scraper.create_or_update_urls_html(names, urls, loop)
+            html_fname = 'htmls.pkl'
+            if os.path.exists(html_fname):
+                with open(html_fname, "rb") as f_html:
+                    htmls_lookup = pickle.load(f_html)
+            else:
+                loop = asyncio.get_event_loop()
+                htmls_lookup = html_scraper.create_or_update_urls_html(names, urls, loop)
+                with open(html_fname, "wb") as f_html:
+                    pickle.dump(htmls_lookup, f_html, pickle.HIGHEST_PROTOCOL)
 
             nlp = spacy.load('en_core_web_sm')
             neuralcoref.add_to_pipe(nlp)

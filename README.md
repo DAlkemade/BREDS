@@ -39,6 +39,11 @@ You also need to install NLTK's Treebank PoS-tagger, stop words list, punkt, and
     nltk.download('stopwords')
     nltk.download('punkt')
     nltk.download('wordnet')
+    
+For coreference resolution:
+```cmd
+python -m spacy download en_core_web_sm
+```
 
 Usage:
 =====
