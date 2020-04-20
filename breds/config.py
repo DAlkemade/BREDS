@@ -104,7 +104,8 @@ class Config(object):
                 self.relative_difference_cutoff = float(line.split("=")[1].strip())
 
             if line.startswith("coreference"):
-                self.coreference = bool(line.split("=")[1].strip())
+                cor_string = line.split("=")[1].strip()
+                self.coreference = cor_string == 'True'
 
 
         assert self.alpha+self.beta+self.gamma == 1
