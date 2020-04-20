@@ -152,6 +152,7 @@ class BREDS(object):
 
             nlp = spacy.load('en_core_web_sm')
             neuralcoref.add_to_pipe(nlp)
+            print(f'Using coreference: {self.config.coreference}')
 
             coreference_times: List[float] = list()
 
