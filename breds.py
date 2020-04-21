@@ -150,9 +150,10 @@ class BREDS(object):
                 with open(html_fname, "wb") as f_html:
                     pickle.dump(htmls_lookup, f_html, pickle.HIGHEST_PROTOCOL)
 
-            spacy.prefer_gpu()
-            nlp = spacy.load('en_core_web_sm')
-            neuralcoref.add_to_pipe(nlp)
+            if self.config.coreference:
+                spacy.require_gpu()
+                nlp = spacy.load('en_core_web_sm')
+                neuralcoref.add_to_pipe(nlp)
             print(f'Using coreference: {self.config.coreference}')
 
             coreference_times: List[float] = list()
