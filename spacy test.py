@@ -14,7 +14,7 @@ def print_clusters(text: str):
 
     print(doc._.coref_resolved)
 
-spacy.prefer_gpu()
+spacy.require_gpu()
 nlp = spacy.load('en_core_web_sm')
 neuralcoref.add_to_pipe(nlp)
 print_clusters('My sister has a dog. She loves him.')
