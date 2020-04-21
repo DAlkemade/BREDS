@@ -137,14 +137,14 @@ class BREDS(object):
             print("\nGenerating relationship instances from sentences")
             names = list(self.config.objects)
             queries = [[f'{name} length', f'{name} size'] for name in names]
-            urls_fname = 'urls.pkl'
-            urls = create_or_update_results(urls_fname, queries, names)
 
             html_fname = 'htmls.pkl'
             if os.path.exists(html_fname):
                 with open(html_fname, "rb") as f_html:
                     htmls_lookup = pickle.load(f_html)
             else:
+                urls_fname = 'urls.pkl'
+                urls = create_or_update_results(urls_fname, queries, names)
                 loop = asyncio.get_event_loop()
                 htmls_lookup = html_scraper.create_or_update_urls_html(names, urls, loop)
                 with open(html_fname, "wb") as f_html:
