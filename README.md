@@ -44,7 +44,7 @@ For coreference resolution:
 ```cmd
 python -m spacy download en_core_web_sm
 ```
-and install: `pip install spacy[cuda]`
+and install: `pip install spacy[cuda]==2.1.0`
 
 Usage:
 =====
