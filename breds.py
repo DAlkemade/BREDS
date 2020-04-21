@@ -277,7 +277,7 @@ class BREDS(object):
     def write_relationships_to_disk(self):
         print("\nWriting extracted relationships to disk")
         timestr = time.strftime("%Y%m%d-%H%M%S")
-        f_output = open(os.path.join('relationships_output', f"relationships{timestr}.txt", "w"))
+        f_output = open(os.path.join('relationships_output', f"relationships{timestr}.txt"), "w")
         tmp = sorted(list(self.candidate_tuples.keys()), reverse=True)
         for t in tmp:
             f_output.write("instance: " + t.e1 + '\t' + str(t.e2) + '\tscore:' + str(t.confidence) + '\n')
