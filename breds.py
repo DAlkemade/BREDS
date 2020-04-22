@@ -173,6 +173,7 @@ class BREDS(object):
                 for html in htmls:
                     if self.config.coreference:
                         time_before = time.time()
+                        print(f'html length: {len(html)}')
                         doc = nlp(html)
                         html = doc._.coref_resolved
                         coreference_times.append(time.time()-time_before)

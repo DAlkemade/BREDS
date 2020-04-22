@@ -40,9 +40,23 @@ You also need to install NLTK's Treebank PoS-tagger, stop words list, punkt, and
     nltk.download('punkt')
     nltk.download('wordnet')
     
-For coreference resolution:
+## For coreference resolution:
+Reqs: cuda 10, python 3.7
+
 ```cmd
+pip install spacy[cuda100]==2.1.9
+git clone https://github.com/dirkgr/neuralcoref
+cd neuralcoref
+git checkout GpuFix
+pip install -r requirements.txt
+pip install -e .
+
 python -m spacy download en_core_web_sm
+
+```
+
+```cmd
+
 ```
 and install: `pip install spacy[cuda]==2.1.0`
 
