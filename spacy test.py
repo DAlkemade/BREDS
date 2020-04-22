@@ -17,6 +17,11 @@ def print_clusters(text: str):
 spacy.require_gpu()
 nlp = spacy.load('en_core_web_sm')
 neuralcoref.add_to_pipe(nlp)
+
+print('My sister has a dog. She loves him.')
+doc = nlp('My sister has a dog. She loves him.')
+print(doc._.coref_resolved)
+
 print_clusters('My sister has a dog. She loves him.')
 
 print_clusters('Angela lives in Boston. She is quite happy in that city.')
