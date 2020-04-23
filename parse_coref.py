@@ -63,6 +63,7 @@ def main():
         object = line.strip().lower()
         objects.add(object)
     names = list(objects)
+    print(f'Number of objects: {len(names)}')
 
 
     htmls_lookup_coref = parse_coref(htmls_lookup, names)
