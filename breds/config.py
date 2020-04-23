@@ -50,6 +50,7 @@ class Config(object):
         for line in fileinput.input(objects):
             object = line.strip().lower()
             self.objects.add(object)
+        print(f'Number of objects: {len(self.objects)}')
 
         #TODO clean up config file stuff and use the config library
         for line in fileinput.input(config_file):
