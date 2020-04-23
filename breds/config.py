@@ -46,10 +46,7 @@ class Config(object):
         # <PER url=http://en.wikipedia.org/wiki/Mark_Zuckerberg>Zuckerberg</PER>
         self.regex_linked = re.compile('<[A-Z]+ url=[^>]+>[^<]+</[A-Z]+>', re.U)
 
-        self.objects = set()
-        for line in fileinput.input(objects):
-            object = line.strip().lower()
-            self.objects.add(object)
+        self.objects = read_objects_of_interest(objects)
         print(f'Number of objects: {len(self.objects)}')
 
         #TODO clean up config file stuff and use the config library
@@ -184,3 +181,9 @@ class Config(object):
             return True
 
 
+def read_objects_of_interest(objects_path):
+    objects = set()
+    for line in fileinput.input(objects_path):
+        object = line.strip().lower()
+        objects.add(object)
+    return objects
