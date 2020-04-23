@@ -54,61 +54,6 @@ class BREDS(object):
         self.config = Config(config_file, seeds_file, negative_seeds, similarity, confidence, objects)
         # TODO change to full matrix
 
-    def generate_tuples_lucene(self):
-        """
-        Generate tuples instances from a text file with sentences where named entities are
-        already tagged
-
-        :param sentences_file:
-        """
-        fname = "processed_tuples_numeric_lucene.pkl"
-        if os.path.exists(fname):
-
-            with open(fname, "rb") as f_in:
-                print("\nLoading processed tuples from disk...")
-                self.processed_tuples = pickle.load(f_in)
-            print(len(self.processed_tuples), "tuples loaded")
-
-        else:
-
-            # load needed stuff, word2vec model and a pos-tagger
-            self.config.read_word2vec()
-            tagger = load('taggers/maxent_treebank_pos_tagger/english.pickle')
-
-            print("\nGenerating relationship instances from sentences")
-            object_occurrences, lucene_reader = find_all_text_occurrences(self.config.objects)
-            for object, doc_idxs in tqdm.tqdm(object_occurrences.items()):
-                for doc_idx in tqdm.tqdm(doc_idxs):
-                    doc = lucene_reader.document(doc_idx)
-                    text: str = doc.get("contents")
-                    text = text.lower()  # TODO should I do this?
-                    # TODO don't do this, ruins thing like lion is 2.5 meters. there should be a package to split into sentences
-                    # sentences = text.split('.')
-
-                    # TODO split sentences from docs
-                    for line in sentences:
-
-                        # TODO here I should change how tuples are found (i.e. all combinations of anchor objects)
-                        sentence = Sentence(line.strip(),
-                                            self.config.e1_type,
-                                            self.config.e2_type,
-                                            self.config.max_tokens_away,
-                                            self.config.min_tokens_away,
-                                            self.config.context_window_size, object, tagger,
-                                            self.config)
-
-                        for rel in sentence.relationships:
-                            t = Tuple(rel.e1, rel.e2,
-                                      rel.sentence, rel.before, rel.between, rel.after,
-                                      self.config)
-                            self.processed_tuples.append(t)
-            print("\n", len(self.processed_tuples), "tuples generated")
-
-            lucene_reader.close()
-
-            print("Writing generated tuples to disk")
-            with open(fname, "wb") as f_out:
-                pickle.dump(self.processed_tuples, f_out)
 
     def generate_tuples(self):
         """
@@ -119,9 +64,13 @@ class BREDS(object):
         """
         if self.config.coreference:
             fname = "processed_tuples_numeric_coreference.pkl"
+            html_fname = 'htmls_coref.pkl'
+
 
         else:
             fname = "processed_tuples_numeric.pkl"
+            html_fname = 'htmls.pkl'
+
         if os.path.exists(fname):
             with open(fname, "rb") as f_in:
                 print("\nLoading processed tuples from disk...")
@@ -138,11 +87,12 @@ class BREDS(object):
             names = list(self.config.objects)
             queries = [[f'{name} length', f'{name} size'] for name in names]
 
-            html_fname = 'htmls.pkl'
             if os.path.exists(html_fname):
                 with open(html_fname, "rb") as f_html:
                     htmls_lookup = pickle.load(f_html)
             else:
+                if self.config.coreference:
+                    raise ValueError('We have not implemented lazy coreferences. You need to parse these in advance on a GPU.')
                 urls_fname = 'urls.pkl'
                 urls = create_or_update_results(urls_fname, queries, names)
                 loop = asyncio.get_event_loop()
@@ -150,13 +100,8 @@ class BREDS(object):
                 with open(html_fname, "wb") as f_html:
                     pickle.dump(htmls_lookup, f_html, pickle.HIGHEST_PROTOCOL)
 
-            if self.config.coreference:
-                spacy.require_gpu()
-                nlp = spacy.load('en_core_web_sm')
-                neuralcoref.add_to_pipe(nlp)
             print(f'Using coreference: {self.config.coreference}')
 
-            coreference_times: List[float] = list()
 
             for object in tqdm.tqdm(names):
                 # TODO think about units. could something automatic be done? it should in theory be possible to learn the meaning of each unit
@@ -171,12 +116,6 @@ class BREDS(object):
                     continue
 
                 for html in htmls:
-                    if self.config.coreference:
-                        time_before = time.time()
-                        print(f'html length: {len(html)}')
-                        doc = nlp(html)
-                        html = doc._.coref_resolved
-                        coreference_times.append(time.time()-time_before)
                     sentences = tokenize.sent_tokenize(html)
 
                     # TODO split sentences from docs
@@ -203,11 +142,8 @@ class BREDS(object):
             with open(fname, "wb") as f_out:
                 pickle.dump(self.processed_tuples, f_out)
 
-            coref_comp = np.mean(coreference_times)
-            print(f'Average coreference comp time: {coref_comp}')
-            f = open('coref_computation_time.txt', 'w')
-            f.write(f'coref_comp: {coref_comp}')
-            f.close()
+
+
 
     def similarity_3_contexts(self, p: Tuple, t: Tuple):
         (bef, bet, aft) = (0, 0, 0)

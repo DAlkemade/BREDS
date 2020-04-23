@@ -15,7 +15,7 @@ __email__ = "dsbatista@inesc-id.pt"
 class Config(object):
 
     def __init__(self, config_file, positive_seeds, negative_seeds,
-                 similarity, confidence, objects: list):
+                 similarity, confidence, objects):
 
         # http://www.ling.upenn.edu/courses/Fall_2007/ling001/penn_treebank_pos.html
         # select everything except stopwords, ADJ and ADV
