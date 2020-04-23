@@ -41,7 +41,10 @@ You also need to install NLTK's Treebank PoS-tagger, stop words list, punkt, and
     nltk.download('wordnet')
     
 ## For coreference resolution:
-Reqs: cuda 10, python 3.7
+Reqs: cuda 10, python 3.7, e.g.:
+```cmd
+module load python/3.7 cuda/10.0 cudnn/7.5_cuda-10.0
+```
 
 ```cmd
 pip install spacy[cuda100]==2.1.9
