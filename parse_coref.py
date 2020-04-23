@@ -65,7 +65,7 @@ def main():
     names = list(objects)
 
 
-    htmls_lookup_coref = parse_coref(names, htmls_lookup)
+    htmls_lookup_coref = parse_coref(htmls_lookup, names)
 
     with open(f'{html_fname.split(".")[0]}_coref.pkl', 'wb') as f:
         pickle.dump(htmls_lookup_coref, f, pickle.HIGHEST_PROTOCOL)
