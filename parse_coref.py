@@ -13,17 +13,20 @@ from breds.config import read_objects_of_interest
 SAVE_STEP = 100
 
 def parse_coref(htmls, nlp):
-    name_coref_htmls = []
+    name_coref_paragraphs = []
     for html in htmls:
         print(f'html length: {len(html)}')
-        try:
-            doc = nlp(html)
-            html_coref = doc._.coref_resolved
-            name_coref_htmls.append(html_coref)
-        except MemoryError:
-            pass
+        paragraphs = html.split('\n\n')
+        print(f'Number of paragraphs: {len(paragraphs)}')
+        for paragraph in paragraphs:
+            try:
+                doc = nlp(paragraph)
+                html_coref = doc._.coref_resolved
+                name_coref_paragraphs.append(html_coref)
+            except MemoryError:
+                pass
 
-    return name_coref_htmls
+    return name_coref_paragraphs
 
 
 def main():
