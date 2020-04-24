@@ -93,7 +93,7 @@ class BREDS(object):
             else:
                 if self.config.coreference:
                     raise ValueError('We have not implemented lazy coreferences. You need to parse these in advance on a GPU.')
-                scrape_htmls(html_fname, names)
+                htmls_lookup = scrape_htmls(html_fname, names)
 
             print(f'Using coreference: {self.config.coreference}')
 

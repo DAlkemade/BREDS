@@ -31,6 +31,7 @@ def scrape_htmls(html_fname, names):
     htmls_lookup = html_scraper.create_or_update_urls_html(names, urls, loop)
     with open(html_fname, 'wb') as f:
         pickle.dump(htmls_lookup, f, pickle.HIGHEST_PROTOCOL)
+    return htmls_lookup
 
 
 if __name__ == "__main__":
