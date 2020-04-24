@@ -17,6 +17,7 @@ def parse_coref(htmls, nlp):
     for html in htmls:
         print(f'html length: {len(html)}')
         paragraphs = html.split('\n\n')
+        paragraphs = list(filter(lambda x: x != "", paragraphs))
         print(f'Number of paragraphs: {len(paragraphs)}')
         for paragraph in paragraphs:
             try:
