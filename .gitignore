@@ -121,3 +121,4 @@ urls.pkl
 relationships_output/
 resultslog
 htmls.pkl
+*.pkl

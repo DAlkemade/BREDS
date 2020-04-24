@@ -1,4 +1,5 @@
 import asyncio
+import configparser
 import logging
 import operator
 import os
@@ -55,24 +56,16 @@ class BREDS(object):
         # TODO change to full matrix
 
 
-    def generate_tuples(self):
         """
         Generate tuples instances from a text file with sentences where named entities are
         already tagged
 
         :param sentences_file:
         """
-        if self.config.coreference:
-            fname = "processed_tuples_numeric_coreference.pkl"
-            html_fname = 'htmls_coref.pkl'
 
 
-        else:
-            fname = "processed_tuples_numeric.pkl"
-            html_fname = 'htmls.pkl'
-
-        if os.path.exists(fname):
-            with open(fname, "rb") as f_in:
+        if os.path.exists(tuples_fname):
+            with open(tuples_fname, "rb") as f_in:
                 print("\nLoading processed tuples from disk...")
                 self.processed_tuples = pickle.load(f_in)
             print(len(self.processed_tuples), "tuples loaded")
@@ -87,13 +80,13 @@ class BREDS(object):
             names = list(self.config.objects)
 
 
-            if os.path.exists(html_fname):
-                with open(html_fname, "rb") as f_html:
+            if os.path.exists(htmls_fname):
+                with open(htmls_fname, "rb") as f_html:
                     htmls_lookup = pickle.load(f_html)
             else:
                 if self.config.coreference:
                     raise ValueError('We have not implemented lazy coreferences. You need to parse these in advance on a GPU.')
-                htmls_lookup = scrape_htmls(html_fname, names)
+                htmls_lookup = scrape_htmls(htmls_fname, names)
 
             print(f'Using coreference: {self.config.coreference}')
 
@@ -445,7 +438,7 @@ class BREDS(object):
 
 
 def main():
-    if len(sys.argv) != 7:
+    if len(sys.argv) != 8:
         print("\nBREDS.py parameters sentences positive_seeds negative_seeds "
               "similarity confidence numeric_data_dir\n")
         sys.exit(0)
@@ -456,10 +449,19 @@ def main():
         similarity = float(sys.argv[4])
         confidence = float(sys.argv[5])
         objects = Path(sys.argv[6])
+        cache_config_fname = sys.argv[7]
+
+
 
         breads = BREDS(configuration, seeds_file, negative_seeds, similarity, confidence, objects)
 
-        breads.generate_tuples()
+        cache_config = configparser.ConfigParser()
+        cache_config.read(cache_config_fname)
+        cache_type = 'COREF' if breads.config.coreference else 'NOCOREF'
+        htmls_fname = cache_config[cache_type].getstr('htmls')
+        tuples_fname = cache_config[cache_type].getstr('tuples')
+
+        breads.generate_tuples(htmls_fname, tuples_fname)
         breads.init_bootstrap(tuples=None)
 
 
