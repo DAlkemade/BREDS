@@ -36,12 +36,13 @@ def main():
     objects_path = Path(args.objects_fname)
     htmls_coref_cache_fname: str = args.htmls_coref_cache
 
+    with open(html_fname, "rb") as f_html:
+        htmls_lookup = pickle.load(f_html)
+
     spacy.require_gpu()
     nlp = spacy.load('en_core_web_sm')
     neuralcoref.add_to_pipe(nlp)
 
-    with open(html_fname, "rb") as f_html:
-        htmls_lookup = pickle.load(f_html)
 
     htmls_lookup_coref = load_cache(htmls_coref_cache_fname)
 
