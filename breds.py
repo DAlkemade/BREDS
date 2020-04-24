@@ -128,7 +128,7 @@ class BREDS(object):
             print("\n", len(self.processed_tuples), "tuples generated")
 
             print("Writing generated tuples to disk")
-            with open(fname, "wb") as f_out:
+            with open(tuples_fname, "wb") as f_out:
                 pickle.dump(self.processed_tuples, f_out)
 
 
