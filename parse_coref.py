@@ -10,6 +10,7 @@ import tqdm
 
 from breds.config import read_objects_of_interest
 
+SAVE_STEP = 100
 
 def parse_coref(htmls, nlp):
     name_coref_htmls = []
@@ -68,7 +69,7 @@ def find_corefs(htmls_coref_cache_fname, htmls_lookup, htmls_lookup_coref, names
         htmls_coref = parse_coref(htmls, nlp)
         htmls_lookup_coref[name] = htmls_coref
         count += 1
-        if count % 200 == 0:
+        if count % SAVE_STEP == 0:
             with open(htmls_coref_cache_fname, 'wb') as f:
                 pickle.dump(htmls_lookup_coref, f, pickle.HIGHEST_PROTOCOL)
 
