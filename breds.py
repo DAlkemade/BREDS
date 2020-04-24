@@ -56,6 +56,7 @@ class BREDS(object):
         # TODO change to full matrix
 
 
+    def generate_tuples(self, htmls_fname: str, tuples_fname: str):
         """
         Generate tuples instances from a text file with sentences where named entities are
         already tagged
