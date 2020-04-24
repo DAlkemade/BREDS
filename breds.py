@@ -26,7 +26,7 @@ from breds.sentence import Sentence
 from breds.tuple import Tuple
 
 # from lucene_looper import find_all_text_occurrences
-
+from retrieve_htmls import scrape_htmls
 
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
@@ -85,7 +85,7 @@ class BREDS(object):
 
             print("\nGenerating relationship instances from sentences")
             names = list(self.config.objects)
-            queries = [[f'{name} length', f'{name} size'] for name in names]
+
 
             if os.path.exists(html_fname):
                 with open(html_fname, "rb") as f_html:
@@ -93,12 +93,7 @@ class BREDS(object):
             else:
                 if self.config.coreference:
                     raise ValueError('We have not implemented lazy coreferences. You need to parse these in advance on a GPU.')
-                urls_fname = 'urls.pkl'
-                urls = create_or_update_results(urls_fname, queries, names)
-                loop = asyncio.get_event_loop()
-                htmls_lookup = html_scraper.create_or_update_urls_html(names, urls, loop)
-                with open(html_fname, "wb") as f_html:
-                    pickle.dump(htmls_lookup, f_html, pickle.HIGHEST_PROTOCOL)
+                scrape_htmls(html_fname, names)
 
             print(f'Using coreference: {self.config.coreference}')
 
