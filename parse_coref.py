@@ -71,6 +71,7 @@ def find_corefs(htmls_coref_cache_fname, htmls_lookup, htmls_lookup_coref, names
         htmls_lookup_coref[name] = htmls_coref
         count += 1
         if count % SAVE_STEP == 0:
+            print("Saving intermediate results")
             with open(htmls_coref_cache_fname, 'wb') as f:
                 pickle.dump(htmls_lookup_coref, f, pickle.HIGHEST_PROTOCOL)
 

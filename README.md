@@ -44,6 +44,8 @@ You also need to install NLTK's Treebank PoS-tagger, stop words list, punkt, and
 Reqs: cuda 10, python 3.7, e.g.:
 ```cmd
 module load python/3.7 cuda/10.0 cudnn/7.5_cuda-10.0
+virtualenv --system-site-packages THESIS
+source THESIS/bin/activate
 ```
 
 ```cmd
@@ -61,7 +63,7 @@ python -m spacy download en_core_web_sm
 ```cmd
 
 ```
-and install: `pip install spacy[cuda]==2.1.0`
+
 
 Usage:
 =====
