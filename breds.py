@@ -125,7 +125,7 @@ class BREDS(object):
                                       rel.sentence, rel.before, rel.between, rel.after,
                                       self.config)
                             self.processed_tuples.append(t)
-            logger.info("\n", len(self.processed_tuples), "tuples generated")
+            logger.info(f"\n{len(self.processed_tuples)} tuples generated")
 
             print("Writing generated tuples to disk")
             with open(tuples_fname, "wb") as f_out:
@@ -226,17 +226,17 @@ class BREDS(object):
             logger.info("\nLoading processed tuples from disk...")
             self.processed_tuples = pickle.load(f)
             f.close()
-        logger.info(len(self.processed_tuples), "tuples loaded")
+        logger.info(f"{len(self.processed_tuples)} tuples loaded")
 
         self.curr_iteration = 0
         newly_added_seeds = []
         try:
             while self.curr_iteration <= self.config.number_iterations:
                 logger.info("==========================================")
-                logger.info("\nStarting iteration", self.curr_iteration)
-                logger.info("\nLooking for seed matches of:")
+                logger.info(f"\nStarting iteration {self.curr_iteration}")
+                logger.info(f"\nLooking for seed matches of:")
                 for s in self.config.positive_seed_tuples.values():
-                    logger.info(s.e1, '\t', s.sizes)
+                    logger.info(f"{s.e1} \t {s.sizes}")
 
                 # Looks for sentences matching the seed instances
                 count_matches, matched_tuples = self.match_seeds_tuples()
@@ -254,7 +254,7 @@ class BREDS(object):
                     )
                     if PRINT_SEED_MATCHES:
                         for t in sorted_counts:
-                            logger.info(t[0][0], '\t', t[0][1], t[1])
+                            logger.info(f"{t[0][0]} \t {t[0][1]} {t[1]}")
 
                     logger.info("\n", len(matched_tuples), "tuples matched")
 
@@ -269,7 +269,7 @@ class BREDS(object):
                                     self.config.min_pattern_support]
                     self.patterns = new_patterns
 
-                    logger.info("\n", len(self.patterns), "patterns generated")
+                    logger.info(f"\n{len(self.patterns)} patterns generated")
 
                     if PRINT_PATTERNS is True:
                         count = 1
@@ -301,7 +301,7 @@ class BREDS(object):
                     #
                     # Each candidate tuple will then have a number of patterns
                     # that extracted it each with an associated degree of match.
-                    logger.info("Number of tuples to be analyzed:", len(self.processed_tuples))
+                    logger.info(f"Number of tuples to be analyzed: {len(self.processed_tuples)}")
 
                     logger.info(f"\nCollecting instances based on extraction patterns in iteration {self.curr_iteration}")
 
@@ -352,12 +352,9 @@ class BREDS(object):
                                 logger.info(f"BET {t.bet_words}")
                                 logger.info(f"AFT {t.aft_words}")
                                 logger.info("========")
-                            # print("Positive", p.positive)
-                            # print("Negative", p.negative)
-                            # print("Unknown", p.unknown)
-                            logger.info("Tuples", len(p.tuples))
-                            logger.info("Pattern Confidence", p.confidence)
-                            logger.info("\n")
+                            logger.info(f"Tuples {len(p.tuples)}")
+                            logger.info(f"Pattern Confidence {p.confidence}")
+                            logger.info(f"\n")
 
                     # update tuple confidence based on patterns confidence
                     logger.info("\n\nCalculating tuples confidence")
