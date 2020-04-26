@@ -429,6 +429,7 @@ def main():
               "similarity confidence numeric_data_dir\n")
         sys.exit(0)
     else:
+        logger.info("Starting BREDS")
         configuration = sys.argv[1]
         seeds_file = sys.argv[2]
         negative_seeds = sys.argv[3]
