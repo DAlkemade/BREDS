@@ -22,12 +22,13 @@ from breds.tuple import Tuple
 # from lucene_looper import find_all_text_occurrences
 from logging_setup import set_up_logging
 from retrieve_htmls import scrape_htmls
+from datetime import datetime
 
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
 
 
-set_up_logging('BREDS')
+set_up_logging(f'BREDS_{datetime.now().strftime("%d%m%Y%H%M%S")}')
 
 logger = logging.getLogger(__name__)
 
