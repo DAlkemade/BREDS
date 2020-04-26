@@ -1,4 +1,3 @@
-import asyncio
 import configparser
 import logging
 import operator
@@ -15,17 +14,11 @@ from gensim import matutils
 from nltk import tokenize
 from nltk.data import load
 from numpy import dot
-from size_comparisons.scraping import html_scraper
-from size_comparisons.scraping.google_ops import create_or_update_results
-import neuralcoref
-import spacy
-import numpy as np
 
 from breds.config import Config
 from breds.pattern import Pattern
 from breds.sentence import Sentence
 from breds.tuple import Tuple
-
 # from lucene_looper import find_all_text_occurrences
 from retrieve_htmls import scrape_htmls
 
@@ -55,7 +48,6 @@ class BREDS(object):
         self.config = Config(config_file, seeds_file, negative_seeds, similarity, confidence, objects)
         # TODO change to full matrix
 
-
     def generate_tuples(self, htmls_fname: str, tuples_fname: str):
         """
         Generate tuples instances from a text file with sentences where named entities are
@@ -63,7 +55,6 @@ class BREDS(object):
 
         :param sentences_file:
         """
-
 
         if os.path.exists(tuples_fname):
             with open(tuples_fname, "rb") as f_in:
@@ -80,17 +71,16 @@ class BREDS(object):
             print("\nGenerating relationship instances from sentences")
             names = list(self.config.objects)
 
-
             if os.path.exists(htmls_fname):
                 with open(htmls_fname, "rb") as f_html:
                     htmls_lookup = pickle.load(f_html)
             else:
                 if self.config.coreference:
-                    raise ValueError('We have not implemented lazy coreferences. You need to parse these in advance on a GPU.')
+                    raise ValueError(
+                        'We have not implemented lazy coreferences. You need to parse these in advance on a GPU.')
                 htmls_lookup = scrape_htmls(htmls_fname, names)
 
             print(f'Using coreference: {self.config.coreference}')
-
 
             for object in tqdm.tqdm(names):
                 # TODO think about units. could something automatic be done? it should in theory be possible to learn the meaning of each unit
@@ -130,9 +120,6 @@ class BREDS(object):
             print("Writing generated tuples to disk")
             with open(tuples_fname, "wb") as f_out:
                 pickle.dump(self.processed_tuples, f_out)
-
-
-
 
     def similarity_3_contexts(self, p: Tuple, t: Tuple):
         (bef, bet, aft) = (0, 0, 0)
@@ -315,7 +302,6 @@ class BREDS(object):
 
                     for t in tqdm.tqdm(self.processed_tuples):
 
-
                         sim_best = 0
                         for extraction_pattern in self.patterns:
                             accept, score = self.similarity_all(
@@ -451,8 +437,6 @@ def main():
         confidence = float(sys.argv[5])
         objects = Path(sys.argv[6])
         cache_config_fname = sys.argv[7]
-
-
 
         breads = BREDS(configuration, seeds_file, negative_seeds, similarity, confidence, objects)
 
