@@ -79,9 +79,11 @@ class BREDS(object):
             names = list(self.config.objects)
 
             if os.path.exists(htmls_fname):
+                logger.info("Loading htmls from disk")
                 with open(htmls_fname, "rb") as f_html:
                     htmls_lookup = pickle.load(f_html)
             else:
+                logger.info("Retrieving htmls")
                 if self.config.coreference:
                     raise ValueError(
                         'We have not implemented lazy coreferences. You need to parse these in advance on a GPU.')
@@ -89,6 +91,7 @@ class BREDS(object):
 
             logger.info(f'Using coreference: {self.config.coreference}')
 
+            logger.info("Start parsing tuples")
             for object in tqdm.tqdm(names):
                 # TODO think about units. could something automatic be done? it should in theory be possible to learn the meaning of each unit
                 # otherwise reuse the scraper pattern to only find numbers with a length unit for now
