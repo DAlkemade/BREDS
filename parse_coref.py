@@ -1,5 +1,6 @@
 import os
 import pickle
+import sys
 import time
 from argparse import ArgumentParser
 from pathlib import Path
@@ -10,13 +11,16 @@ import spacy
 import tqdm
 
 from breds.config import read_objects_of_interest
+from logger_creation import get_logger
+
+logger = get_logger(__name__)
 
 SAVE_STEP = 100
 
 def parse_coref(htmls, nlp):
     name_coref_htmls = []
     for html in htmls:
-        print(f'html length: {len(html)}')
+        logger.info(f'html length: {len(html)}')
         try:
             doc = nlp(html)
             html_coref = doc._.coref_resolved
@@ -28,6 +32,18 @@ def parse_coref(htmls, nlp):
 
 
 def main():
+
+    def my_handler(exc_type, exc_value, exc_traceback):
+        """Handler for unhandled exceptions that will write to the logs"""
+        if issubclass(exc_type, KeyboardInterrupt):
+            # call the default excepthook saved at __excepthook__
+            sys.__excepthook__(exc_type, exc_value, exc_traceback)
+            return
+        logger.critical("Unhandled exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+    # Install exception handler
+    sys.excepthook = my_handler
+    logger.info("Start coreference parsing")
     parser = ArgumentParser()
     parser.add_argument('--htmls_fname', type=str, required=True)
     parser.add_argument('--objects_fname', type=str, required=True)
@@ -48,31 +64,31 @@ def main():
     htmls_lookup_coref = load_cache(htmls_coref_cache_fname)
 
     names = list(read_objects_of_interest(objects_path))
-    print(f'Number of objects: {len(names)}')
+    logger.info(f'Number of objects: {len(names)}')
 
     find_corefs(htmls_coref_cache_fname, htmls_lookup, htmls_lookup_coref, names, nlp)
 
     with open(htmls_coref_cache_fname, 'wb') as f:
         pickle.dump(htmls_lookup_coref, f, pickle.HIGHEST_PROTOCOL)
 
-    print('Finished')
+    logger.info('Finished')
 
 
 def find_corefs(htmls_coref_cache_fname, htmls_lookup, htmls_lookup_coref, names, nlp):
     timestamp = time.time()
-    print(f'Started at time {timestamp}')
+    logger.info(f'Started at time {timestamp}')
     for name in tqdm.tqdm(names):
         if name in htmls_lookup_coref.keys():
             continue
         try:
             htmls: List[str] = htmls_lookup[name]
         except KeyError:
-            print(f'No htmls for {name}')
+            logger.warning(f'No htmls for {name}')
             continue
         htmls_coref = parse_coref(htmls, nlp)
         htmls_lookup_coref[name] = htmls_coref
         if time.time() - timestamp > 50*60:
-            print("Saving intermediate results")
+            logger.info("Saving intermediate results")
             with open(htmls_coref_cache_fname, 'wb') as f:
                 pickle.dump(htmls_lookup_coref, f, pickle.HIGHEST_PROTOCOL)
             timestamp = time.time()
