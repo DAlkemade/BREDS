@@ -1,4 +1,5 @@
 import fileinput
+import logging
 import re
 from typing import Dict
 
@@ -11,7 +12,7 @@ from breds.reverb import Reverb
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
 
-
+logger = logging.getLogger(__name__)
 class Config(object):
 
     def __init__(self, config_file, positive_seeds, negative_seeds,
@@ -47,7 +48,7 @@ class Config(object):
         self.regex_linked = re.compile('<[A-Z]+ url=[^>]+>[^<]+</[A-Z]+>', re.U)
 
         self.objects = read_objects_of_interest(objects)
-        print(f'Number of objects: {len(self.objects)}')
+        logger.info(f'Number of objects: {len(self.objects)}')
 
         #TODO clean up config file stuff and use the config library
         for line in fileinput.input(config_file):

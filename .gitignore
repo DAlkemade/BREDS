@@ -122,3 +122,5 @@ relationships_output/
 resultslog
 htmls.pkl
 *.pkl
+
+logs/

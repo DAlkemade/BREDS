@@ -1,3 +1,4 @@
+import logging
 import os
 import pickle
 import sys
@@ -11,9 +12,11 @@ import spacy
 import tqdm
 
 from breds.config import read_objects_of_interest
-from logger_creation import get_logger, set_unhandled_exceptions_catch
+from logging_setup import set_up_logging
 
-logger = get_logger(__name__)
+set_up_logging('COREF')
+
+logger = logging.getLogger(__name__)
 
 SAVE_STEP = 100
 
@@ -32,8 +35,6 @@ def parse_coref(htmls, nlp):
 
 
 def main():
-    set_unhandled_exceptions_catch(logger)
-
     # Install exception handler
     logger.info("Start coreference parsing")
     parser = ArgumentParser()
@@ -96,4 +97,8 @@ def load_cache(htmls_coref_cache_fname):
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception:
+        logger.exception("Unhandled exception")
+        raise

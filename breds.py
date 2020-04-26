@@ -20,14 +20,16 @@ from breds.pattern import Pattern
 from breds.sentence import Sentence
 from breds.tuple import Tuple
 # from lucene_looper import find_all_text_occurrences
-from logger_creation import get_logger, set_unhandled_exceptions_catch
+from logging_setup import set_up_logging
 from retrieve_htmls import scrape_htmls
 
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
 
-logger = get_logger(__name__)
-set_unhandled_exceptions_catch(logger)
+
+set_up_logging('BREDS')
+
+logger = logging.getLogger(__name__)
 
 # useful for debugging
 PRINT_TUPLES = False
@@ -451,4 +453,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception:
+        logger.exception("Unhandled exception")
+        raise
