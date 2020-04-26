@@ -7,6 +7,7 @@ from size_comparisons.scraping import html_scraper
 from size_comparisons.scraping.google_ops import create_or_update_results
 
 from breds.config import read_objects_of_interest
+from parse_coref import get_all_objects
 
 
 def main():
@@ -16,10 +17,15 @@ def main():
     args = parser.parse_args()
     html_fname: str = args.htmls_fname
     objects_path = Path(args.objects_fname)
-    names = list(read_objects_of_interest(objects_path))
+    names = get_all_objects(objects_path)
     print(f'Number of objects: {len(names)}')
 
     scrape_htmls(html_fname, names)
+
+
+def get_objects(objects_path):
+
+    return list(read_objects_of_interest(objects_path))
 
 
 def scrape_htmls(html_fname, names):

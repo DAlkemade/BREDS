@@ -185,9 +185,24 @@ class Config(object):
             return True
 
 
-def read_objects_of_interest(objects_path):
+def read_objects_of_interest(objects_path) -> set:
     objects = set()
     for line in fileinput.input(objects_path):
         object = line.strip().lower()
         objects.add(object)
+    return objects
+
+
+def parse_objects_from_seed(seeds_file):
+    objects = set()
+    for line in fileinput.input(seeds_file):
+        if line.startswith("#") or len(line) == 1:
+            continue
+        if line.startswith("e1"):
+            continue
+        elif line.startswith("e2"):
+            continue
+        else:
+            e1 = line.split(";")[0].strip()
+            objects.add(e1)
     return objects

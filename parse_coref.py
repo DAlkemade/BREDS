@@ -11,7 +11,7 @@ import neuralcoref
 import spacy
 import tqdm
 
-from breds.config import read_objects_of_interest
+from breds.config import read_objects_of_interest, parse_objects_from_seed
 from logging_setup import set_up_logging
 
 set_up_logging('COREF')
@@ -56,7 +56,7 @@ def main():
 
     htmls_lookup_coref = load_cache(htmls_coref_cache_fname)
 
-    names = list(read_objects_of_interest(objects_path))
+    names = get_all_objects(objects_path)
     logger.info(f'Number of objects: {len(names)}')
 
     find_corefs(htmls_coref_cache_fname, htmls_lookup, htmls_lookup_coref, names, nlp)
@@ -65,6 +65,13 @@ def main():
         pickle.dump(htmls_lookup_coref, f, pickle.HIGHEST_PROTOCOL)
 
     logger.info('Finished')
+
+
+def get_all_objects(objects_path):
+    seeds: set = parse_objects_from_seed('data_numeric/seeds_positive.txt') + parse_objects_from_seed(
+        'data_numeric/seeds_negative.txt')
+    names = list(read_objects_of_interest(objects_path).union(seeds))
+    return names
 
 
 def find_corefs(htmls_coref_cache_fname, htmls_lookup, htmls_lookup_coref, names, nlp):
