@@ -11,7 +11,7 @@ import spacy
 import tqdm
 
 from breds.config import read_objects_of_interest
-from logger_creation import get_logger
+from logger_creation import get_logger, set_unhandled_exceptions_catch
 
 logger = get_logger(__name__)
 
@@ -32,17 +32,9 @@ def parse_coref(htmls, nlp):
 
 
 def main():
-
-    def my_handler(exc_type, exc_value, exc_traceback):
-        """Handler for unhandled exceptions that will write to the logs"""
-        if issubclass(exc_type, KeyboardInterrupt):
-            # call the default excepthook saved at __excepthook__
-            sys.__excepthook__(exc_type, exc_value, exc_traceback)
-            return
-        logger.critical("Unhandled exception", exc_info=(exc_type, exc_value, exc_traceback))
+    set_unhandled_exceptions_catch(logger)
 
     # Install exception handler
-    sys.excepthook = my_handler
     logger.info("Start coreference parsing")
     parser = ArgumentParser()
     parser.add_argument('--htmls_fname', type=str, required=True)
