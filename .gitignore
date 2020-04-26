@@ -123,4 +123,4 @@ resultslog
 htmls.pkl
 *.pkl
 
-logs/
+*.log
