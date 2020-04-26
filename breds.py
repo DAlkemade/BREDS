@@ -442,8 +442,8 @@ def main():
         cache_config = configparser.ConfigParser()
         cache_config.read(cache_config_fname)
         cache_type = 'COREF' if breads.config.coreference else 'NOCOREF'
-        htmls_fname = cache_config[cache_type].getstr('htmls')
-        tuples_fname = cache_config[cache_type].getstr('tuples')
+        htmls_fname = cache_config[cache_type].get('htmls')
+        tuples_fname = cache_config[cache_type].get('tuples')
 
         breads.generate_tuples(htmls_fname, tuples_fname)
         breads.init_bootstrap(tuples=None)
