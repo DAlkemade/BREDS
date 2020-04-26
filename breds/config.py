@@ -13,6 +13,8 @@ __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
 
 logger = logging.getLogger(__name__)
+
+
 class Config(object):
 
     def __init__(self, config_file, positive_seeds, negative_seeds,
@@ -113,42 +115,42 @@ class Config(object):
         self.read_seeds(negative_seeds, self.negative_seed_tuples)
         fileinput.close()
 
-        print("Configuration parameters")
-        print("========================\n")
+        logger.info("Configuration parameters")
+        logger.info("========================\n")
 
-        print("Relationship/Sentence Representation")
-        print("e1 type              :", self.e1_type)
-        print("e2 type              :", self.e2_type)
-        print("tags type            :", self.tag_type)
-        print("context window       :", self.context_window_size)
-        print("max tokens away      :", self.max_tokens_away)
-        print("min tokens away      :", self.min_tokens_away)
-        print("Word2Vec Model       :", self.word2vecmodelpath)
+        logger.info("Relationship/Sentence Representation")
+        logger.info("e1 type              :", self.e1_type)
+        logger.info("e2 type              :", self.e2_type)
+        logger.info("tags type            :", self.tag_type)
+        logger.info("context window       :", self.context_window_size)
+        logger.info("max tokens away      :", self.max_tokens_away)
+        logger.info("min tokens away      :", self.min_tokens_away)
+        logger.info("Word2Vec Model       :", self.word2vecmodelpath)
 
-        print("\nContext Weighting")
-        print("alpha                :", self.alpha)
-        print("beta                 :", self.beta)
-        print("gamma                :", self.gamma)
+        logger.info("\nContext Weighting")
+        logger.info("alpha                :", self.alpha)
+        logger.info("beta                 :", self.beta)
+        logger.info("gamma                :", self.gamma)
 
-        print("\nSeeds")
-        print("positive seeds       :", len(self.positive_seed_tuples))
-        print("negative seeds       :", len(self.negative_seed_tuples))
-        print("negative seeds wNeg  :", self.wNeg)
-        print("unknown seeds wUnk   :", self.wUnk)
+        logger.info("\nSeeds")
+        logger.info("positive seeds       :", len(self.positive_seed_tuples))
+        logger.info("negative seeds       :", len(self.negative_seed_tuples))
+        logger.info("negative seeds wNeg  :", self.wNeg)
+        logger.info("unknown seeds wUnk   :", self.wUnk)
 
-        print("\nParameters and Thresholds")
-        print("threshold_similarity :", self.threshold_similarity)
-        print("instance confidence  :", self.instance_confidence)
-        print("min_pattern_support  :", self.min_pattern_support)
-        print("iterations           :", self.number_iterations)
-        print("iteration wUpdt      :", self.wUpdt)
-        print("\n")
+        logger.info("\nParameters and Thresholds")
+        logger.info("threshold_similarity :", self.threshold_similarity)
+        logger.info("instance confidence  :", self.instance_confidence)
+        logger.info("min_pattern_support  :", self.min_pattern_support)
+        logger.info("iterations           :", self.number_iterations)
+        logger.info("iteration wUpdt      :", self.wUpdt)
+        logger.info("\n")
 
     def read_word2vec(self):
-        print("Loading word2vec model ...\n")
+        logger.info("Loading word2vec model ...\n")
         self.word2vec = KeyedVectors.load_word2vec_format(self.word2vecmodelpath, binary=True)
         self.vec_dim = self.word2vec.vector_size
-        print(self.vec_dim, "dimensions")
+        logger.info(self.vec_dim, "dimensions")
 
     def read_seeds(self, seeds_file, holder: Dict[str, Seed]):
         for line in fileinput.input(seeds_file):

@@ -1,3 +1,4 @@
+import logging
 import re
 from nltk import word_tokenize
 from nltk.corpus import stopwords
@@ -7,6 +8,8 @@ from breds.config import Config
 
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
+
+logger = logging.getLogger(__name__)
 
 # tokens between entities which do not represent relationships
 bad_tokens = [",", "(", ")", ";", "''",  "``", "'s", "-", "vs.", "v", "'", ":", ".", "--"]
@@ -110,14 +113,14 @@ class Sentence:
         # for m in re.finditer(numbers_regex, sentence_no_tags):
         #     numbers.append(m)
         # if goal_object == 'tiger':
-        #     print(sentence_no_tags)
+        #     logger.info(sentence_no_tags)
         finder = LengthsFinderRegex(sentence_no_tags)
         numbers, _ = finder.find_all_matches()
         # if goal_object == 'statue of liberty':
-        #     # print('sentence:' + sentence_no_tags)
+        #     # logger.info('sentence:' + sentence_no_tags)
         #     if 'measures 305' in sentence_no_tags:
-        #         print(repr(sentence_no_tags))
-        #         print(f'numbers: {numbers}')
+        #         logger.info(repr(sentence_no_tags))
+        #         logger.info(f'numbers: {numbers}')
 
         objects = []
         for m in re.finditer(objects_regex, sentence_no_tags):

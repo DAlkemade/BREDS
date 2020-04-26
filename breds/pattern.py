@@ -1,3 +1,4 @@
+import logging
 import uuid
 import numpy as np
 from size_comparisons.inference.baseline_numeric_gaussians import BaselineNumericGaussians
@@ -7,6 +8,7 @@ from breds.config import Config
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
 
+logger = logging.getLogger(__name__)
 
 class Pattern(object):
 
