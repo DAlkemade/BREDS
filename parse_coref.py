@@ -1,5 +1,6 @@
 import os
 import pickle
+import time
 from argparse import ArgumentParser
 from pathlib import Path
 from typing import List
@@ -58,7 +59,8 @@ def main():
 
 
 def find_corefs(htmls_coref_cache_fname, htmls_lookup, htmls_lookup_coref, names, nlp):
-    count = 0
+    timestamp = time.time()
+    print(f'Started at time {timestamp}')
     for name in tqdm.tqdm(names):
         if name in htmls_lookup_coref.keys():
             continue
@@ -69,11 +71,11 @@ def find_corefs(htmls_coref_cache_fname, htmls_lookup, htmls_lookup_coref, names
             continue
         htmls_coref = parse_coref(htmls, nlp)
         htmls_lookup_coref[name] = htmls_coref
-        count += 1
-        if count % SAVE_STEP == 0:
+        if time.time() - timestamp > 50*60:
             print("Saving intermediate results")
             with open(htmls_coref_cache_fname, 'wb') as f:
                 pickle.dump(htmls_lookup_coref, f, pickle.HIGHEST_PROTOCOL)
+            timestamp = time.time()
 
 
 def load_cache(htmls_coref_cache_fname):
