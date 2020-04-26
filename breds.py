@@ -20,10 +20,14 @@ from breds.pattern import Pattern
 from breds.sentence import Sentence
 from breds.tuple import Tuple
 # from lucene_looper import find_all_text_occurrences
+from logger_creation import get_logger, set_unhandled_exceptions_catch
 from retrieve_htmls import scrape_htmls
 
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
+
+logger = get_logger(__name__)
+set_unhandled_exceptions_catch(logger)
 
 # useful for debugging
 PRINT_TUPLES = False
@@ -32,10 +36,10 @@ PRINT_SEED_MATCHES = False
 
 
 def print_tuple_props(t: Tuple):
-    print(f'tuple: {t.e1} {t.e2}')
-    print(f'before | vector: {t.bef_vector} | words: {t.bef_words} | tags: {t.bef_tags}')
-    print(f'between | vector: {t.bet_vector} | words: {t.bet_words} |  tags: {t.bet_tags}')
-    print(f'after | vector: {t.aft_vector} | words: {t.aft_words} | tags: {t.aft_tags}')
+    logger.info(f'tuple: {t.e1} {t.e2}')
+    logger.info(f'before | vector: {t.bef_vector} | words: {t.bef_words} | tags: {t.bef_tags}')
+    logger.info(f'between | vector: {t.bet_vector} | words: {t.bet_words} |  tags: {t.bet_tags}')
+    logger.info(f'after | vector: {t.aft_vector} | words: {t.aft_words} | tags: {t.aft_tags}')
 
 
 class BREDS(object):
@@ -58,9 +62,9 @@ class BREDS(object):
 
         if os.path.exists(tuples_fname):
             with open(tuples_fname, "rb") as f_in:
-                print("\nLoading processed tuples from disk...")
+                logger.info("\nLoading processed tuples from disk...")
                 self.processed_tuples = pickle.load(f_in)
-            print(len(self.processed_tuples), "tuples loaded")
+            logger.info(len(self.processed_tuples), "tuples loaded")
 
         else:
 
@@ -68,7 +72,7 @@ class BREDS(object):
             self.config.read_word2vec()
             tagger = load('taggers/maxent_treebank_pos_tagger/english.pickle')
 
-            print("\nGenerating relationship instances from sentences")
+            logger.info("\nGenerating relationship instances from sentences")
             names = list(self.config.objects)
 
             if os.path.exists(htmls_fname):
@@ -80,7 +84,7 @@ class BREDS(object):
                         'We have not implemented lazy coreferences. You need to parse these in advance on a GPU.')
                 htmls_lookup = scrape_htmls(htmls_fname, names)
 
-            print(f'Using coreference: {self.config.coreference}')
+            logger.info(f'Using coreference: {self.config.coreference}')
 
             for object in tqdm.tqdm(names):
                 # TODO think about units. could something automatic be done? it should in theory be possible to learn the meaning of each unit
@@ -91,7 +95,7 @@ class BREDS(object):
                 try:
                     htmls: List[str] = htmls_lookup[object]
                 except KeyError:
-                    print(f'No htmls for {object}')
+                    logger.warning(f'No htmls for {object}')
                     continue
 
                 for html in htmls:
@@ -115,7 +119,7 @@ class BREDS(object):
                                       rel.sentence, rel.before, rel.between, rel.after,
                                       self.config)
                             self.processed_tuples.append(t)
-            print("\n", len(self.processed_tuples), "tuples generated")
+            logger.info("\n", len(self.processed_tuples), "tuples generated")
 
             print("Writing generated tuples to disk")
             with open(tuples_fname, "wb") as f_out:
@@ -123,10 +127,6 @@ class BREDS(object):
 
     def similarity_3_contexts(self, p: Tuple, t: Tuple):
         (bef, bet, aft) = (0, 0, 0)
-        # print('p:')
-        # print_tuple_props(p)
-        # print('t:')
-        # print_tuple_props(t)
 
         if t.bef_vector is not None and p.bef_vector is not None:
             bef = dot(matutils.unitvec(t.bef_vector), matutils.unitvec(p.bef_vector))
@@ -190,7 +190,7 @@ class BREDS(object):
         return count_matches, matched_tuples
 
     def write_relationships_to_disk(self):
-        print("\nWriting extracted relationships to disk")
+        logger.info("\nWriting extracted relationships to disk")
         timestr = time.strftime("%Y%m%d-%H%M%S")
         f_output = open(os.path.join('relationships_output', f"relationships{timestr}.txt"), "w")
         tmp = sorted(list(self.candidate_tuples.keys()), reverse=True)
@@ -217,31 +217,30 @@ class BREDS(object):
 
         if tuples is not None:
             f = open(tuples, "r")
-            print("\nLoading processed tuples from disk...")
+            logger.info("\nLoading processed tuples from disk...")
             self.processed_tuples = pickle.load(f)
             f.close()
-        print(len(self.processed_tuples), "tuples loaded")
-        # print(self.processed_tuples)
+        logger.info(len(self.processed_tuples), "tuples loaded")
 
         self.curr_iteration = 0
         newly_added_seeds = []
         try:
             while self.curr_iteration <= self.config.number_iterations:
-                print("==========================================")
-                print("\nStarting iteration", self.curr_iteration)
-                print("\nLooking for seed matches of:")
+                logger.info("==========================================")
+                logger.info("\nStarting iteration", self.curr_iteration)
+                logger.info("\nLooking for seed matches of:")
                 for s in self.config.positive_seed_tuples.values():
-                    print(s.e1, '\t', s.sizes)
+                    logger.info(s.e1, '\t', s.sizes)
 
                 # Looks for sentences matching the seed instances
                 count_matches, matched_tuples = self.match_seeds_tuples()
 
                 if len(matched_tuples) == 0:
-                    print("\nNo seed matches found")
+                    logger.info("\nNo seed matches found")
                     sys.exit(0)
 
                 else:
-                    print("\nNumber of seed matches found")
+                    logger.info("\nNumber of seed matches found")
                     sorted_counts = sorted(
                         list(count_matches.items()),
                         key=operator.itemgetter(1),
@@ -249,13 +248,13 @@ class BREDS(object):
                     )
                     if PRINT_SEED_MATCHES:
                         for t in sorted_counts:
-                            print(t[0][0], '\t', t[0][1], t[1])
+                            logger.info(t[0][0], '\t', t[0][1], t[1])
 
-                    print("\n", len(matched_tuples), "tuples matched")
+                    logger.info("\n", len(matched_tuples), "tuples matched")
 
                     # Cluster the matched instances, to generate
                     # patterns/update patterns
-                    print(f"\nClustering matched instances to generate patterns in iteration {self.curr_iteration}")
+                    logger.info(f"\nClustering matched instances to generate patterns in iteration {self.curr_iteration}")
                     self.cluster_tuples(matched_tuples)
 
                     # Eliminate patterns supported by less than
@@ -264,25 +263,25 @@ class BREDS(object):
                                     self.config.min_pattern_support]
                     self.patterns = new_patterns
 
-                    print("\n", len(self.patterns), "patterns generated")
+                    logger.info("\n", len(self.patterns), "patterns generated")
 
                     if PRINT_PATTERNS is True:
                         count = 1
-                        print("\nPatterns:")
+                        logger.info("\nPatterns:")
                         for p in self.patterns:
-                            print(count)
+                            logger.info(count)
                             for t in p.tuples:
-                                print("e1", t.e1)
-                                print("e2", t.e2)
-                                print("BEF", t.bef_words)
-                                print("BET", t.bet_words)
-                                print("AFT", t.aft_words)
-                                print("========")
-                                print("\n")
+                                logger.info("e1", t.e1)
+                                logger.info("e2", t.e2)
+                                logger.info("BEF", t.bef_words)
+                                logger.info("BET", t.bet_words)
+                                logger.info("AFT", t.aft_words)
+                                logger.info("========")
+                                logger.info("\n")
                             count += 1
 
                     if self.curr_iteration == 0 and len(self.patterns) == 0:
-                        print("No patterns generated")
+                        logger.info("No patterns generated")
                         sys.exit(0)
 
                     # Look for sentences with occurrence of seeds
@@ -296,9 +295,9 @@ class BREDS(object):
                     #
                     # Each candidate tuple will then have a number of patterns
                     # that extracted it each with an associated degree of match.
-                    print("Number of tuples to be analyzed:", len(self.processed_tuples))
+                    logger.info("Number of tuples to be analyzed:", len(self.processed_tuples))
 
-                    print(f"\nCollecting instances based on extraction patterns in iteration {self.curr_iteration}")
+                    logger.info(f"\nCollecting instances based on extraction patterns in iteration {self.curr_iteration}")
 
                     for t in tqdm.tqdm(self.processed_tuples):
 
@@ -340,22 +339,22 @@ class BREDS(object):
                         p.update_confidence(self.config)
 
                     if PRINT_PATTERNS is True:
-                        print("\nPatterns:")
+                        logger.info("\nPatterns:")
                         for p in self.patterns:
                             for t in p.tuples:
-                                print("BEF", t.bef_words)
-                                print("BET", t.bet_words)
-                                print("AFT", t.aft_words)
-                                print("========")
+                                logger.info("BEF", t.bef_words)
+                                logger.info("BET", t.bet_words)
+                                logger.info("AFT", t.aft_words)
+                                logger.info("========")
                             # print("Positive", p.positive)
                             # print("Negative", p.negative)
                             # print("Unknown", p.unknown)
-                            print("Tuples", len(p.tuples))
-                            print("Pattern Confidence", p.confidence)
-                            print("\n")
+                            logger.info("Tuples", len(p.tuples))
+                            logger.info("Pattern Confidence", p.confidence)
+                            logger.info("\n")
 
                     # update tuple confidence based on patterns confidence
-                    print("\n\nCalculating tuples confidence")
+                    logger.info("\n\nCalculating tuples confidence")
                     for t in list(self.candidate_tuples.keys()):
                         confidence = 1
                         t.confidence_old = t.confidence
@@ -369,12 +368,12 @@ class BREDS(object):
                         tuples_sorted = sorted(extracted_tuples, key=lambda tpl: tpl.confidence,
                                                reverse=True)
                         for t in tuples_sorted:
-                            print(t.sentence)
-                            print(t.e1, t.e2)
-                            print(t.confidence)
-                            print("\n")
+                            logger.info(t.sentence)
+                            logger.info(t.e1, t.e2)
+                            logger.info(t.confidence)
+                            logger.info("\n")
 
-                    print("Adding tuples to seed with confidence >= {}".format(
+                    logger.info("Adding tuples to seed with confidence >= {}".format(
                         str(self.config.instance_confidence)))
                     for t in list(self.candidate_tuples.keys()):
                         if t.confidence >= self.config.instance_confidence:
@@ -388,14 +387,14 @@ class BREDS(object):
         except KeyboardInterrupt:
             pass
 
-        print(newly_added_seeds)
+        logger.info(newly_added_seeds)
         self.write_relationships_to_disk()
 
     def cluster_tuples(self, matched_tuples):
         # this is a single-pass clustering
         # Initialize: if no patterns exist, first tuple goes to first cluster
         if len(self.patterns) == 0:
-            print("There are no patterns, so creating one")
+            logger.info("There are no patterns, so creating one")
             c1 = Pattern(matched_tuples[0])
             self.patterns.append(c1)
 
@@ -426,7 +425,7 @@ class BREDS(object):
 
 def main():
     if len(sys.argv) != 8:
-        print("\nBREDS.py parameters sentences positive_seeds negative_seeds "
+        logger.critical("\nBREDS.py parameters sentences positive_seeds negative_seeds "
               "similarity confidence numeric_data_dir\n")
         sys.exit(0)
     else:
