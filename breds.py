@@ -273,11 +273,11 @@ class BREDS(object):
                         for p in self.patterns:
                             logger.info(count)
                             for t in p.tuples:
-                                logger.info("e1", t.e1)
-                                logger.info("e2", t.e2)
-                                logger.info("BEF", t.bef_words)
-                                logger.info("BET", t.bet_words)
-                                logger.info("AFT", t.aft_words)
+                                logger.info(f"e1 {t.e1}")
+                                logger.info(f"e2 {t.e2}")
+                                logger.info(f"BEF {t.bef_words}")
+                                logger.info(f"BET {t.bet_words}")
+                                logger.info(f"AFT {t.aft_words}")
                                 logger.info("========")
                                 logger.info("\n")
                             count += 1
@@ -344,9 +344,9 @@ class BREDS(object):
                         logger.info("\nPatterns:")
                         for p in self.patterns:
                             for t in p.tuples:
-                                logger.info("BEF", t.bef_words)
-                                logger.info("BET", t.bet_words)
-                                logger.info("AFT", t.aft_words)
+                                logger.info(f"BEF {t.bef_words}")
+                                logger.info(f"BET {t.bet_words}")
+                                logger.info(f"AFT {t.aft_words}")
                                 logger.info("========")
                             # print("Positive", p.positive)
                             # print("Negative", p.negative)
@@ -371,7 +371,7 @@ class BREDS(object):
                                                reverse=True)
                         for t in tuples_sorted:
                             logger.info(t.sentence)
-                            logger.info(t.e1, t.e2)
+                            logger.info(f"{t.e1} {t.e2}")
                             logger.info(t.confidence)
                             logger.info("\n")
 
