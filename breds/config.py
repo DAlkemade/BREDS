@@ -144,6 +144,7 @@ class Config(object):
         logger.info(f"min_pattern_support   { self.min_pattern_support}")
         logger.info(f"iterations            { self.number_iterations}")
         logger.info(f"iteration wUpdt       { self.wUpdt}")
+        logger.info(f"Coreference:          {self.coreference}")
         logger.info("\n")
 
     def read_word2vec(self):
