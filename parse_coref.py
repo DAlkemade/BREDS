@@ -67,9 +67,9 @@ def main():
     logger.info('Finished')
 
 
-def get_all_objects(objects_path):
-    seeds: set = parse_objects_from_seed('data_numeric/seeds_positive.txt') + parse_objects_from_seed(
-        'data_numeric/seeds_negative.txt')
+def get_all_objects(objects_path) -> list:
+    seeds: set = parse_objects_from_seed('data_numeric/seeds_positive.txt').union(parse_objects_from_seed(
+        'data_numeric/seeds_negative.txt'))
     names = list(read_objects_of_interest(objects_path).union(seeds))
     return names
 

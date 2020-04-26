@@ -193,7 +193,7 @@ def read_objects_of_interest(objects_path) -> set:
     return objects
 
 
-def parse_objects_from_seed(seeds_file):
+def parse_objects_from_seed(seeds_file) -> set:
     objects = set()
     for line in fileinput.input(seeds_file):
         if line.startswith("#") or len(line) == 1:
