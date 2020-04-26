@@ -151,7 +151,7 @@ class Config(object):
         logger.info("Loading word2vec model ...\n")
         self.word2vec = KeyedVectors.load_word2vec_format(self.word2vecmodelpath, binary=True)
         self.vec_dim = self.word2vec.vector_size
-        logger.info(self.vec_dim, "dimensions")
+        logger.info(f"{self.vec_dim} dimensions")
 
     def read_seeds(self, seeds_file, holder: Dict[str, Seed]):
         for line in fileinput.input(seeds_file):
