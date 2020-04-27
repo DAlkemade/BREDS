@@ -23,11 +23,6 @@ def main():
     scrape_htmls(html_fname, names)
 
 
-def get_objects(objects_path):
-
-    return list(read_objects_of_interest(objects_path))
-
-
 def scrape_htmls(html_fname, names):
 
     queries = [[f'{name} length', f'{name} size'] for name in names]
