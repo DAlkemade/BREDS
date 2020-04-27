@@ -23,7 +23,7 @@ from breds.sentence import Sentence
 from breds.tuple import Tuple
 # from lucene_looper import find_all_text_occurrences
 from logging_setup import set_up_logging
-from retrieve_htmls import scrape_htmls
+from breds.htmls import scrape_htmls
 
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
