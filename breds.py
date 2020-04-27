@@ -82,8 +82,6 @@ class BREDS(object):
                 logger.info("Loading htmls from disk")
                 with open(htmls_fname, "rb") as f_html:
                     htmls_lookup = pickle.load(f_html)
-                # lowercase htmls
-                htmls_lookup = dict((k.lower(), v) for k, v in htmls_lookup.items())
             else:
                 logger.info("Retrieving htmls")
                 if self.config.coreference:
