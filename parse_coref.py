@@ -1,7 +1,6 @@
 import logging
 import os
 import pickle
-import sys
 import time
 from argparse import ArgumentParser
 from pathlib import Path
@@ -10,6 +9,7 @@ from typing import List
 import neuralcoref
 import spacy
 import tqdm
+from spacy.tokens import Doc
 
 from breds.config import read_objects_of_interest, parse_objects_from_seed
 from logging_setup import set_up_logging
@@ -20,18 +20,37 @@ logger = logging.getLogger(__name__)
 
 SAVE_STEP = 100
 
-def parse_coref(htmls, nlp):
+
+def parse_coref(htmls, nlp, name):
     name_coref_htmls = []
     for html in htmls:
         logger.info(f'html length: {len(html)}')
         try:
-            doc = nlp(html)
-            html_coref = doc._.coref_resolved
+            doc: Doc = nlp(html)
+            clusters = doc._.coref_clusters
+            relevant_clusters = []
+            for cluster in clusters:
+                text = cluster.main.text.lower()
+                if name in text:
+                    relevant_clusters.append(cluster)
+            html_coref = get_resolved(doc, relevant_clusters)
             name_coref_htmls.append(html_coref)
         except MemoryError:
             pass
 
     return name_coref_htmls
+
+
+def get_resolved(doc, clusters):
+    ''' Return a list of utterrances text where the coref are resolved to the most representative mention'''
+    resolved = list(tok.text_with_ws for tok in doc)
+    for cluster in clusters:
+        for coref in cluster:
+            if coref != cluster.main:
+                resolved[coref.start] = cluster.main.text + doc[coref.end - 1].whitespace_
+                for i in range(coref.start + 1, coref.end):
+                    resolved[i] = ""
+    return ''.join(resolved)
 
 
 def main():
@@ -52,7 +71,6 @@ def main():
     spacy.require_gpu()
     nlp = spacy.load('en_core_web_sm')
     neuralcoref.add_to_pipe(nlp)
-
 
     htmls_lookup_coref = load_cache(htmls_coref_cache_fname)
 
@@ -85,9 +103,9 @@ def find_corefs(htmls_coref_cache_fname, htmls_lookup, htmls_lookup_coref, names
         except KeyError:
             logger.warning(f'No htmls for {name}')
             continue
-        htmls_coref = parse_coref(htmls, nlp)
+        htmls_coref = parse_coref(htmls, nlp, name)
         htmls_lookup_coref[name] = htmls_coref
-        if time.time() - timestamp > 50*60:
+        if time.time() - timestamp > 50 * 60:
             logger.info("Saving intermediate results")
             with open(htmls_coref_cache_fname, 'wb') as f:
                 pickle.dump(htmls_lookup_coref, f, pickle.HIGHEST_PROTOCOL)
