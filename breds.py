@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 # useful for debugging
 PRINT_TUPLES = False
-PRINT_PATTERNS = False
+PRINT_PATTERNS = True
 PRINT_SEED_MATCHES = False
 
 
