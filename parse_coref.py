@@ -48,6 +48,8 @@ def main():
 
     with open(html_fname, "rb") as f_html:
         htmls_lookup = pickle.load(f_html)
+    # lowercase htmls
+    htmls_lookup = dict((k.lower(), v) for k, v in htmls_lookup.items())
 
     spacy.require_gpu()
     nlp = spacy.load('en_core_web_sm')
