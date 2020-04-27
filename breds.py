@@ -255,7 +255,7 @@ class BREDS(object):
                         for t in sorted_counts:
                             logger.info(f"{t[0][0]} \t {t[0][1]} {t[1]}")
 
-                    logger.info("\n", len(matched_tuples), "tuples matched")
+                    logger.info(f"\n {len(matched_tuples)} tuples matched")
 
                     # Cluster the matched instances, to generate
                     # patterns/update patterns
