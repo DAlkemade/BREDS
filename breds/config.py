@@ -203,6 +203,6 @@ def parse_objects_from_seed(seeds_file) -> set:
         elif line.startswith("e2"):
             continue
         else:
-            e1 = line.split(";")[0].strip()
+            e1 = line.split(";")[0].strip().lower()
             objects.add(e1)
     return objects
