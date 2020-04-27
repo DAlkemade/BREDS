@@ -1,4 +1,5 @@
 import configparser
+import json
 import logging
 import operator
 import os
@@ -6,6 +7,7 @@ import pickle
 import sys
 import time
 from collections import defaultdict
+from datetime import datetime
 from pathlib import Path
 from typing import List
 
@@ -22,11 +24,9 @@ from breds.tuple import Tuple
 # from lucene_looper import find_all_text_occurrences
 from logging_setup import set_up_logging
 from retrieve_htmls import scrape_htmls
-from datetime import datetime
 
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
-
 
 set_up_logging(f'BREDS_{datetime.now().strftime("%d%m%Y%H%M%S")}')
 
@@ -229,7 +229,6 @@ class BREDS(object):
         logger.info(f"{len(self.processed_tuples)} tuples loaded")
 
         self.curr_iteration = 0
-        newly_added_seeds = []
         try:
             while self.curr_iteration <= self.config.number_iterations:
                 logger.info("==========================================")
@@ -260,7 +259,8 @@ class BREDS(object):
 
                     # Cluster the matched instances, to generate
                     # patterns/update patterns
-                    logger.info(f"\nClustering matched instances to generate patterns in iteration {self.curr_iteration}")
+                    logger.info(
+                        f"\nClustering matched instances to generate patterns in iteration {self.curr_iteration}")
                     self.cluster_tuples(matched_tuples)
 
                     # Eliminate patterns supported by less than
@@ -303,7 +303,8 @@ class BREDS(object):
                     # that extracted it each with an associated degree of match.
                     logger.info(f"Number of tuples to be analyzed: {len(self.processed_tuples)}")
 
-                    logger.info(f"\nCollecting instances based on extraction patterns in iteration {self.curr_iteration}")
+                    logger.info(
+                        f"\nCollecting instances based on extraction patterns in iteration {self.curr_iteration}")
 
                     for t in tqdm.tqdm(self.processed_tuples):
 
@@ -381,17 +382,15 @@ class BREDS(object):
                     for t in list(self.candidate_tuples.keys()):
                         if t.confidence >= self.config.instance_confidence:
                             # TODO check if it's already in the list
-                            new = self.config.add_seed_to_dict(t.e1, t.e2, self.config.positive_seed_tuples)
-                            if new:
-                                newly_added_seeds.append((t.e1, t.e2))
+                            self.config.add_seed_to_dict(t.e1, t.e2, self.config.positive_seed_tuples)
 
                     # increment the number of iterations
                     self.curr_iteration += 1
         except KeyboardInterrupt:
             pass
 
-        logger.info(newly_added_seeds)
         self.write_relationships_to_disk()
+        self.write_seeds_to_disk()
 
     def cluster_tuples(self, matched_tuples):
         # this is a single-pass clustering
@@ -425,11 +424,17 @@ class BREDS(object):
             else:
                 self.patterns[max_similarity_cluster_index].add_tuple(t)
 
+    def write_seeds_to_disk(self):
+        logger.info('Saving seeds to disk')
+        timestr = time.strftime("%Y%m%d-%H%M%S")
+        with open(f'final_seeds_{timestr}.json', 'w') as outfile:
+            json.dump(self.config.positive_seed_tuples, outfile)
+
 
 def main():
     if len(sys.argv) != 8:
         logger.critical("\nBREDS.py parameters sentences positive_seeds negative_seeds "
-              "similarity confidence numeric_data_dir\n")
+                        "similarity confidence numeric_data_dir\n")
         sys.exit(0)
     else:
         logger.info("Starting BREDS")
