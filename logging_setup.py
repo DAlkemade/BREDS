@@ -2,11 +2,11 @@ import logging
 import os
 
 
-def set_up_logging(application_tag: str):
+def set_up_logging(application_tag: str, logs_dir: str):
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                         datefmt='%m-%d %H:%M',
-                        filename=os.path.join('logs', f'{application_tag}.log'),
+                        filename=os.path.join(logs_dir, f'{application_tag}.log'),
                         filemode='w')
     # define a Handler which writes INFO messages or higher to the sys.stderr
     console = logging.StreamHandler()

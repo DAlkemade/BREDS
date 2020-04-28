@@ -14,8 +14,6 @@ from spacy.tokens import Doc
 from breds.config import read_objects_of_interest, parse_objects_from_seed
 from logging_setup import set_up_logging
 
-set_up_logging('COREF')
-
 logger = logging.getLogger(__name__)
 
 SAVE_STEP = 100
@@ -54,13 +52,15 @@ def get_resolved(doc, clusters):
 
 
 def main():
-    # Install exception handler
     logger.info("Start coreference parsing")
     parser = ArgumentParser()
     parser.add_argument('--htmls_fname', type=str, required=True)
     parser.add_argument('--objects_fname', type=str, required=True)
     parser.add_argument('--htmls_coref_cache', type=str, required=True)
+    parser.add_argument('--work_dir', type=str, required=True)
     args = parser.parse_args()
+    set_up_logging('COREF', os.path.join(args.work_dir, 'logs'))
+
     html_fname: str = args.htmls_fname
     objects_path = Path(args.objects_fname)
     htmls_coref_cache_fname: str = args.htmls_coref_cache
