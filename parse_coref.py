@@ -12,7 +12,7 @@ import tqdm
 from spacy.tokens import Doc
 
 from breds.config import read_objects_of_interest, parse_objects_from_seed
-from logging_setup import set_up_logging
+from logging_setup_dla.logging import set_up_root_logger
 
 logger = logging.getLogger(__name__)
 
@@ -57,9 +57,9 @@ def main():
     parser.add_argument('--htmls_fname', type=str, required=True)
     parser.add_argument('--objects_fname', type=str, required=True)
     parser.add_argument('--htmls_coref_cache', type=str, required=True)
-    parser.add_argument('--work_dir', type=str, required=True)
+    parser.add_argument('--work_dir', type=str, required=False, default=os.getcwd())
     args = parser.parse_args()
-    set_up_logging('COREF', os.path.join(args.work_dir, 'logs'))
+    set_up_root_logger('COREF', os.path.join(args.work_dir, 'logs'))
 
     html_fname: str = args.htmls_fname
     objects_path = Path(args.objects_fname)

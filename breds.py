@@ -22,13 +22,13 @@ from breds.pattern import Pattern
 from breds.sentence import Sentence
 from breds.tuple import Tuple
 # from lucene_looper import find_all_text_occurrences
-from logging_setup import set_up_logging
+from logging_setup_dla.logging import set_up_root_logger
 from breds.htmls import scrape_htmls
 
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
 
-set_up_logging(f'BREDS_{datetime.now().strftime("%d%m%Y%H%M%S")}')
+set_up_root_logger(f'BREDS_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.getcwd())
 
 logger = logging.getLogger(__name__)
 
