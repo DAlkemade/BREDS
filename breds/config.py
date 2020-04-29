@@ -1,13 +1,17 @@
 import fileinput
 import logging
 import re
-from typing import Dict
+from typing import Dict, List
 
 from nltk.corpus import stopwords
 from nltk import WordNetLemmatizer
 from gensim.models import KeyedVectors
 from breds.seed import Seed
 from breds.reverb import Reverb
+from visual_size_comparison.objects import load_images_index, index_objects
+from visual_size_comparison.compare import Comparer
+
+import pandas as pd
 
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
@@ -18,7 +22,7 @@ logger = logging.getLogger(__name__)
 class Config(object):
 
     def __init__(self, config_file, positive_seeds, negative_seeds,
-                 similarity, confidence, objects):
+                 similarity, confidence, objects, vg_objects, vg_objects_anchors):
 
         # http://www.ling.upenn.edu/courses/Fall_2007/ling001/penn_treebank_pos.html
         # select everything except stopwords, ADJ and ADV
@@ -51,6 +55,16 @@ class Config(object):
 
         self.objects = read_objects_of_interest(objects)
         logger.info(f'Number of objects: {len(self.objects)}')
+
+        images = load_images_index(vg_objects)
+        objects_lookup = index_objects(images)
+
+        self.comparer = Comparer(objects_lookup, images)
+
+        test_objects_df = pd.read_csv(vg_objects_anchors)
+        self.test_objects = list(test_objects_df.itertuples(index=False))
+        self.entity_to_synsets: Dict[str, List[str]] = dict()
+        self.fill_synset_mapping(objects_lookup.keys())
 
         #TODO clean up config file stuff and use the config library
         for line in fileinput.input(config_file):
@@ -106,7 +120,14 @@ class Config(object):
 
             if line.startswith("coreference"):
                 cor_string = line.split("=")[1].strip()
-                self.coreference = cor_string == 'True'
+                self.coreference: bool = cor_string == 'True'
+
+            if line.startswith("visual_confidence"):
+                visual_string = line.split("=")[1].strip()
+                self.visual: bool = visual_string == 'True'
+
+            if line.startswith("visual_cutoff"):
+                self.visual_cutoff: float = float(line.split("=")[1])
 
 
         assert self.alpha+self.beta+self.gamma == 1
@@ -145,6 +166,9 @@ class Config(object):
         logger.info(f"iterations            { self.number_iterations}")
         logger.info(f"iteration wUpdt       { self.wUpdt}")
         logger.info(f"Coreference:          {self.coreference}")
+        logger.info(f"Visual:               {self.visual}")
+        logger.info(f"Visual cutoff:        {self.visual_cutoff}")
+
         logger.info("\n")
 
     def read_word2vec(self):
@@ -183,6 +207,14 @@ class Config(object):
         except KeyError:
             seed_dict[e1] = Seed(e1, size)
             return True
+
+    def fill_synset_mapping(self, synsets: List[str]):
+        for synset in synsets:
+            name_raw = synset.split('.')[0]
+            try:
+                self.entity_to_synsets[name_raw].append(synset)
+            except KeyError:
+                self.entity_to_synsets[name_raw] = [synset]
 
 
 def read_objects_of_interest(objects_path) -> set:
