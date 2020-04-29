@@ -18,12 +18,15 @@ from nltk.data import load
 from numpy import dot
 
 from breds.config import Config
-from breds.pattern import Pattern
+from breds.pattern import Pattern, pattern_factory
 from breds.sentence import Sentence
 from breds.tuple import Tuple
 # from lucene_looper import find_all_text_occurrences
 from logging_setup_dla.logging import set_up_root_logger
 from breds.htmls import scrape_htmls
+from breds.visual import check_tuple_with_visuals
+
+import numpy as np
 
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
@@ -47,12 +50,12 @@ def print_tuple_props(t: Tuple):
 
 class BREDS(object):
 
-    def __init__(self, config_file, seeds_file, negative_seeds, similarity, confidence, objects):
+    def __init__(self, config_file, seeds_file, negative_seeds, similarity, confidence, objects, vg_objects, vg_objects_anchors):
         self.curr_iteration = 0
         self.patterns = list()
         self.processed_tuples = list()
         self.candidate_tuples = defaultdict(list)
-        self.config = Config(config_file, seeds_file, negative_seeds, similarity, confidence, objects)
+        self.config = Config(config_file, seeds_file, negative_seeds, similarity, confidence, objects, vg_objects, vg_objects_anchors)
         # TODO change to full matrix
 
     def generate_tuples(self, htmls_fname: str, tuples_fname: str):
@@ -67,7 +70,7 @@ class BREDS(object):
             with open(tuples_fname, "rb") as f_in:
                 logger.info("\nLoading processed tuples from disk...")
                 self.processed_tuples = pickle.load(f_in)
-            logger.info(len(self.processed_tuples), "tuples loaded")
+            logger.info(f"{len(self.processed_tuples)} tuples loaded")
 
         else:
 
@@ -267,7 +270,7 @@ class BREDS(object):
                     # 'min_pattern_support' tuples
                     new_patterns = [p for p in self.patterns if len(p.tuples) >
                                     self.config.min_pattern_support]
-                    self.patterns = new_patterns
+                    self.patterns: List[Pattern] = new_patterns
 
                     logger.info(f"\n{len(self.patterns)} patterns generated")
 
@@ -365,6 +368,23 @@ class BREDS(object):
                         for p in self.candidate_tuples.get(t):
                             confidence *= 1 - (p[0].confidence * p[1])
                         t.confidence = 1 - confidence
+                        #TODO maybe only do this for candates which otherwise would have been added to seed
+                        #TODO think about the following: this sort of promotes tuples that are not recognized by the detector, because they won't be removed
+                        if self.config.visual:
+
+                            corrects = check_tuple_with_visuals(self.config, t.e1, t.e2)
+                            total_hits = len(corrects)
+                            if t.e1 == 'lion':
+                                logger.info(f'LION: {t.e1} {t.e2} total hits: {total_hits} conf: {np.mean(corrects)}')
+                            if total_hits > 3:  # only use visual if enough comparisons were used
+                                visual_confidence = np.mean(corrects)
+                                logger.info(
+                                    f'Used visual for tuple: {total_hits} hits; visual confidence {visual_confidence}; normal confidence: {t.confidence}')
+                                if visual_confidence < self.config.visual_cutoff:  # TODO think about visual cutoff
+                                    if t.confidence > self.config.instance_confidence:
+                                        logger.info(f'Prevented tuple {t.e1} {t.e2} from being added to seeds with visuals')
+                                    t.confidence = 0.
+                                    continue
 
                     # sort tuples by confidence and print
                     if PRINT_TUPLES is True:
@@ -381,7 +401,8 @@ class BREDS(object):
                         str(self.config.instance_confidence)))
                     for t in list(self.candidate_tuples.keys()):
                         if t.confidence >= self.config.instance_confidence:
-                            # TODO check if it's already in the list
+
+                            logger.info(f"Add seed {t.e1} {t.e2} based on bef {t.bef_words} bet {t.bet_words} aft {t.aft_words}(possible among others)")
                             self.config.add_seed_to_dict(t.e1, t.e2, self.config.positive_seed_tuples)
 
                     # increment the number of iterations
@@ -397,7 +418,7 @@ class BREDS(object):
         # Initialize: if no patterns exist, first tuple goes to first cluster
         if len(self.patterns) == 0:
             logger.info("There are no patterns, so creating one")
-            c1 = Pattern(matched_tuples[0])
+            c1 = pattern_factory(self.config, matched_tuples[0])
             self.patterns.append(c1)
 
         for t in tqdm.tqdm(matched_tuples):
@@ -416,7 +437,7 @@ class BREDS(object):
             # if max_similarity < min_degree_match create a new cluster having
             #  this tuple as the centroid
             if max_similarity < self.config.threshold_similarity:
-                c = Pattern(t)
+                c = pattern_factory(self.config, t)
                 self.patterns.append(c)
 
             # if max_similarity >= min_degree_match add to the cluster with
@@ -433,7 +454,7 @@ class BREDS(object):
 
 
 def main():
-    if len(sys.argv) != 8:
+    if len(sys.argv) != 10:
         logger.critical("\nBREDS.py parameters sentences positive_seeds negative_seeds "
                         "similarity confidence numeric_data_dir\n")
         sys.exit(0)
@@ -446,8 +467,10 @@ def main():
         confidence = float(sys.argv[5])
         objects = Path(sys.argv[6])
         cache_config_fname = sys.argv[7]
+        vg_objects: str = sys.argv[8]
+        vg_objects_anchors: str = sys.argv[9]
 
-        breads = BREDS(configuration, seeds_file, negative_seeds, similarity, confidence, objects)
+        breads = BREDS(configuration, seeds_file, negative_seeds, similarity, confidence, objects, vg_objects, vg_objects_anchors)
 
         cache_config = configparser.ConfigParser()
         cache_config.read(cache_config_fname)
