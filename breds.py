@@ -26,6 +26,8 @@ from logging_setup_dla.logging import set_up_root_logger
 from breds.htmls import scrape_htmls
 from breds.visual import check_tuple_with_visuals
 
+from matplotlib import pyplot as plt
+
 import numpy as np
 
 __author__ = "David S. Batista"
@@ -134,6 +136,23 @@ class BREDS(object):
             with open(tuples_fname, "wb") as f_out:
                 pickle.dump(self.processed_tuples, f_out)
 
+        object_occurrence = dict()
+        for o in self.config.objects:
+            object_occurrence[o] = 0
+        for t in self.processed_tuples:
+            try:
+                object_occurrence[t.e1] += 1
+            except KeyError:
+                logger.warning(f'{t.e1} not in objects')
+        occurrences = list(object_occurrence.values())
+        max_value = 100
+        bins = np.linspace(0, max_value, max_value+1)
+        clipped_values = np.clip(occurrences, bins[0], bins[-1])
+        hist, _, _ = plt.hist(clipped_values, bins=bins)
+        logger.info(f'Number of objects with no tuple: {hist[0]}')
+        plt.show()
+
+
     def similarity_3_contexts(self, p: Tuple, t: Tuple):
         (bef, bet, aft) = (0, 0, 0)
 
@@ -231,6 +250,8 @@ class BREDS(object):
             f.close()
         logger.info(f"{len(self.processed_tuples)} tuples loaded")
 
+
+
         self.curr_iteration = 0
         try:
             while self.curr_iteration <= self.config.number_iterations:
@@ -274,20 +295,20 @@ class BREDS(object):
 
                     logger.info(f"\n{len(self.patterns)} patterns generated")
 
-                    if PRINT_PATTERNS is True:
-                        count = 1
-                        logger.info("\nPatterns:")
-                        for p in self.patterns:
-                            logger.info(count)
-                            for t in p.tuples:
-                                logger.info(f"e1 {t.e1}")
-                                logger.info(f"e2 {t.e2}")
-                                logger.info(f"BEF {t.bef_words}")
-                                logger.info(f"BET {t.bet_words}")
-                                logger.info(f"AFT {t.aft_words}")
-                                logger.info("========")
-                                logger.info("\n")
-                            count += 1
+                    # if PRINT_PATTERNS is True:
+                    #     count = 1
+                    #     logger.info("\nPatterns:")
+                    #     for p in self.patterns:
+                    #         logger.info(count)
+                    #         for t in p.tuples:
+                    #             logger.info(f"e1 {t.e1}")
+                    #             logger.info(f"e2 {t.e2}")
+                    #             logger.info(f"BEF {t.bef_words}")
+                    #             logger.info(f"BET {t.bet_words}")
+                    #             logger.info(f"AFT {t.aft_words}")
+                    #             logger.info("========")
+                    #             logger.info("\n")
+                    #         count += 1
 
                     if self.curr_iteration == 0 and len(self.patterns) == 0:
                         logger.info("No patterns generated")
