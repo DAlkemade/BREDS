@@ -69,14 +69,14 @@ def main():
     with open(html_fname, "rb") as f_html:
         htmls_lookup = pickle.load(f_html)
 
-    spacy.require_gpu()
-    nlp = spacy.load('en_core_web_sm')
-    neuralcoref.add_to_pipe(nlp)
-
     htmls_lookup_coref = load_cache(htmls_coref_cache_fname)
 
     names = get_all_objects(objects_path, work_dir)
     logger.info(f'Number of objects: {len(names)}')
+
+    spacy.require_gpu()
+    nlp = spacy.load('en_core_web_sm')
+    neuralcoref.add_to_pipe(nlp)
 
     find_corefs(htmls_coref_cache_fname, htmls_lookup, htmls_lookup_coref, names, nlp)
 
