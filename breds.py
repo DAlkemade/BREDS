@@ -38,7 +38,7 @@ set_up_root_logger(f'BREDS_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.getcwd
 logger = logging.getLogger(__name__)
 
 # useful for debugging
-PRINT_TUPLES = False
+PRINT_TUPLES = True
 PRINT_PATTERNS = True
 PRINT_SEED_MATCHES = False
 
@@ -279,6 +279,12 @@ class BREDS(object):
                         for t in sorted_counts:
                             logger.info(f"{t[0][0]} \t {t[0][1]} {t[1]}")
 
+                    matched_seed_objects: set = set()
+                    for t in sorted_counts:
+                        entity = t[0][0]
+                        matched_seed_objects.add(entity)
+                    logger.info(f'{len(matched_seed_objects)} unique seed objects matched')
+                    logger.info(f'Matched seed objects: {matched_seed_objects}')
                     logger.info(f"\n {len(matched_tuples)} tuples matched")
 
                     # Cluster the matched instances, to generate
@@ -407,6 +413,7 @@ class BREDS(object):
                                     t.confidence = 0.
                                     continue
 
+                    logger.info(f'Number of entities with at least one match: {len(self.candidate_tuples.keys())}')
                     # sort tuples by confidence and print
                     if PRINT_TUPLES is True:
                         extracted_tuples = list(self.candidate_tuples.keys())
