@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 class Seed(object):
     def __init__(self, _e1, _e2: float):
         self.e1 = _e1
-        self.sizes: Set[float] = [_e2]
+        self.sizes: Set[float] = {_e2}
         logger.info(
             f"Created new seed {_e1} {_e2}")
 
