@@ -59,7 +59,8 @@ def main():
     parser.add_argument('--htmls_coref_cache', type=str, required=True)
     parser.add_argument('--work_dir', type=str, required=False, default=os.getcwd())
     args = parser.parse_args()
-    set_up_root_logger('COREF', os.path.join(args.work_dir, 'logs'))
+    work_dir = args.work_dir
+    set_up_root_logger('COREF', os.path.join(work_dir, 'logs'))
 
     html_fname: str = args.htmls_fname
     objects_path = Path(args.objects_fname)
@@ -74,7 +75,7 @@ def main():
 
     htmls_lookup_coref = load_cache(htmls_coref_cache_fname)
 
-    names = get_all_objects(objects_path)
+    names = get_all_objects(objects_path, work_dir)
     logger.info(f'Number of objects: {len(names)}')
 
     find_corefs(htmls_coref_cache_fname, htmls_lookup, htmls_lookup_coref, names, nlp)
@@ -85,9 +86,9 @@ def main():
     logger.info('Finished')
 
 
-def get_all_objects(objects_path) -> list:
-    seeds: set = parse_objects_from_seed('data_numeric/seeds_positive.txt').union(parse_objects_from_seed(
-        'data_numeric/seeds_negative.txt'))
+def get_all_objects(objects_path, work_dir: str = '') -> list:
+    seeds: set = parse_objects_from_seed(os.path.join(work_dir, 'data_numeric/seeds_positive.txt')).union(parse_objects_from_seed(
+        os.path.join(work_dir, 'data_numeric/seeds_negative.txt')))
     names = list(read_objects_of_interest(objects_path).union(seeds))
     return names
 
