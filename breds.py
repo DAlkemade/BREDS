@@ -422,8 +422,6 @@ class BREDS(object):
                         str(self.config.instance_confidence)))
                     for t in list(self.candidate_tuples.keys()):
                         if t.confidence >= self.config.instance_confidence:
-
-                            logger.info(f"Add seed {t.e1} {t.e2} based on bef {t.bef_words} bet {t.bet_words} aft {t.aft_words}(possible among others)")
                             self.config.add_seed_to_dict(t.e1, t.e2, self.config.positive_seed_tuples)
 
                     # increment the number of iterations
