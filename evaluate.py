@@ -5,6 +5,9 @@ import re
 import numpy as np
 from breds.config import parse_objects_from_seed
 from matplotlib import pyplot as plt
+import pprint
+
+pp = pprint.PrettyPrinter()
 
 
 def main():
@@ -32,7 +35,7 @@ def main():
 
     # tuples_lookup = create_lookup(tuples)
     tuples_lookup_high_conf = create_lookup(tuples_high_conf)
-    print(tuples_lookup_high_conf)
+    pp.pprint(tuples_lookup_high_conf)
 
 
 def create_lookup(tuples) -> dict:
