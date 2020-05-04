@@ -120,7 +120,7 @@ class PatternVisual(Pattern):
         tuple_e1 = t.e1.strip()
         tuple_number = t.e2
 
-        self.visual_results += check_tuple_with_visuals(config, tuple_e1, tuple_number)
+        self.visual_results += check_tuple_with_visuals(config.visual_config, tuple_e1, tuple_number)
 
         # TODO might be a bit distorted, because getting a negative is harder, because for all synsets enough comparisons need to be available
 

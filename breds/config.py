@@ -1,32 +1,36 @@
 import fileinput
 import logging
 import re
-from typing import Dict, List
+from typing import Dict
 
-from nltk.corpus import stopwords
-from nltk import WordNetLemmatizer
 from gensim.models import KeyedVectors
-from breds.seed import Seed
-from breds.reverb import Reverb
-from visual_size_comparison.objects import load_images_index, index_objects
-from visual_size_comparison.compare import Comparer
+from nltk import WordNetLemmatizer
+from nltk.corpus import stopwords
 
-import pandas as pd
+from breds.reverb import Reverb
+from breds.seed import Seed
+from breds.visual import VisualConfig
 
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
 
 logger = logging.getLogger(__name__)
 
+class Weights():
+    def __init__(self):
+        self.alpha = None
+        self.beta = None
+        self.gamma = None
 
 class Config(object):
 
     def __init__(self, config_file, positive_seeds, negative_seeds,
-                 similarity, confidence, objects, vg_objects, vg_objects_anchors):
+                 similarity, confidence, objects, visual_config: VisualConfig):
 
         # http://www.ling.upenn.edu/courses/Fall_2007/ling001/penn_treebank_pos.html
         # select everything except stopwords, ADJ and ADV
         # self.filter_pos = ['JJ', 'JJR', 'JJS', 'RB', 'RBR', 'RBS', 'WRB']
+        self.visual_config = visual_config
         self.filter_pos = []
         # self.regex_clean_simple = re.compile('</?[A-Z]+>', re.U)
 
@@ -44,6 +48,7 @@ class Config(object):
         self.reverb = Reverb()
         self.word2vec = None
         self.vec_dim = None
+        self.weights = Weights()
 
         # simple tags, e.g.:
         # <PER>Bill Gates</PER>
@@ -56,15 +61,7 @@ class Config(object):
         self.objects = read_objects_of_interest(objects)
         logger.info(f'Number of objects: {len(self.objects)}')
 
-        images = load_images_index(vg_objects)
-        objects_lookup = index_objects(images)
 
-        self.comparer = Comparer(objects_lookup, images)
-
-        test_objects_df = pd.read_csv(vg_objects_anchors)
-        self.test_objects = list(test_objects_df.itertuples(index=False))
-        self.entity_to_synsets: Dict[str, List[str]] = dict()
-        self.fill_synset_mapping(objects_lookup.keys())
 
         #TODO clean up config file stuff and use the config library
         for line in fileinput.input(config_file):
@@ -102,13 +99,13 @@ class Config(object):
                 self.word2vecmodelpath = line.split("=")[1].strip()
 
             if line.startswith("alpha"):
-                self.alpha = float(line.split("=")[1])
+                self.weights.alpha = float(line.split("=")[1])
 
             if line.startswith("beta"):
-                self.beta = float(line.split("=")[1])
+                self.weights.beta = float(line.split("=")[1])
 
             if line.startswith("gamma"):
-                self.gamma = float(line.split("=")[1])
+                self.weights.gamma = float(line.split("=")[1])
 
             if line.startswith("tags_type"):
                 self.tag_type = line.split("=")[1].strip()
@@ -130,7 +127,7 @@ class Config(object):
                 self.visual_cutoff: float = float(line.split("=")[1])
 
 
-        assert self.alpha+self.beta+self.gamma == 1
+        assert self.weights.alpha+self.weights.beta+self.weights.gamma == 1
 
         self.read_seeds(positive_seeds, self.positive_seed_tuples)
         self.read_seeds(negative_seeds, self.negative_seed_tuples)
@@ -149,9 +146,9 @@ class Config(object):
         logger.info(f"Word2Vec Model        { self.word2vecmodelpath}")
 
         logger.info("\nContext Weighting")
-        logger.info(f"alpha                 { self.alpha}")
-        logger.info(f"beta                  { self.beta}")
-        logger.info(f"gamma                 { self.gamma}")
+        logger.info(f"alpha                 { self.weights.alpha}")
+        logger.info(f"beta                  { self.weights.beta}")
+        logger.info(f"gamma                 { self.weights.gamma}")
 
         logger.info("\nSeeds")
         logger.info(f"positive seeds        { len(self.positive_seed_tuples)}")
@@ -208,13 +205,6 @@ class Config(object):
             seed_dict[e1] = Seed(e1, size)
             return True
 
-    def fill_synset_mapping(self, synsets: List[str]):
-        for synset in synsets:
-            name_raw = synset.split('.')[0]
-            try:
-                self.entity_to_synsets[name_raw].append(synset)
-            except KeyError:
-                self.entity_to_synsets[name_raw] = [synset]
 
 
 def read_objects_of_interest(objects_path) -> set:

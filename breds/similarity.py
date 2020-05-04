@@ -1,4 +1,4 @@
-from breds.config import Config
+from breds.config import Config, Weights
 from breds.pattern import Pattern
 from breds.tuple import Tuple
 from numpy import dot
@@ -6,7 +6,7 @@ from gensim import matutils
 
 
 
-def similarity_3_contexts(p: Tuple, t: Tuple, config: Config):
+def similarity_3_contexts(p: Tuple, t: Tuple, weights: Weights):
     (bef, bet, aft) = (0, 0, 0)
 
     if t.bef_vector is not None and p.bef_vector is not None:
@@ -18,10 +18,10 @@ def similarity_3_contexts(p: Tuple, t: Tuple, config: Config):
     if t.aft_vector is not None and p.aft_vector is not None:
         aft = dot(matutils.unitvec(t.aft_vector), matutils.unitvec(p.aft_vector))
 
-    return config.alpha * bef + config.beta * bet + config.gamma * aft
+    return weights.alpha * bef + weights.beta * bet + weights.gamma * aft
 
 
-def similarity_all(t: Tuple, extraction_pattern: Pattern, config: Config):
+def similarity_all(t: Tuple, extraction_pattern: Pattern, weights: Weights, threshold_similarity: float):
     # calculates the cosine similarity between all patterns part of a
     # cluster (i.e., extraction pattern) and the vector of a ReVerb pattern
     # extracted from a sentence;
@@ -33,10 +33,10 @@ def similarity_all(t: Tuple, extraction_pattern: Pattern, config: Config):
     max_similarity = 0
 
     for p in list(extraction_pattern.tuples):
-        score = similarity_3_contexts(t, p, config)
+        score = similarity_3_contexts(t, p, weights)
         if score > max_similarity:
             max_similarity = score
-        if score >= config.threshold_similarity:
+        if score >= threshold_similarity:
             good += 1
         else:
             bad += 1

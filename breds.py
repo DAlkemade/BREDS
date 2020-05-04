@@ -6,6 +6,7 @@ import os
 import pickle
 import sys
 import time
+from argparse import ArgumentParser
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
@@ -23,7 +24,7 @@ from breds.tuple import Tuple
 # from lucene_looper import find_all_text_occurrences
 from logging_setup_dla.logging import set_up_root_logger
 from breds.htmls import scrape_htmls
-from breds.visual import check_tuple_with_visuals
+from breds.visual import check_tuple_with_visuals, VisualConfig
 
 from matplotlib import pyplot as plt
 
@@ -56,7 +57,8 @@ class BREDS(object):
         self.patterns = list()
         self.processed_tuples = list()
         self.candidate_tuples = defaultdict(list)
-        self.config = Config(config_file, seeds_file, negative_seeds, similarity, confidence, objects, vg_objects, vg_objects_anchors)
+        visual_config = VisualConfig(vg_objects, vg_objects_anchors)
+        self.config = Config(config_file, seeds_file, negative_seeds, similarity, confidence, objects, visual_config)
         # TODO change to full matrix
 
     def generate_tuples(self, htmls_fname: str, tuples_fname: str):
@@ -77,7 +79,6 @@ class BREDS(object):
 
             # load needed stuff, word2vec model and a pos-tagger
             self.config.read_word2vec()
-            tagger = load('taggers/maxent_treebank_pos_tagger/english.pickle')
 
             logger.info("\nGenerating relationship instances from sentences")
             names = list(self.config.objects)
@@ -95,40 +96,8 @@ class BREDS(object):
 
             logger.info(f'Using coreference: {self.config.coreference}')
 
-            logger.info("Start parsing tuples")
-            for object in tqdm.tqdm(names):
-                # TODO think about units. could something automatic be done? it should in theory be possible to learn the meaning of each unit
-                # otherwise reuse the scraper pattern to only find numbers with a length unit for now
-                # TODO I might have to do recognition of 'they' etc. e.g. for lion: With a typical head-to-body length of 184–208 cm (72–82 in) they are larger than females at 160–184 cm (63–72 in).
-                # or 'Generally, males vary in total length from 250 to 390 cm (8.2 to 12.8 ft)'  for tiger
-                # TODO think about plurals, e.g. tigers
-                try:
-                    htmls: List[str] = htmls_lookup[object]
-                except KeyError:
-                    logger.warning(f'No htmls for {object}')
-                    continue
+            self.processed_tuples += process_objects(names, htmls_lookup, self.config)
 
-                for html in htmls:
-                    sentences = tokenize.sent_tokenize(html)
-
-                    # TODO split sentences from docs
-                    for line in sentences:
-                        line = line.lower()  # TODO should I do this?
-
-                        # TODO here I should change how tuples are found (i.e. all combinations of anchor objects)
-                        sentence = Sentence(line.strip(),
-                                            self.config.e1_type,
-                                            self.config.e2_type,
-                                            self.config.max_tokens_away,
-                                            self.config.min_tokens_away,
-                                            self.config.context_window_size, object, tagger,
-                                            self.config)
-
-                        for rel in sentence.relationships:
-                            t = Tuple(rel.e1, rel.e2,
-                                      rel.sentence, rel.before, rel.between, rel.after,
-                                      self.config)
-                            self.processed_tuples.append(t)
             logger.info(f"\n{len(self.processed_tuples)} tuples generated")
 
             print("Writing generated tuples to disk")
@@ -300,7 +269,7 @@ class BREDS(object):
                         sim_best = 0
                         for extraction_pattern in self.patterns:
                             accept, score = similarity_all(
-                                t, extraction_pattern, self.config
+                                t, extraction_pattern, self.config.weights, self.config.threshold_similarity
                             )
                             if accept is True:
                                 extraction_pattern.update_selectivity(
@@ -358,7 +327,7 @@ class BREDS(object):
                         #TODO think about the following: this sort of promotes tuples that are not recognized by the detector, because they won't be removed
                         if self.config.visual:
 
-                            corrects = check_tuple_with_visuals(self.config, t.e1, t.e2)
+                            corrects = check_tuple_with_visuals(self.config.visual_config, t.e1, t.e2)
                             total_hits = len(corrects)
                             if t.e1 == 'lion':
                                 logger.info(f'LION: {t.e1} {t.e2} total hits: {total_hits} conf: {np.mean(corrects)}')
@@ -415,7 +384,7 @@ class BREDS(object):
             # with the highest similarity score
             for i in range(0, len(self.patterns), 1):
                 extraction_pattern = self.patterns[i]
-                accept, score = similarity_all(t, extraction_pattern, self.config)
+                accept, score = similarity_all(t, extraction_pattern, self.config.weights, self.config.threshold_similarity)
                 if accept is True and score > max_similarity:
                     max_similarity = score
                     max_similarity_cluster_index = i
@@ -444,33 +413,72 @@ class BREDS(object):
             pickle.dump(self.patterns, f, pickle.HIGHEST_PROTOCOL)
 
 
+def process_objects(names: list, htmls_lookup: dict, config: Config):
+    tuples = list()
+    logger.info("Start parsing tuples")
+    tagger = load('taggers/maxent_treebank_pos_tagger/english.pickle')
+
+    for object in tqdm.tqdm(names):
+        # TODO think about units. could something automatic be done? it should in theory be possible to learn the meaning of each unit
+        # otherwise reuse the scraper pattern to only find numbers with a length unit for now
+        # TODO I might have to do recognition of 'they' etc. e.g. for lion: With a typical head-to-body length of 184–208 cm (72–82 in) they are larger than females at 160–184 cm (63–72 in).
+        # or 'Generally, males vary in total length from 250 to 390 cm (8.2 to 12.8 ft)'  for tiger
+        # TODO think about plurals, e.g. tigers
+        try:
+            htmls: List[str] = htmls_lookup[object]
+        except KeyError:
+            logger.warning(f'No htmls for {object}')
+            continue
+
+        for html in htmls:
+            sentences = tokenize.sent_tokenize(html)
+
+            # TODO split sentences from docs
+            for line in sentences:
+                line = line.lower()  # TODO should I do this?
+
+                # TODO here I should change how tuples are found (i.e. all combinations of anchor objects)
+                sentence = Sentence(line.strip(),
+                                    config.e1_type,
+                                    config.e2_type,
+                                    config.max_tokens_away,
+                                    config.min_tokens_away,
+                                    config.context_window_size, object, tagger,
+                                    config)
+
+                for rel in sentence.relationships:
+                    t = Tuple(rel.e1, rel.e2,
+                              rel.sentence, rel.before, rel.between, rel.after,
+                              config)
+                    tuples.append(t)
+    return tuples
+
+
 def main():
-    if len(sys.argv) != 10:
-        logger.critical("\nBREDS.py parameters sentences positive_seeds negative_seeds "
-                        "similarity confidence numeric_data_dir\n")
-        sys.exit(0)
-    else:
-        logger.info("Starting BREDS")
-        configuration = sys.argv[1]
-        seeds_file = sys.argv[2]
-        negative_seeds = sys.argv[3]
-        similarity = float(sys.argv[4])
-        confidence = float(sys.argv[5])
-        objects = Path(sys.argv[6])
-        cache_config_fname = sys.argv[7]
-        vg_objects: str = sys.argv[8]
-        vg_objects_anchors: str = sys.argv[9]
 
-        breads = BREDS(configuration, seeds_file, negative_seeds, similarity, confidence, objects, vg_objects, vg_objects_anchors)
+    logger.info("Starting BREDS")
+    parser = ArgumentParser()
+    parser.add_argument('--configuration', type=str, required=True)
+    parser.add_argument('--seeds_file', type=str, required=True)
+    parser.add_argument('--negative_seeds', type=str, required=True)
+    parser.add_argument('--similarity', type=float, required=True)
+    parser.add_argument('--confidence', type=float, required=True)
+    parser.add_argument('--objects', type=str, required=True)
+    parser.add_argument('--cache_config_fname', type=str, required=True)
+    parser.add_argument('--vg_objects', type=str, required=True)
+    parser.add_argument('--vg_objects_anchors', type=str, required=True)
+    args = parser.parse_args()
 
-        cache_config = configparser.ConfigParser()
-        cache_config.read(cache_config_fname)
-        cache_type = 'COREF' if breads.config.coreference else 'NOCOREF'
-        htmls_fname = cache_config[cache_type].get('htmls')
-        tuples_fname = cache_config[cache_type].get('tuples')
+    breads = BREDS(args.configuration, args.seeds_file, args.negative_seeds, args.similarity, args.confidence, args.objects, args.vg_objects, args.vg_objects_anchors)
 
-        breads.generate_tuples(htmls_fname, tuples_fname)
-        breads.init_bootstrap(tuples=None)
+    cache_config = configparser.ConfigParser()
+    cache_config.read(args.cache_config_fname)
+    cache_type = 'COREF' if breads.config.coreference else 'NOCOREF'
+    htmls_fname = cache_config[cache_type].get('htmls')
+    tuples_fname = cache_config[cache_type].get('tuples')
+
+    breads.generate_tuples(htmls_fname, tuples_fname)
+    breads.init_bootstrap(tuples=None)
 
 
 if __name__ == "__main__":
