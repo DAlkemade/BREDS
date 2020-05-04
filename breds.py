@@ -397,6 +397,7 @@ class BREDS(object):
 
         self.write_relationships_to_disk()
         self.write_seeds_to_disk()
+        self.write_patterns_to_disk()
 
     def cluster_tuples(self, matched_tuples):
         # this is a single-pass clustering
@@ -436,6 +437,11 @@ class BREDS(object):
         printable_seed_dict = dict((k, list(v.sizes)) for k,v in self.config.positive_seed_tuples.items())
         with open(f'final_seeds_{timestr}.json', 'w') as outfile:
             json.dump(printable_seed_dict, outfile)
+
+    def write_patterns_to_disk(self):
+        timestr = time.strftime("%Y%m%d-%H%M%S")
+        with open(f'patterns_{timestr}.pkl', 'wb') as f:
+            pickle.dump(self.patterns, f, pickle.HIGHEST_PROTOCOL)
 
 
 def main():
