@@ -7,6 +7,7 @@ from collections import defaultdict
 from configparser import ConfigParser
 from datetime import datetime
 
+from gensim.models import Word2Vec
 from logging_setup_dla.logging import set_up_root_logger
 
 from breds.breds import process_objects, update_tuples_confidences
@@ -83,6 +84,12 @@ def main():
         logger.info(f"{t.e1} {t.e2}")
         logger.info(t.confidence)
         logger.info("\n")
+
+        # TODO can be sped up if necessary:
+        #  https://radimrehurek.com/gensim/auto_examples/tutorials/run_annoy.html#sphx-glr-auto-examples-tutorials-run-annoy-py
+        ms = config.word2vec.most_similar(positive=[t.e1], topn=5)
+        logger.info(ms)
+
 
     # TODO actively search for objects lower in the wordtree hierarchy
     # TODO use embeddings to find similar objects in already found objects

@@ -2,6 +2,8 @@ import logging
 
 from numpy import zeros
 
+from breds.config import Config
+
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
 
@@ -86,7 +88,7 @@ class Tuple(object):
         self.aft_vector = self.pattern2vector_sum(aft_no_tags, config)
 
     @staticmethod
-    def pattern2vector_sum(tokens, config):
+    def pattern2vector_sum(tokens, config: Config):
         pattern_vector = zeros(config.vec_dim)
         if len(tokens) > 1:
             for t in tokens:
