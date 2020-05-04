@@ -433,7 +433,7 @@ class BREDS(object):
     def write_seeds_to_disk(self):
         logger.info('Saving seeds to disk')
         timestr = time.strftime("%Y%m%d-%H%M%S")
-        printable_seed_dict = dict((k, v.sizes) for k,v in self.config.positive_seed_tuples.items())
+        printable_seed_dict = dict((k, list(v.sizes)) for k,v in self.config.positive_seed_tuples.items())
         with open(f'final_seeds_{timestr}.json', 'w') as outfile:
             json.dump(printable_seed_dict, outfile)
 
