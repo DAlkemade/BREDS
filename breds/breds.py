@@ -34,6 +34,30 @@ def print_tuple_props(t: Tuple):
     logger.info(f'after | vector: {t.aft_vector} | words: {t.aft_words} | tags: {t.aft_tags}')
 
 
+def update_tuples_confidences(candidate_tuples: dict, config: Config):
+    for t in list(candidate_tuples.keys()):
+        confidence = 1
+        t.confidence_old = t.confidence
+        for p in candidate_tuples.get(t):
+            confidence *= 1 - (p[0].confidence * p[1])
+        t.confidence = 1 - confidence
+        # TODO maybe only do this for candates which otherwise would have been added to seed
+        # TODO think about the following: this sort of promotes tuples that are not recognized by the detector, because they won't be removed
+        if config.visual:
+
+            corrects = check_tuple_with_visuals(config.visual_config, t.e1, t.e2)
+            total_hits = len(corrects)
+
+            if total_hits > 3:  # only use visual if enough comparisons were used
+                visual_confidence = np.mean(corrects)
+                logger.info(
+                    f'Used visual for tuple: {total_hits} hits; visual confidence {visual_confidence}; normal confidence: {t.confidence}')
+                if visual_confidence < config.visual_cutoff:  # TODO think about visual cutoff
+                    if t.confidence > config.instance_confidence:
+                        logger.info(f'Prevented tuple {t.e1} {t.e2} from being added to seeds with visuals')
+                    t.confidence = 0.
+
+
 class BREDS(object):
 
     def __init__(self, config_file, seeds_file, negative_seeds, similarity, confidence, objects, vg_objects, vg_objects_anchors):
@@ -62,7 +86,6 @@ class BREDS(object):
         else:
 
             # load needed stuff, word2vec model and a pos-tagger
-            self.config.read_word2vec()
 
             logger.info("\nGenerating relationship instances from sentences")
             names = list(self.config.objects)
@@ -301,29 +324,7 @@ class BREDS(object):
 
                     # update tuple confidence based on patterns confidence
                     logger.info("\n\nCalculating tuples confidence")
-                    for t in list(self.candidate_tuples.keys()):
-                        confidence = 1
-                        t.confidence_old = t.confidence
-                        for p in self.candidate_tuples.get(t):
-                            confidence *= 1 - (p[0].confidence * p[1])
-                        t.confidence = 1 - confidence
-                        #TODO maybe only do this for candates which otherwise would have been added to seed
-                        #TODO think about the following: this sort of promotes tuples that are not recognized by the detector, because they won't be removed
-                        if self.config.visual:
-
-                            corrects = check_tuple_with_visuals(self.config.visual_config, t.e1, t.e2)
-                            total_hits = len(corrects)
-                            if t.e1 == 'lion':
-                                logger.info(f'LION: {t.e1} {t.e2} total hits: {total_hits} conf: {np.mean(corrects)}')
-                            if total_hits > 3:  # only use visual if enough comparisons were used
-                                visual_confidence = np.mean(corrects)
-                                logger.info(
-                                    f'Used visual for tuple: {total_hits} hits; visual confidence {visual_confidence}; normal confidence: {t.confidence}')
-                                if visual_confidence < self.config.visual_cutoff:  # TODO think about visual cutoff
-                                    if t.confidence > self.config.instance_confidence:
-                                        logger.info(f'Prevented tuple {t.e1} {t.e2} from being added to seeds with visuals')
-                                    t.confidence = 0.
-                                    continue
+                    update_tuples_confidences(self.candidate_tuples, self.config)
 
                     logger.info(f'Number of entities with at least one match: {len(self.candidate_tuples.keys())}')
                     # sort tuples by confidence and print
@@ -400,6 +401,7 @@ class BREDS(object):
 def process_objects(names: list, htmls_lookup: dict, config: Config):
     tuples = list()
     logger.info("Start parsing tuples")
+    config.read_word2vec()
     tagger = load('taggers/maxent_treebank_pos_tagger/english.pickle')
 
     for object in tqdm.tqdm(names):
