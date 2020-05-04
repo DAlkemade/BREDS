@@ -12,14 +12,13 @@ from pathlib import Path
 from typing import List
 
 import tqdm
-from gensim import matutils
 from nltk import tokenize
 from nltk.data import load
-from numpy import dot
 
 from breds.config import Config
 from breds.pattern import Pattern, pattern_factory
 from breds.sentence import Sentence
+from breds.similarity import similarity_all
 from breds.tuple import Tuple
 # from lucene_looper import find_all_text_occurrences
 from logging_setup_dla.logging import set_up_root_logger
@@ -152,46 +151,6 @@ class BREDS(object):
         logger.info(f'Number of objects with no tuple: {hist[0]}')
         plt.show()
 
-
-    def similarity_3_contexts(self, p: Tuple, t: Tuple):
-        (bef, bet, aft) = (0, 0, 0)
-
-        if t.bef_vector is not None and p.bef_vector is not None:
-            bef = dot(matutils.unitvec(t.bef_vector), matutils.unitvec(p.bef_vector))
-
-        if t.bet_vector is not None and p.bet_vector is not None:
-            bet = dot(matutils.unitvec(t.bet_vector), matutils.unitvec(p.bet_vector))
-
-        if t.aft_vector is not None and p.aft_vector is not None:
-            aft = dot(matutils.unitvec(t.aft_vector), matutils.unitvec(p.aft_vector))
-
-        return self.config.alpha * bef + self.config.beta * bet + self.config.gamma * aft
-
-    def similarity_all(self, t, extraction_pattern):
-
-        # calculates the cosine similarity between all patterns part of a
-        # cluster (i.e., extraction pattern) and the vector of a ReVerb pattern
-        # extracted from a sentence;
-
-        # returns the max similarity scores
-
-        good = 0
-        bad = 0
-        max_similarity = 0
-
-        for p in list(extraction_pattern.tuples):
-            score = self.similarity_3_contexts(t, p)
-            if score > max_similarity:
-                max_similarity = score
-            if score >= self.config.threshold_similarity:
-                good += 1
-            else:
-                bad += 1
-
-        if good >= bad:
-            return True, max_similarity
-        else:
-            return False, 0.0
 
     def match_seeds_tuples(self):
         # checks if an extracted tuple matches seeds tuples
@@ -340,8 +299,8 @@ class BREDS(object):
 
                         sim_best = 0
                         for extraction_pattern in self.patterns:
-                            accept, score = self.similarity_all(
-                                t, extraction_pattern
+                            accept, score = similarity_all(
+                                t, extraction_pattern, self.config
                             )
                             if accept is True:
                                 extraction_pattern.update_selectivity(
@@ -455,7 +414,7 @@ class BREDS(object):
             # with the highest similarity score
             for i in range(0, len(self.patterns), 1):
                 extraction_pattern = self.patterns[i]
-                accept, score = self.similarity_all(t, extraction_pattern)
+                accept, score = similarity_all(t, extraction_pattern, self.config)
                 if accept is True and score > max_similarity:
                     max_similarity = score
                     max_similarity_cluster_index = i
