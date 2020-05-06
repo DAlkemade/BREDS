@@ -96,6 +96,10 @@ def main():
         # TODO use results in an order, e.g direct finds -> mean of hyponyms -> mean of hypernyms -> word2vec
         #  Maybe this is something I should experiment with
 
+        # TODO maybe at this point do a ttest between the two objects, using their best distribution.
+        #  Weigh the importance of each point with their confidences, if possible:
+        #  https://www.statsmodels.org/stable/generated/statsmodels.stats.weightstats.ttest_ind.html
+
     logger.info('Finished')
 
 
