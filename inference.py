@@ -66,45 +66,12 @@ def main():
 
         config.read_word2vec()
 
-        similar_words = defaultdict(lambda: defaultdict(list))
-
-        for entity in unseen_objects:
-            # Word2vec
-            # TODO the results for cheetah and container ship are not great, should probably be a last resort
-            # TODO can be sped up if necessary:
-            #  https://radimrehurek.com/gensim/auto_examples/tutorials/run_annoy.html#sphx-glr-auto-examples-tutorials-run-annoy-py
-            most_similar = config.word2vec.most_similar(positive=entity.split(),
-                                                        topn=5)  # TODO maybe use a bigram model? Because now those can not be entered and not be given as similar words
-            most_similar = [m for m in most_similar if m[1] > .6]
-            # logger.info(most_similar)
-            words, _ = zip(*most_similar)
-            similar_words[entity]['word2vec'] = words
-
-            # TODO maybe use synset1.path_similarity(synset2)
-            # Wordnet children / parents
-            synsets = wn.synsets(entity.replace(' ', '_'), pos=wn.NOUN)
-            # TODO think about homonyms
-            for synset in synsets:
-                hypernyms = [s.lemma_names()[0].replace('_', ' ') for s in synset.hypernyms()]  # only use one name
-                hyponyms = [s.lemma_names()[0].replace('_', ' ') for s in synset.hyponyms()]
-                # TODO set a limit on the number of hyponyms, e.g. 'animal' might have thousands
-                # logger.info(synset.lexname())
-                similar_words[entity]['hyponyms'] += hyponyms
-                similar_words[entity]['hypernyms'] += hypernyms
-
-        logger.info(similar_words)
+        similar_words = find_similar_words(config, unseen_objects)
 
         # Create object lookup
-        objects_lookup = defaultdict(list)
-        for main_object, related_words_dict in similar_words.items():
-            for type, values in related_words_dict.items():
-                for related_word in values:
-                    objects_lookup[related_word].append(main_object)
-        logger.info(objects_lookup)
+        objects_lookup = create_reverse_lookup(similar_words)
 
         all_new_objects = set(objects_lookup.keys()).union(unseen_objects)
-
-        # TODO use similar_words
 
         htmls_lookup = scrape_htmls('htmls_unseen_objects.pkl', list(all_new_objects))
 
@@ -112,37 +79,9 @@ def main():
         logger.info(f'Using coreference: {config.coreference}')
         tuples = process_objects(all_new_objects, htmls_lookup, config)
 
-        candidate_tuples = defaultdict(list)
-        for t in tuples:
-            for extraction_pattern in patterns:
-                accept, score = similarity_all(
-                    t, extraction_pattern, config.weights, config.threshold_similarity
-                )
-                if accept:
-                    candidate_tuples[t].append(
-                        (extraction_pattern, score)
-                    )
+        candidate_tuples = extract_tuples(config, patterns, tuples)
 
-        update_tuples_confidences(candidate_tuples, config)
-
-        # Print tuples
-        extracted_tuples = list(candidate_tuples.keys())
-        tuples_sorted = sorted(extracted_tuples, key=lambda tpl: tpl.confidence,
-                               reverse=True)
-
-        # Compile all results for each object
-        all_sizes = defaultdict(partial(defaultdict, list))
-        for t in tuples_sorted:
-            entity = t.e1
-            relevant_objects = objects_lookup[entity]
-            for relevant_object in relevant_objects:
-                og_dict = similar_words[relevant_object]
-                for type, values in og_dict.items():
-                    if entity in values:
-                        all_sizes[relevant_object][type].append(t)
-
-            if entity in unseen_objects:
-                all_sizes[entity]['itself'].append(t)
+        all_sizes = compile_results(candidate_tuples, objects_lookup, similar_words, unseen_objects)
         with open(cache_fname, 'wb') as f:
             pickle.dump(all_sizes, f, pickle.HIGHEST_PROTOCOL)
 
@@ -159,6 +98,79 @@ def main():
         #  Maybe this is something I should experiment with
 
     logger.info('Finished')
+
+
+def compile_results(candidate_tuples, objects_lookup, similar_words, unseen_objects):
+    # Print tuples
+    extracted_tuples = list(candidate_tuples.keys())
+    tuples_sorted = sorted(extracted_tuples, key=lambda tpl: tpl.confidence,
+                           reverse=True)
+    # Compile all results for each object
+    all_sizes = defaultdict(partial(defaultdict, list))
+    for t in tuples_sorted:
+        entity = t.e1
+        relevant_objects = objects_lookup[entity]
+        for relevant_object in relevant_objects:
+            og_dict = similar_words[relevant_object]
+            for type, values in og_dict.items():
+                if entity in values:
+                    all_sizes[relevant_object][type].append(t)
+
+        if entity in unseen_objects:
+            all_sizes[entity]['itself'].append(t)
+    return all_sizes
+
+
+def extract_tuples(config, patterns, tuples):
+    candidate_tuples = defaultdict(list)
+    for t in tuples:
+        for extraction_pattern in patterns:
+            accept, score = similarity_all(
+                t, extraction_pattern, config.weights, config.threshold_similarity
+            )
+            if accept:
+                candidate_tuples[t].append(
+                    (extraction_pattern, score)
+                )
+    update_tuples_confidences(candidate_tuples, config)
+    return candidate_tuples
+
+
+def create_reverse_lookup(similar_words):
+    objects_lookup = defaultdict(list)
+    for main_object, related_words_dict in similar_words.items():
+        for type, values in related_words_dict.items():
+            for related_word in values:
+                objects_lookup[related_word].append(main_object)
+    return objects_lookup
+
+
+def find_similar_words(config, unseen_objects):
+    similar_words = defaultdict(lambda: defaultdict(list))
+    for entity in unseen_objects:
+        # Word2vec
+        # TODO the results for cheetah and container ship are not great, should probably be a last resort
+        # TODO can be sped up if necessary:
+        #  https://radimrehurek.com/gensim/auto_examples/tutorials/run_annoy.html#sphx-glr-auto-examples-tutorials-run-annoy-py
+        most_similar = config.word2vec.most_similar(positive=entity.split(),
+                                                    topn=5)  # TODO maybe use a bigram model? Because now those can not be entered and not be given as similar words
+        most_similar = [m for m in most_similar if m[1] > .6]
+        # logger.info(most_similar)
+        words, _ = zip(*most_similar)
+        similar_words[entity]['word2vec'] = words
+
+        # TODO maybe use synset1.path_similarity(synset2)
+        # Wordnet children / parents
+        synsets = wn.synsets(entity.replace(' ', '_'), pos=wn.NOUN)
+        # TODO think about homonyms
+        for synset in synsets:
+            hypernyms = [s.lemma_names()[0].replace('_', ' ') for s in synset.hypernyms()]  # only use one name
+            hyponyms = [s.lemma_names()[0].replace('_', ' ') for s in synset.hyponyms()]
+            # TODO set a limit on the number of hyponyms, e.g. 'animal' might have thousands
+            # logger.info(synset.lexname())
+            similar_words[entity]['hyponyms'] += hyponyms
+            similar_words[entity]['hypernyms'] += hypernyms
+    return similar_words
 
 
 if __name__ == "__main__":
