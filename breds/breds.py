@@ -102,6 +102,7 @@ class BREDS(object):
                 htmls_lookup = scrape_htmls(htmls_fname, names)
 
             logger.info(f'Using coreference: {self.config.coreference}')
+            self.config.read_word2vec()
 
             self.processed_tuples += process_objects(names, htmls_lookup, self.config)
 
@@ -401,7 +402,6 @@ class BREDS(object):
 def process_objects(names: list, htmls_lookup: dict, config: Config):
     tuples = list()
     logger.info("Start parsing tuples")
-    config.read_word2vec()
     tagger = load('taggers/maxent_treebank_pos_tagger/english.pickle')
 
     for object in tqdm.tqdm(names):

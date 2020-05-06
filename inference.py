@@ -16,6 +16,8 @@ from breds.htmls import scrape_htmls
 from breds.similarity import similarity_all
 from breds.visual import VisualConfig
 
+from nltk.corpus import wordnet as wn
+
 set_up_root_logger(f'INFERENCE_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.getcwd())
 
 logger = logging.getLogger(__name__)
@@ -56,6 +58,33 @@ def main():
     config = Config(args.configuration, args.seeds_file, args.negative_seeds, args.similarity, args.confidence, args.objects, visual_config)
     unseen_objects = [line.strip() for line in fileinput.input(unseen_objects_fname)]
 
+    config.read_word2vec()
+
+    similar_words = defaultdict(lambda: defaultdict(list))
+
+    for entity in unseen_objects:
+        # Word2vec
+        # TODO the results for cheetah and container ship are not great
+        most_similar = config.word2vec.most_similar(positive=entity.split(), topn=5) # TODO maybe use a bigram model? Because now those can not be entered and not be given as similar words
+        most_similar = [m for m in most_similar if m[1] > .6]
+        # logger.info(most_similar)
+        words, _ = zip(*most_similar)
+        similar_words[entity]['word2vec'] = words
+
+        # Wordnet children / parents
+        synsets = wn.synsets(entity.replace(' ', '_'), pos=wn.NOUN)
+        # TODO think about homonyms
+        for synset in synsets:
+            hypernyms = synset.hypernyms()
+            hyponyms = synset.hyponyms()
+            # logger.info(synset.lexname())
+            similar_words[entity]['hyponyms'] += hyponyms
+            similar_words[entity]['hypernyms'] += hypernyms
+
+    logger.info(similar_words)
+
+    # TODO use similar_words
+
     htmls_lookup = scrape_htmls('htmls_unseen_objects.pkl', unseen_objects)
 
     # TODO coreferences
@@ -87,8 +116,6 @@ def main():
 
         # TODO can be sped up if necessary:
         #  https://radimrehurek.com/gensim/auto_examples/tutorials/run_annoy.html#sphx-glr-auto-examples-tutorials-run-annoy-py
-        ms = config.word2vec.most_similar(positive=[t.e1], topn=5)
-        logger.info(ms)
 
 
     # TODO actively search for objects lower in the wordtree hierarchy
