@@ -93,6 +93,8 @@ def main():
                 logger.info(t.sentence)
                 logger.info(f"{t.e1} {t.e2} with confidence {t.confidence}")
 
+        # TODO compute all means here
+
         # TODO use results in an order, e.g direct finds -> mean of hyponyms -> mean of hypernyms -> word2vec
         #  Maybe this is something I should experiment with
 
