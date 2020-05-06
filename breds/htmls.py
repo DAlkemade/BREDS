@@ -5,7 +5,7 @@ from size_comparisons.scraping import html_scraper
 from size_comparisons.scraping.google_ops import create_or_update_results
 
 
-def scrape_htmls(html_fname, names):
+def scrape_htmls(html_fname, names: list):
 
     queries = [[f'{name} length', f'{name} size'] for name in names]
     urls = create_or_update_results('urls.pkl', queries, names)

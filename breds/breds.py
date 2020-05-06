@@ -88,7 +88,7 @@ class BREDS(object):
             # load needed stuff, word2vec model and a pos-tagger
 
             logger.info("\nGenerating relationship instances from sentences")
-            names = list(self.config.objects)
+            names = self.config.objects
 
             if os.path.exists(htmls_fname):
                 logger.info("Loading htmls from disk")
@@ -99,7 +99,7 @@ class BREDS(object):
                 if self.config.coreference:
                     raise ValueError(
                         'We have not implemented lazy coreferences. You need to parse these in advance on a GPU.')
-                htmls_lookup = scrape_htmls(htmls_fname, names)
+                htmls_lookup = scrape_htmls(htmls_fname, list(names))
 
             logger.info(f'Using coreference: {self.config.coreference}')
             self.config.read_word2vec()
@@ -399,7 +399,7 @@ class BREDS(object):
             pickle.dump(self.patterns, f, pickle.HIGHEST_PROTOCOL)
 
 
-def process_objects(names: list, htmls_lookup: dict, config: Config):
+def process_objects(names: set, htmls_lookup: dict, config: Config):
     tuples = list()
     logger.info("Start parsing tuples")
     tagger = load('taggers/maxent_treebank_pos_tagger/english.pickle')

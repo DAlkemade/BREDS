@@ -56,7 +56,7 @@ def main():
     # TODO check whether the objects aren't in the bootstrapped objects
     visual_config = VisualConfig(args.vg_objects, args.vg_objects_anchors)
     config = Config(args.configuration, args.seeds_file, args.negative_seeds, args.similarity, args.confidence, args.objects, visual_config)
-    unseen_objects = [line.strip() for line in fileinput.input(unseen_objects_fname)]
+    unseen_objects = set([line.strip() for line in fileinput.input(unseen_objects_fname)])
 
     config.read_word2vec()
 
@@ -64,32 +64,46 @@ def main():
 
     for entity in unseen_objects:
         # Word2vec
-        # TODO the results for cheetah and container ship are not great
+        # TODO the results for cheetah and container ship are not great, should probably be a last resort
+        # TODO can be sped up if necessary:
+        #  https://radimrehurek.com/gensim/auto_examples/tutorials/run_annoy.html#sphx-glr-auto-examples-tutorials-run-annoy-py
         most_similar = config.word2vec.most_similar(positive=entity.split(), topn=5) # TODO maybe use a bigram model? Because now those can not be entered and not be given as similar words
         most_similar = [m for m in most_similar if m[1] > .6]
         # logger.info(most_similar)
         words, _ = zip(*most_similar)
         similar_words[entity]['word2vec'] = words
 
+        # TODO maybe use synset1.path_similarity(synset2)
         # Wordnet children / parents
         synsets = wn.synsets(entity.replace(' ', '_'), pos=wn.NOUN)
         # TODO think about homonyms
         for synset in synsets:
-            hypernyms = synset.hypernyms()
-            hyponyms = synset.hyponyms()
+            hypernyms = [s.lemma_names()[0].replace('_', ' ') for s in synset.hypernyms()] # only use one name
+            hyponyms = [s.lemma_names()[0].replace('_', ' ') for s in synset.hyponyms()]
+            # TODO set a limit on the number of hyponyms, e.g. 'animal' might have thousands
             # logger.info(synset.lexname())
             similar_words[entity]['hyponyms'] += hyponyms
             similar_words[entity]['hypernyms'] += hypernyms
 
     logger.info(similar_words)
 
+    # Create object lookup
+    objects_lookup = defaultdict(list)
+    for main_object, related_words_dict in similar_words.items():
+        for type, values in related_words_dict.items():
+            for related_word in values:
+                objects_lookup[related_word].append(main_object)
+    logger.info(objects_lookup)
+
+    all_new_objects = set(objects_lookup.keys()).union(unseen_objects)
+
     # TODO use similar_words
 
-    htmls_lookup = scrape_htmls('htmls_unseen_objects.pkl', unseen_objects)
+    htmls_lookup = scrape_htmls('htmls_unseen_objects.pkl', list(all_new_objects))
 
     # TODO coreferences
     logger.info(f'Using coreference: {config.coreference}')
-    tuples = process_objects(unseen_objects, htmls_lookup, config)
+    tuples = process_objects(all_new_objects, htmls_lookup, config)
 
     candidate_tuples = defaultdict(list)
     for t in tuples:
@@ -108,18 +122,32 @@ def main():
     extracted_tuples = list(candidate_tuples.keys())
     tuples_sorted = sorted(extracted_tuples, key=lambda tpl: tpl.confidence,
                            reverse=True)
+
+    # Compile all results for each object
+    all_sizes = defaultdict(lambda: defaultdict(list))
     for t in tuples_sorted:
-        logger.info(t.sentence)
-        logger.info(f"{t.e1} {t.e2}")
-        logger.info(t.confidence)
-        logger.info("\n")
+        entity = t.e1
+        relevant_objects = objects_lookup[entity]
+        for relevant_object in relevant_objects:
+            og_dict = similar_words[relevant_object]
+            for type, values in og_dict.items():
+                if entity in values:
+                    all_sizes[relevant_object][type].append(t)
+            if entity in unseen_objects:
+                all_sizes[entity]['itself'].append(t)
+            logger.info(t.sentence)
+            logger.info(f"{t.e1} {t.e2}")
+            logger.info(t.confidence)
+            logger.info("\n")
 
-        # TODO can be sped up if necessary:
-        #  https://radimrehurek.com/gensim/auto_examples/tutorials/run_annoy.html#sphx-glr-auto-examples-tutorials-run-annoy-py
+    for object, sims_dict in all_sizes.items():
+        logger.info(f'Processing for {object}')
 
 
-    # TODO actively search for objects lower in the wordtree hierarchy
-    # TODO use embeddings to find similar objects in already found objects
+
+
+
+
     logger.info('Finished')
 
 
