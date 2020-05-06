@@ -85,7 +85,6 @@ def main():
         with open(cache_fname, 'wb') as f:
             pickle.dump(all_sizes, f, pickle.HIGHEST_PROTOCOL)
 
-    logger.info(all_sizes)
     for object, sims_dict in all_sizes.items():
         logger.info(f'Processing for {object}')
         for key, values in sims_dict.items():
