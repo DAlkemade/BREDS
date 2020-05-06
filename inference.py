@@ -4,12 +4,11 @@ import os
 import pickle
 from argparse import ArgumentParser
 from collections import defaultdict
-from configparser import ConfigParser
 from datetime import datetime
 from functools import partial
 
-from gensim.models import Word2Vec
 from logging_setup_dla.logging import set_up_root_logger
+from nltk.corpus import wordnet as wn
 
 from breds.breds import process_objects, update_tuples_confidences
 from breds.config import Weights, Config
@@ -17,11 +16,10 @@ from breds.htmls import scrape_htmls
 from breds.similarity import similarity_all
 from breds.visual import VisualConfig
 
-from nltk.corpus import wordnet as wn
-
 set_up_root_logger(f'INFERENCE_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.getcwd())
 
 logger = logging.getLogger(__name__)
+
 
 def read_weights(parameters_fname: str):
     weights = Weights()
@@ -35,6 +33,7 @@ def read_weights(parameters_fname: str):
         if line.startswith("gamma"):
             weights.gamma = float(line.split("=")[1])
     return weights
+
 
 def main():
     cache_fname = 'inference_cache.pkl'
@@ -61,7 +60,8 @@ def main():
             patterns = pickle.load(f)
         # TODO check whether the objects aren't in the bootstrapped objects
         visual_config = VisualConfig(args.vg_objects, args.vg_objects_anchors)
-        config = Config(args.configuration, args.seeds_file, args.negative_seeds, args.similarity, args.confidence, args.objects, visual_config)
+        config = Config(args.configuration, args.seeds_file, args.negative_seeds, args.similarity, args.confidence,
+                        args.objects, visual_config)
         unseen_objects = set([line.strip() for line in fileinput.input(unseen_objects_fname)])
 
         config.read_word2vec()
@@ -73,7 +73,8 @@ def main():
             # TODO the results for cheetah and container ship are not great, should probably be a last resort
             # TODO can be sped up if necessary:
             #  https://radimrehurek.com/gensim/auto_examples/tutorials/run_annoy.html#sphx-glr-auto-examples-tutorials-run-annoy-py
-            most_similar = config.word2vec.most_similar(positive=entity.split(), topn=5) # TODO maybe use a bigram model? Because now those can not be entered and not be given as similar words
+            most_similar = config.word2vec.most_similar(positive=entity.split(),
+                                                        topn=5)  # TODO maybe use a bigram model? Because now those can not be entered and not be given as similar words
             most_similar = [m for m in most_similar if m[1] > .6]
             # logger.info(most_similar)
             words, _ = zip(*most_similar)
@@ -84,7 +85,7 @@ def main():
             synsets = wn.synsets(entity.replace(' ', '_'), pos=wn.NOUN)
             # TODO think about homonyms
             for synset in synsets:
-                hypernyms = [s.lemma_names()[0].replace('_', ' ') for s in synset.hypernyms()] # only use one name
+                hypernyms = [s.lemma_names()[0].replace('_', ' ') for s in synset.hypernyms()]  # only use one name
                 hyponyms = [s.lemma_names()[0].replace('_', ' ') for s in synset.hyponyms()]
                 # TODO set a limit on the number of hyponyms, e.g. 'animal' might have thousands
                 # logger.info(synset.lexname())
@@ -145,7 +146,6 @@ def main():
         with open(cache_fname, 'wb') as f:
             pickle.dump(all_sizes, f, pickle.HIGHEST_PROTOCOL)
 
-
     logger.info(all_sizes)
     for object, sims_dict in all_sizes.items():
         logger.info(f'Processing for {object}')
@@ -155,15 +155,8 @@ def main():
                 logger.info(t.sentence)
                 logger.info(f"{t.e1} {t.e2} with confidence {t.confidence}")
 
-
-
-
-
-
-
-
-
-
+        # TODO use results in an order, e.g direct finds -> mean of hyponyms -> mean of hypernyms -> word2vec
+        #  Maybe this is something I should experiment with
 
     logger.info('Finished')
 
