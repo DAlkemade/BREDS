@@ -6,7 +6,9 @@ from argparse import ArgumentParser
 from collections import defaultdict
 from datetime import datetime
 from functools import partial
+from typing import List
 
+import numpy as np
 from logging_setup_dla.logging import set_up_root_logger
 from nltk.corpus import wordnet as wn
 
@@ -14,6 +16,7 @@ from breds.breds import process_objects, update_tuples_confidences
 from breds.config import Weights, Config
 from breds.htmls import scrape_htmls
 from breds.similarity import similarity_all
+from breds.tuple import Tuple
 from breds.visual import VisualConfig
 
 set_up_root_logger(f'INFERENCE_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.getcwd())
@@ -86,14 +89,36 @@ def main():
             pickle.dump(all_sizes, f, pickle.HIGHEST_PROTOCOL)
 
     for object, sims_dict in all_sizes.items():
-        logger.info(f'Processing for {object}')
+        logger.info('\n')
+        logger.debug(f'Processing for {object}')
         for key, values in sims_dict.items():
-            logger.info(f'\n{key} finds:')
+            logger.debug(f'\n{key} finds:')
             for t in values:
-                logger.info(t.sentence)
-                logger.info(f"{t.e1} {t.e2} with confidence {t.confidence}")
+                logger.debug(t.sentence)
+                logger.debug(f"{t.e1} {t.e2} with confidence {t.confidence}")
 
-        # TODO compute all means here
+        directs = sims_dict['itself']
+        hyponyms = sims_dict['hyponyms']
+        hypernyms = sims_dict['hypernyms']
+        word2vecs = sims_dict['word2vec']
+
+        try:
+            direct_highest_confidence: Tuple = max(directs, key=lambda item: item.confidence)
+            logger.info(
+                f'Direct highest confidence: {direct_highest_confidence.e1} {direct_highest_confidence.e2} with conf {direct_highest_confidence.confidence}')
+        except ValueError:
+            direct_highest_confidence = None
+
+        hyponym_mean = weighted_tuple_mean(hyponyms)
+        logger.info(f'Hyponym mean: {hyponym_mean}')
+
+        hypernym_mean = weighted_tuple_mean(hypernyms)
+        logger.info(f'Hypernym mean: {hypernym_mean}')
+
+        word2vec_mean = weighted_tuple_mean(word2vecs)
+        logger.info(f'Word2vec mean: {word2vec_mean}')
+
+        # TODO compute all means here. or take the one with highest confidence
 
         # TODO use results in an order, e.g direct finds -> mean of hyponyms -> mean of hypernyms -> word2vec
         #  Maybe this is something I should experiment with
@@ -103,6 +128,14 @@ def main():
         #  https://www.statsmodels.org/stable/generated/statsmodels.stats.weightstats.ttest_ind.html
 
     logger.info('Finished')
+
+
+def weighted_tuple_mean(tuples: List[Tuple]):
+    try:
+        average = np.average([t.e2 for t in tuples], weights=[t.confidence for t in tuples])
+    except ZeroDivisionError:
+        average = None
+    return average
 
 
 def compile_results(candidate_tuples, objects_lookup, similar_words, unseen_objects):
