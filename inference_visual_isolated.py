@@ -4,7 +4,7 @@ import os
 from argparse import ArgumentParser
 from datetime import datetime
 from queue import Queue
-from typing import Set
+from typing import Set, List
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -79,8 +79,7 @@ class VisualPropagation:
                 synsets2 = self.visual_config.entity_to_synsets[e2]
                 s2 = synsets2[0]  # TODO this is bad, do for all synsets
                 comp = self.visual_config.comparer.compare(s1, s2)
-                larger = np.mean(comp) > .5
-                transitions.append(larger)
+                transitions.append(np.mean(comp) > .5)
             larger = all(transitions)
             smaller = not any(transitions)
             if larger:
@@ -140,10 +139,10 @@ def main():
     max_edges = G.number_of_nodes() ** 2
     logger.info(f'Number of edges: {nr_edges} (sparsity: {nr_edges / max_edges})')
 
-    test_pairs: Set[Pair] = set()
+    test_pairs: List[Pair] = list()
     for line in fileinput.input(test_pairs_fname):
         split = line.split(',')
-        test_pairs.add(Pair(split[0].strip(), split[1].strip()))
+        test_pairs.append(Pair(split[0].strip(), split[1].strip()))
 
     prop = VisualPropagation(G, config.visual_config)
     for test_pair in test_pairs:
