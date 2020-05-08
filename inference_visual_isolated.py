@@ -10,6 +10,7 @@ from breds.config import Config
 from breds.visual import VisualConfig
 from datetime import datetime
 import os
+import tqdm
 
 set_up_root_logger(f'INFERENCE_VISUAL_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.path.join(os.getcwd(), 'logs'))
 logger = logging.getLogger(__name__)
@@ -67,25 +68,19 @@ def main():
     G = nx.Graph()
     G.add_nodes_from(objects)
     logger.info(f'Number of nodes: {G.number_of_nodes()}')
-    for object1 in objects:
-        try:
-            synsets1 = visual_config.entity_to_synsets[object1]
-        except KeyError:
-            logger.warning(f'Entity {object1} not in visuals; not using for confidence')
-            continue
+    for object1 in tqdm.tqdm(objects):
+        synsets1 = visual_config.entity_to_synsets[object1]
         s1 = synsets1[0] # TODO this is bad, do for all synsets
         for object2 in objects:
-            try:
-                synsets2 = visual_config.entity_to_synsets[object2]
-            except KeyError:
-                logger.warning(f'Entity {object2} not in visuals; not using for confidence')
-                continue
 
+            synsets2 = visual_config.entity_to_synsets[object2]
             s2 = synsets2[0]  # TODO this is bad, do for all synsets
             cooccurrences = len(visual_config.comparer.find_cooccurrences(s1, s2))
             if cooccurrences > 0:
                 G.add_edge(object1, object2, weight=cooccurrences)
-    logger.info(f'Number of edges: {G.number_of_edges()}')
+    nr_edges = G.number_of_edges()
+    max_edges = G.number_of_nodes()**2
+    logger.info(f'Number of edges: {nr_edges} (sparsity: {nr_edges/max_edges})')
 
 
     test_pairs = set()
