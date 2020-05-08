@@ -6,3 +6,4 @@ lamp post,car
 tree,man
 brick,man
 truck,car
+car,truck

@@ -35,7 +35,7 @@ class VisualPropagation:
         self.max_path_length: int = max_path_length
         self.cooccurrence_graph: nx.Graph = cooccurrence_graph
 
-    def find_paths(self, pair: Pair, draw=False):
+    def find_paths(self, pair: Pair, draw=False) -> List[List[str]]:
         good_paths = list(nx.all_simple_paths(self.cooccurrence_graph, pair.e1, pair.e2, cutoff=self.max_path_length))
 
         logger.info(f'Found paths: {good_paths}')
@@ -79,17 +79,31 @@ class VisualPropagation:
                 synsets2 = self.visual_config.entity_to_synsets[e2]
                 s2 = synsets2[0]  # TODO this is bad, do for all synsets
                 comp = self.visual_config.comparer.compare(s1, s2)
-                transitions.append(np.mean(comp) > .5)
-            larger = all(transitions)
-            smaller = not any(transitions)
-            if larger:
-                larger_count += 1
-            elif smaller:
-                smaller_count += 1
-            else:
-                unknown_count += 1
+                larger_array = [c > 1. for c in comp if c != 1.]
+                if len(larger_array) == 0:
+                    logger.debug(f'Encountered a larger array of length 0, because all relative sizes were 1.')
+                    continue
 
+                res = np.mean(larger_array)
+
+                logger.debug(f'For comp {comp} larger array {larger_array} res {res}')
+                if res != .5:  # TODO think about this. Rationale: if they are equal, the edge doesn't matter
+                    transitions.append(res > .5)
+            if len(transitions) > 0:
+                larger = all(transitions)
+                smaller = not any(transitions)
+                if larger:
+                    larger_count += 1
+                elif smaller:
+                    smaller_count += 1
+                else:
+                    unknown_count += 1
+        logger.info(f'Larger: {larger_count}')
+        logger.info(f'Smaller: {smaller_count}')
+        logger.info(f'Unknown: {unknown_count}')
+        logger.info(f'Total: {larger_count + smaller_count + unknown_count}. excluding unknown: {larger_count + smaller_count}')
         fraction_larger = larger_count / (larger_count + smaller_count)
+        # TODO somehow the reverse examples have slightly different counts
         return fraction_larger
 
 
@@ -147,10 +161,11 @@ def main():
     prop = VisualPropagation(G, config.visual_config)
     for test_pair in test_pairs:
         if test_pair.both_in_list(objects):
+            # TODO BUG: somehow always very high (>.95) fraction_larger
             fraction_larger = prop.compare_pair(test_pair)
             logger.info(f'{test_pair.e1} {test_pair.e2} fraction larger: {fraction_larger}')
         else:
-            logger.info(f'{test_pair.e1} {test_pair.e2} not in VG')
+            logger.warning(f'{test_pair.e1} {test_pair.e2} not in VG')
 
 
 if __name__ == "__main__":
