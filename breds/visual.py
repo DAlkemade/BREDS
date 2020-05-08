@@ -10,14 +10,14 @@ import pandas as pd
 class VisualConfig:
     def __init__(self, vg_objects, vg_objects_anchors):
         images = load_images_index(vg_objects)
-        objects_lookup = index_objects(images)
+        self.objects_lookup = index_objects(images)
 
-        self.comparer = Comparer(objects_lookup, images)
+        self.comparer = Comparer(self.objects_lookup, images)
 
         test_objects_df = pd.read_csv(vg_objects_anchors)
         self.test_objects = list(test_objects_df.itertuples(index=False))
         self.entity_to_synsets: Dict[str, List[str]] = dict()
-        self.fill_synset_mapping(list(objects_lookup.keys()))
+        self.fill_synset_mapping(list(self.objects_lookup.keys()))
 
     def fill_synset_mapping(self, synsets: List[str]):
         for synset in synsets:

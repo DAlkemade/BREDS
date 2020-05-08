@@ -12,7 +12,7 @@ from breds.breds_inference import predict_sizes, gather_sizes_with_bootstrapping
 from breds.config import Config
 from breds.visual import VisualConfig
 
-set_up_root_logger(f'INFERENCE_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.getcwd())
+set_up_root_logger(f'INFERENCE_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.path.join(os.getcwd(), 'logs'))
 
 logger = logging.getLogger(__name__)
 

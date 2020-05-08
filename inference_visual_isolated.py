@@ -1,24 +1,31 @@
 import fileinput
+import logging
 from argparse import ArgumentParser
-from typing import List
+from typing import List, Set
+import networkx as nx
+from logging_setup_dla.logging import set_up_root_logger
 
 from breds.breds_inference import find_similar_words
 from breds.config import Config
 from breds.visual import VisualConfig
+from datetime import datetime
+import os
+
+set_up_root_logger(f'INFERENCE_VISUAL_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.path.join(os.getcwd(), 'logs'))
+logger = logging.getLogger(__name__)
 
 class Pair:
-    def __init__(self, e1, e2, config: Config):
-        self.config = config
+    def __init__(self, e1, e2):
         self.e2 = e2
         self.e1 = e1
         self.larger = None
 
 
 class VisualPropagation:
-    def __init__(self, cooccurrence_graph, max_path_length: int = 3):
+    def __init__(self, cooccurrence_graph, config: Config, max_path_length: int = 3):
         self.cooccurrence_graph = cooccurrence_graph
 
-    def compare_pairs(self, pairs: List[Pair]):
+    def compare_pairs(self, pairs: Set[Pair]):
         for pair in pairs:
             self.compare_pair(pair)
 
@@ -26,7 +33,8 @@ class VisualPropagation:
         """Use propagation to compare two objects visually.
 
         Finds all paths of lenght <= self.max_path_length between the two objects and computes
-        the size comparisons on all edges on the paths.
+        the size comparisons on all edges on the paths. Then uses the fraction of paths indicating one object being
+        larger as the confidence of that being true.
         Results are saved in-place in the Pair object.
         :param pair: pair to be predicted
         """
@@ -47,14 +55,46 @@ def main():
     args = parser.parse_args()
     test_pairs_fname = args.test_pairs
 
+
+
     # TODO check whether the objects aren't in the bootstrapped objects
     visual_config = VisualConfig(args.vg_objects, args.vg_objects_anchors)
     config = Config(args.configuration, args.seeds_file, args.negative_seeds, args.similarity, args.confidence,
                     args.objects, visual_config)
-    test_pairs = None  # TODO
 
-    cache_fname = 'inference_cache.pkl'
-    similar_words = find_similar_words(config, unseen_objects)
+    visual_config = config.visual_config
+    objects = list(visual_config.entity_to_synsets.keys())
+    G = nx.Graph()
+    G.add_nodes_from(objects)
+    logger.info(f'Number of nodes: {G.number_of_nodes()}')
+    for object1 in objects:
+        try:
+            synsets1 = visual_config.entity_to_synsets[object1]
+        except KeyError:
+            logger.warning(f'Entity {object1} not in visuals; not using for confidence')
+            continue
+        s1 = synsets1[0] # TODO this is bad, do for all synsets
+        for object2 in objects:
+            try:
+                synsets2 = visual_config.entity_to_synsets[object2]
+            except KeyError:
+                logger.warning(f'Entity {object2} not in visuals; not using for confidence')
+                continue
+
+            s2 = synsets2[0]  # TODO this is bad, do for all synsets
+            cooccurrences = len(visual_config.comparer.find_cooccurrences(s1, s2))
+            if cooccurrences > 0:
+                G.add_edge(object1, object2, weight=cooccurrences)
+    logger.info(f'Number of edges: {G.number_of_edges()}')
+
+
+    test_pairs = set()
+    for line in fileinput.input(test_pairs_fname):
+        split = line.split(',')
+        test_pairs.add(Pair(split[0], split[1]))
+
+
+
 
 if __name__ == "__main__":
     try:
