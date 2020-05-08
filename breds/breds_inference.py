@@ -75,6 +75,8 @@ def predict_sizes(all_sizes: dict) -> None:
         #  Weigh the importance of each point with their confidences, if possible:
         #  https://www.statsmodels.org/stable/generated/statsmodels.stats.weightstats.ttest_ind.html
 
+        # TODO return for each object a size and a confidence
+
 
 def gather_sizes_with_bootstrapping_patterns(cache_fname, config, patterns, all_new_objects):
     if os.path.exists(cache_fname):
