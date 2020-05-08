@@ -38,7 +38,7 @@ class VisualPropagation:
     def find_paths(self, pair: Pair, draw=False) -> List[List[str]]:
         good_paths = list(nx.all_simple_paths(self.cooccurrence_graph, pair.e1, pair.e2, cutoff=self.max_path_length))
 
-        logger.info(f'Found paths: {good_paths}')
+        logger.debug(f'Found paths: {good_paths}')
         if draw:
             subgraph_nodes = set()
             for path in good_paths:
@@ -65,6 +65,7 @@ class VisualPropagation:
         """
         assert pair.both_in_list(list(self.visual_config.entity_to_synsets.keys())) # TODO maybe quite expensive
         paths = self.find_paths(pair)
+        logger.info(f'Using {len(paths)} paths')
         larger_count = 0
         smaller_count = 0
         unknown_count = 0

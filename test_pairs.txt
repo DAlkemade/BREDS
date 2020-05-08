@@ -1,9 +1,7 @@
-container,car
 car,container
 tree,car
 tree,container
 lamp post,car
 tree,man
 brick,man
-truck,car
-car,truck
+car, truck
