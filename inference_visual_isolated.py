@@ -143,7 +143,7 @@ def main():
     test_pairs: Set[Pair] = set()
     for line in fileinput.input(test_pairs_fname):
         split = line.split(',')
-        test_pairs.add(Pair(split[0], split[1]))
+        test_pairs.add(Pair(split[0].strip(), split[1].strip()))
 
     prop = VisualPropagation(G, config.visual_config)
     for test_pair in test_pairs:
