@@ -1,19 +1,21 @@
 import fileinput
 import logging
+import os
 from argparse import ArgumentParser
-from typing import List, Set
+from datetime import datetime
+from queue import Queue
+from typing import Set
+
 import networkx as nx
+import tqdm
 from logging_setup_dla.logging import set_up_root_logger
 
-from breds.breds_inference import find_similar_words
 from breds.config import Config
 from breds.visual import VisualConfig
-from datetime import datetime
-import os
-import tqdm
 
 set_up_root_logger(f'INFERENCE_VISUAL_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.path.join(os.getcwd(), 'logs'))
 logger = logging.getLogger(__name__)
+
 
 class Pair:
     def __init__(self, e1, e2):
@@ -21,10 +23,37 @@ class Pair:
         self.e1 = e1
         self.larger = None
 
+    def both_in_list(self, objects: list):
+        return self.e1 in objects and self.e2 in objects
+
 
 class VisualPropagation:
-    def __init__(self, cooccurrence_graph, config: Config, max_path_length: int = 3):
-        self.cooccurrence_graph = cooccurrence_graph
+    def __init__(self, cooccurrence_graph: nx.Graph, config: Config, max_path_length: int = 3):
+        self.config = config
+        self.max_path_length: int = max_path_length
+        self.cooccurrence_graph: nx.Graph = cooccurrence_graph
+
+    def find_paths(self, pair: Pair):
+        good_paths = list()
+        queue = Queue()
+        queue.put([pair.e1])
+
+        while not queue.empty():
+            path = queue.get()
+            if path[-1] == pair.e2:
+                good_paths.append(path)
+                continue
+            if len(path) >= self.max_path_length:
+                continue
+            last_node = path[-1]
+            neighbours = self.cooccurrence_graph.neighbors(last_node)
+            for n in neighbours:
+                if n in path:
+                    continue
+                queue.put(path + [n])
+
+        logger.info(f'Found paths: {good_paths}')
+        return good_paths
 
     def compare_pairs(self, pairs: Set[Pair]):
         for pair in pairs:
@@ -41,6 +70,7 @@ class VisualPropagation:
         """
         pass
 
+
 def main():
     parser = ArgumentParser()
     parser.add_argument('--test_pairs', type=str, required=True)
@@ -56,8 +86,6 @@ def main():
     args = parser.parse_args()
     test_pairs_fname = args.test_pairs
 
-
-
     # TODO check whether the objects aren't in the bootstrapped objects
     visual_config = VisualConfig(args.vg_objects, args.vg_objects_anchors)
     config = Config(args.configuration, args.seeds_file, args.negative_seeds, args.similarity, args.confidence,
@@ -70,7 +98,7 @@ def main():
     logger.info(f'Number of nodes: {G.number_of_nodes()}')
     for object1 in tqdm.tqdm(objects):
         synsets1 = visual_config.entity_to_synsets[object1]
-        s1 = synsets1[0] # TODO this is bad, do for all synsets
+        s1 = synsets1[0]  # TODO this is bad, do for all synsets
         for object2 in objects:
 
             synsets2 = visual_config.entity_to_synsets[object2]
@@ -79,16 +107,20 @@ def main():
             if cooccurrences > 0:
                 G.add_edge(object1, object2, weight=cooccurrences)
     nr_edges = G.number_of_edges()
-    max_edges = G.number_of_nodes()**2
-    logger.info(f'Number of edges: {nr_edges} (sparsity: {nr_edges/max_edges})')
+    max_edges = G.number_of_nodes() ** 2
+    logger.info(f'Number of edges: {nr_edges} (sparsity: {nr_edges / max_edges})')
 
-
-    test_pairs = set()
+    test_pairs: Set[Pair] = set()
     for line in fileinput.input(test_pairs_fname):
         split = line.split(',')
         test_pairs.add(Pair(split[0], split[1]))
 
-
+    prop = VisualPropagation(G, config)
+    for test_pair in test_pairs:
+        if test_pair.both_in_list(objects):
+            prop.find_paths(test_pair)
+        else:
+            logger.info(f'{test_pair.e1} {test_pair.e2} not in VG')
 
 
 if __name__ == "__main__":
