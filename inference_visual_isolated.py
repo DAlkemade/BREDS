@@ -3,12 +3,11 @@ import logging
 import os
 from argparse import ArgumentParser
 from datetime import datetime
-from queue import Queue
 from typing import Set, List
-import matplotlib.pyplot as plt
-import numpy as np
 
+import matplotlib.pyplot as plt
 import networkx as nx
+import numpy as np
 import tqdm
 from logging_setup_dla.logging import set_up_root_logger
 
@@ -63,7 +62,7 @@ class VisualPropagation:
         Results are saved in-place in the Pair object.
         :param pair: pair to be predicted
         """
-        assert pair.both_in_list(list(self.visual_config.entity_to_synsets.keys())) # TODO maybe quite expensive
+        assert pair.both_in_list(list(self.visual_config.entity_to_synsets.keys()))  # TODO maybe quite expensive
         paths = self.find_paths(pair)
         logger.info(f'Using {len(paths)} paths')
         larger_count = 0
@@ -71,8 +70,8 @@ class VisualPropagation:
         unknown_count = 0
         for path in paths:
             transitions = list()
-            for i in range(0, len(path)-1):
-                j = i+1
+            for i in range(0, len(path) - 1):
+                j = i + 1
                 e1 = path[i]
                 e2 = path[j]
                 synsets1 = self.visual_config.entity_to_synsets[e1]
@@ -102,17 +101,13 @@ class VisualPropagation:
         logger.debug(f'Larger: {larger_count}')
         logger.debug(f'Smaller: {smaller_count}')
         logger.debug(f'Unknown: {unknown_count}')
-        logger.debug(f'Total: {larger_count + smaller_count + unknown_count}. excluding unknown: {larger_count + smaller_count}')
+        logger.debug(
+            f'Total: {larger_count + smaller_count + unknown_count}. excluding unknown: {larger_count + smaller_count}')
         fraction_larger = larger_count / (larger_count + smaller_count)
         # TODO somehow the reverse examples have slightly different counts
         return fraction_larger
 
-
-
-
-
         # edges =
-
 
 
 def main():
