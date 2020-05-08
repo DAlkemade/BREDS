@@ -118,7 +118,7 @@ def main():
         word2vec_mean = weighted_tuple_mean(word2vecs)
         logger.info(f'Word2vec mean: {word2vec_mean}')
 
-        # TODO compute all means here. or take the one with highest confidence
+
 
         # TODO use results in an order, e.g direct finds -> mean of hyponyms -> mean of hypernyms -> word2vec
         #  Maybe this is something I should experiment with
