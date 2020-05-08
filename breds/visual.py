@@ -12,7 +12,7 @@ class VisualConfig:
         images = load_images_index(vg_objects)
         self.objects_lookup = index_objects(images)
 
-        self.comparer = Comparer(self.objects_lookup, images)
+        self.comparer: Comparer = Comparer(self.objects_lookup, images)
 
         test_objects_df = pd.read_csv(vg_objects_anchors)
         self.test_objects = list(test_objects_df.itertuples(index=False))

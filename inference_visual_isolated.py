@@ -5,6 +5,8 @@ from argparse import ArgumentParser
 from datetime import datetime
 from queue import Queue
 from typing import Set
+import matplotlib.pyplot as plt
+import numpy as np
 
 import networkx as nx
 import tqdm
@@ -28,31 +30,24 @@ class Pair:
 
 
 class VisualPropagation:
-    def __init__(self, cooccurrence_graph: nx.Graph, config: Config, max_path_length: int = 3):
-        self.config = config
+    def __init__(self, cooccurrence_graph: nx.Graph, visual_config: VisualConfig, max_path_length: int = 2):
+        self.visual_config: VisualConfig = visual_config
         self.max_path_length: int = max_path_length
         self.cooccurrence_graph: nx.Graph = cooccurrence_graph
 
-    def find_paths(self, pair: Pair):
-        good_paths = list()
-        queue = Queue()
-        queue.put([pair.e1])
-
-        while not queue.empty():
-            path = queue.get()
-            if path[-1] == pair.e2:
-                good_paths.append(path)
-                continue
-            if len(path) >= self.max_path_length:
-                continue
-            last_node = path[-1]
-            neighbours = self.cooccurrence_graph.neighbors(last_node)
-            for n in neighbours:
-                if n in path:
-                    continue
-                queue.put(path + [n])
+    def find_paths(self, pair: Pair, draw=False):
+        good_paths = list(nx.all_simple_paths(self.cooccurrence_graph, pair.e1, pair.e2, cutoff=self.max_path_length))
 
         logger.info(f'Found paths: {good_paths}')
+        if draw:
+            subgraph_nodes = set()
+            for path in good_paths:
+                for node in path:
+                    subgraph_nodes.add(node)
+            SG = self.cooccurrence_graph.subgraph(subgraph_nodes)
+            nx.draw(SG)
+            plt.show()
+
         return good_paths
 
     def compare_pairs(self, pairs: Set[Pair]):
@@ -68,7 +63,42 @@ class VisualPropagation:
         Results are saved in-place in the Pair object.
         :param pair: pair to be predicted
         """
-        pass
+        assert pair.both_in_list(list(self.visual_config.entity_to_synsets.keys())) # TODO maybe quite expensive
+        paths = self.find_paths(pair)
+        larger_count = 0
+        smaller_count = 0
+        unknown_count = 0
+        for path in paths:
+            transitions = list()
+            for i in range(0, len(path)-1):
+                j = i+1
+                e1 = path[i]
+                e2 = path[j]
+                synsets1 = self.visual_config.entity_to_synsets[e1]
+                s1 = synsets1[0]  # TODO this is bad, do for all synsets
+                synsets2 = self.visual_config.entity_to_synsets[e2]
+                s2 = synsets2[0]  # TODO this is bad, do for all synsets
+                comp = self.visual_config.comparer.compare(s1, s2)
+                larger = np.mean(comp) > .5
+                transitions.append(larger)
+            larger = all(transitions)
+            smaller = not any(transitions)
+            if larger:
+                larger_count += 1
+            elif smaller:
+                smaller_count += 1
+            else:
+                unknown_count += 1
+
+        fraction_larger = larger_count / (larger_count + smaller_count)
+        return fraction_larger
+
+
+
+
+
+        # edges =
+
 
 
 def main():
@@ -115,10 +145,11 @@ def main():
         split = line.split(',')
         test_pairs.add(Pair(split[0], split[1]))
 
-    prop = VisualPropagation(G, config)
+    prop = VisualPropagation(G, config.visual_config)
     for test_pair in test_pairs:
         if test_pair.both_in_list(objects):
-            prop.find_paths(test_pair)
+            fraction_larger = prop.compare_pair(test_pair)
+            logger.info(f'{test_pair.e1} {test_pair.e2} fraction larger: {fraction_larger}')
         else:
             logger.info(f'{test_pair.e1} {test_pair.e2} not in VG')
 
