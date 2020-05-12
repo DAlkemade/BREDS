@@ -157,7 +157,7 @@ def main():
     prop = VisualPropagation(G, config.visual_config)
     for test_pair in test_pairs:
         if test_pair.both_in_list(objects):
-            # TODO BUG: somehow always very high (>.95) fraction_larger
+            # TODO: bigrams not found
             fraction_larger = prop.compare_pair(test_pair)
             logger.info(f'{test_pair.e1} {test_pair.e2} fraction larger: {fraction_larger}')
         else:
