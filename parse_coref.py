@@ -18,6 +18,7 @@ from textwrap import wrap
 logger = logging.getLogger(__name__)
 
 SAVE_STEP = 100
+LIMIT = 500000
 
 
 def parse_coref(htmls, nlp, name):
@@ -25,8 +26,8 @@ def parse_coref(htmls, nlp, name):
     for html in htmls:
         logger.info(f'html length: {len(html)}')
         try:
-            if len(html) > 1000000:
-                htmls = wrap(html, width=1000000)
+            if len(html) > LIMIT:
+                htmls = wrap(html, width=LIMIT)
             else:
                 htmls = [html]
             for h in htmls:
