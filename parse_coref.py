@@ -13,6 +13,7 @@ from spacy.tokens import Doc
 
 from breds.config import read_objects_of_interest, parse_objects_from_seed
 from logging_setup_dla.logging import set_up_root_logger
+from textwrap import wrap
 
 logger = logging.getLogger(__name__)
 
@@ -24,19 +25,29 @@ def parse_coref(htmls, nlp, name):
     for html in htmls:
         logger.info(f'html length: {len(html)}')
         try:
-            doc: Doc = nlp(html)
-            clusters = doc._.coref_clusters
-            relevant_clusters = []
-            for cluster in clusters:
-                text = cluster.main.text.lower()
-                if name in text:
-                    relevant_clusters.append(cluster)
-            html_coref = get_resolved(doc, relevant_clusters)
-            name_coref_htmls.append(html_coref)
+            if len(html) > 1000000:
+                htmls = wrap(html, width=1000000)
+            else:
+                htmls = [html]
+            for h in htmls:
+                html_coref = parse_doc(h, name, nlp)
+                name_coref_htmls.append(html_coref)
         except MemoryError:
             pass
 
     return name_coref_htmls
+
+
+def parse_doc(html, name, nlp):
+    doc: Doc = nlp(html)
+    clusters = doc._.coref_clusters
+    relevant_clusters = []
+    for cluster in clusters:
+        text = cluster.main.text.lower()
+        if name in text:
+            relevant_clusters.append(cluster)
+    return get_resolved(doc, relevant_clusters)
+
 
 
 def get_resolved(doc, clusters):
