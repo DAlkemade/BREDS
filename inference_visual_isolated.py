@@ -132,6 +132,7 @@ def main():
 
     visual_config = config.visual_config
     objects = list(visual_config.entity_to_synsets.keys())
+    logger.info(f'Objects: {objects}')
     G = nx.Graph()
     G.add_nodes_from(objects)
     logger.info(f'Number of nodes: {G.number_of_nodes()}')
@@ -152,7 +153,7 @@ def main():
     test_pairs: List[Pair] = list()
     for line in fileinput.input(test_pairs_fname):
         split = line.split(',')
-        test_pairs.append(Pair(split[0].strip(), split[1].strip()))
+        test_pairs.append(Pair(split[0].strip().replace(' ','_'), split[1].strip().replace(' ','_')))
 
     prop = VisualPropagation(G, config.visual_config)
     for test_pair in test_pairs:
@@ -161,7 +162,7 @@ def main():
             fraction_larger = prop.compare_pair(test_pair)
             logger.info(f'{test_pair.e1} {test_pair.e2} fraction larger: {fraction_larger}')
         else:
-            logger.warning(f'{test_pair.e1} {test_pair.e2} not in VG')
+            logger.warning(f'{test_pair.e1} or {test_pair.e2} not in VG. Objects: {objects}')
 
 
 if __name__ == "__main__":
