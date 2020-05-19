@@ -10,6 +10,7 @@ from typing import List
 
 import numpy as np
 import tqdm
+from box import Box
 from matplotlib import pyplot as plt
 from nltk import load, tokenize
 
@@ -61,13 +62,13 @@ def update_tuples_confidences(candidate_tuples: dict, config: Config):
 
 class BREDS(object):
 
-    def __init__(self, config_file, seeds_file, negative_seeds, similarity, confidence, objects, vg_objects, vg_objects_anchors):
+    def __init__(self, cfg: Box):
         self.curr_iteration = 0
         self.patterns = list()
         self.processed_tuples = list()
         self.candidate_tuples = defaultdict(list)
-        visual_config = VisualConfig(vg_objects, vg_objects_anchors)
-        self.config = Config(config_file, seeds_file, negative_seeds, similarity, confidence, objects, visual_config)
+        visual_config = VisualConfig(cfg.path.vg_objects, cfg.path.vg_objects_anchors)
+        self.config = Config(cfg, visual_config)
         # TODO change to full matrix
 
     def generate_tuples(self, htmls_fname: str, tuples_fname: str):

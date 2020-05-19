@@ -3,6 +3,7 @@ import logging
 import re
 from typing import Dict
 
+from box import Box
 from gensim.models import KeyedVectors
 from nltk import WordNetLemmatizer
 from nltk.corpus import stopwords
@@ -24,8 +25,7 @@ class Weights():
 
 class Config(object):
 
-    def __init__(self, config_file, positive_seeds, negative_seeds,
-                 similarity, confidence, objects, visual_config: VisualConfig):
+    def __init__(self, cfg: Box, visual_config: VisualConfig):
 
         # http://www.ling.upenn.edu/courses/Fall_2007/ling001/penn_treebank_pos.html
         # select everything except stopwords, ADJ and ADV
@@ -43,8 +43,8 @@ class Config(object):
         self.e2_type = None
         self.stopwords = stopwords.words('english')
         self.lmtzr = WordNetLemmatizer()
-        self.threshold_similarity = similarity
-        self.instance_confidence = confidence
+        self.threshold_similarity = cfg.parameters.similarity
+        self.instance_confidence = cfg.parameters.confidence
         self.reverb = Reverb()
         self.word2vec = None
         self.vec_dim = None
@@ -58,79 +58,44 @@ class Config(object):
         # <PER url=http://en.wikipedia.org/wiki/Mark_Zuckerberg>Zuckerberg</PER>
         self.regex_linked = re.compile('<[A-Z]+ url=[^>]+>[^<]+</[A-Z]+>', re.U)
 
-        self.objects = read_objects_of_interest(objects)
+        self.objects = read_objects_of_interest(cfg.path.objects)
         logger.info(f'Number of objects: {len(self.objects)}')
 
 
+        self.wUpdt = float(cfg.parameters.wUpdt)
+        self.wUnk = float(cfg.parameters.wUnk)
+        self.wNeg = float(cfg.parameters.wNeg)
+        self.number_iterations = int(cfg.parameters.number_iterations)
+        self.min_pattern_support = int(cfg.parameters.min_pattern_support)
+        self.max_tokens_away = int(cfg.parameters.max_tokens_away)
+        self.min_tokens_away = int(cfg.parameters.min_tokens_away)
+        self.context_window_size = int(cfg.parameters.context_window_size)
+        self.word2vecmodelpath = cfg.parameters.word2vec_path
+        self.weights.alpha = float(cfg.parameters.alpha)
+        self.weights.beta = float(cfg.parameters.beta)
+        self.weights.gamma = float(cfg.parameters.gamma)
 
-        #TODO clean up config file stuff and use the config library
-        for line in fileinput.input(config_file):
-            if line.startswith("#") or len(line) == 1:
-                continue
+        self.tag_type = cfg.parameters.tags_type
+        if self.tag_type != 'simple':
+            raise RuntimeWarning('tags_type not supported')
 
-            if line.startswith("wUpdt"):
-                self.wUpdt = float(line.split("=")[1])
+        self.relative_difference_cutoff = float(cfg.parameters.relative_difference_cutoff)
 
-            if line.startswith("wUnk"):
-                self.wUnk = float(line.split("=")[1])
 
-            if line.startswith("wNeg"):
-                self.wNeg = float(line.split("=")[1])
+        self.coreference: bool = cfg.parameters.coreference
+        assert type(self.coreference) is bool
 
-            if line.startswith("number_iterations"):
-                self.number_iterations = int(line.split("=")[1])
 
-            if line.startswith("min_pattern_support"):
-                self.min_pattern_support = int(line.split("=")[1])
+        self.visual: bool = cfg.parameters.visual_confidence
+        assert type(self.visual) is bool
 
-            if line.startswith("max_tokens_away"):
-                self.max_tokens_away = int(line.split("=")[1])
-
-            if line.startswith("min_tokens_away"):
-                self.min_tokens_away = int(line.split("=")[1])
-
-            if line.startswith("context_window_size"):
-                self.context_window_size = int(line.split("=")[1])
-
-            if line.startswith("similarity"):
-                self.similarity = line.split("=")[1].strip()
-
-            if line.startswith("word2vec_path"):
-                self.word2vecmodelpath = line.split("=")[1].strip()
-
-            if line.startswith("alpha"):
-                self.weights.alpha = float(line.split("=")[1])
-
-            if line.startswith("beta"):
-                self.weights.beta = float(line.split("=")[1])
-
-            if line.startswith("gamma"):
-                self.weights.gamma = float(line.split("=")[1])
-
-            if line.startswith("tags_type"):
-                self.tag_type = line.split("=")[1].strip()
-                if self.tag_type != 'simple':
-                    raise RuntimeWarning('tags_type not supported')
-
-            if line.startswith("relative_difference_cutoff"):
-                self.relative_difference_cutoff = float(line.split("=")[1].strip())
-
-            if line.startswith("coreference"):
-                cor_string = line.split("=")[1].strip()
-                self.coreference: bool = cor_string == 'True'
-
-            if line.startswith("visual_confidence"):
-                visual_string = line.split("=")[1].strip()
-                self.visual: bool = visual_string == 'True'
-
-            if line.startswith("visual_cutoff"):
-                self.visual_cutoff: float = float(line.split("=")[1])
+        self.visual_cutoff: float = float(cfg.parameters.visual_cutoff)
 
 
         assert self.weights.alpha+self.weights.beta+self.weights.gamma == 1
 
-        self.read_seeds(positive_seeds, self.positive_seed_tuples)
-        self.read_seeds(negative_seeds, self.negative_seed_tuples)
+        self.read_seeds(cfg.path.seeds_file, self.positive_seed_tuples)
+        self.read_seeds(cfg.path.negative_seeds, self.negative_seed_tuples)
         fileinput.close()
 
         logger.info("Configuration parameters")

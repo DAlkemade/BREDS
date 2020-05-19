@@ -27,7 +27,7 @@ def main():
         # cfg = Bothrex(yaml.safe_load(ymlfile), default_box=True, default_box_attr=None)
 
 
-    breads = BREDS(cfg.path.configuration, cfg.path.seeds_file, cfg.path.negative_seeds, cfg.parameters.similarity, cfg.parameters.confidence, cfg.path.objects, cfg.path.vg_objects, cfg.path.vg_objects_anchors)
+    breads = BREDS(cfg)
 
     if breads.config.coreference:
         cache_paths = cfg.path.coref

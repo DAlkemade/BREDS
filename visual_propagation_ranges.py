@@ -25,9 +25,7 @@ def main():
 
     # TODO check whether the objects aren't in the bootstrapped objects
     visual_config = VisualConfig(cfg.path.vg_objects, cfg.path.vg_objects_anchors)
-    config = Config(cfg.path.configuration, cfg.path.seeds_file, cfg.path.negative_seeds, cfg.parameters.similarity,
-                    cfg.parameters.confidence,
-                    cfg.path.objects, visual_config)
+    config = Config(cfg, visual_config)
 
     test_objects_fname = cfg.path.unseen_objects
 
@@ -74,8 +72,8 @@ def main():
         upper_bounds_sizes = fill_sizes_list(upper_bounds, numeric_seeds)
 
         logger.info(f"None count for {unseen_object}: {none_count} out of {len(numeric_seeds.keys())}")
-        logger.info(f"Lower bounds (n={len(lower_bounds)}): \n\t{lower_bounds}\n\t{lower_bounds_sizes}")
-        logger.info(f"Upper bounds (n={len(upper_bounds)}): \n\t{upper_bounds}\n\t{upper_bounds_sizes}")
+        logger.info(f"Lower bounds (n={len(lower_bounds)}): mean: {np.mean(lower_bounds_sizes)} median: {np.median(lower_bounds_sizes)}\n\t{lower_bounds}\n\t{lower_bounds_sizes}")
+        logger.info(f"Upper bounds (n={len(upper_bounds)}): mean: {np.mean(upper_bounds_sizes)} median: {np.median(upper_bounds_sizes)}\n\t{upper_bounds}\n\t{upper_bounds_sizes}")
 
 
 def fill_sizes_list(objects: set, seeds_dict: Dict[str, list]) -> list:
@@ -86,6 +84,7 @@ def fill_sizes_list(objects: set, seeds_dict: Dict[str, list]) -> list:
         res.append(mean)
     res = list(sorted(res))
     return res
+
 
 if __name__ == "__main__":
     try:
