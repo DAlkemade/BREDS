@@ -47,6 +47,9 @@ def main():
 
     prop = VisualPropagation(G, config.visual_config)
     for unseen_object in unseen_objects:
+        if unseen_object not in objects:
+            logger.info(f'{unseen_object} not in visuals')
+            continue
         none_count = 0
         for numeric_seed in numeric_seeds.keys():
             pair = Pair(unseen_object, numeric_seed)
@@ -54,7 +57,7 @@ def main():
                 fraction_larger = prop.compare_pair(pair)
                 if fraction_larger is None:
                     none_count += 1
-                logger.info(f'{pair.e1} {pair.e2} fraction larger: {fraction_larger}')
+                logger.debug(f'{pair.e1} {pair.e2} fraction larger: {fraction_larger}')
             else:
                 logger.warning(f'{pair.e1} or {pair.e2} not in VG. Objects: {objects}')
         logger.info(f"None count for {unseen_object}: {none_count} out of {len(numeric_seeds.keys())}")
