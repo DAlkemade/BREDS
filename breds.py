@@ -4,6 +4,9 @@ import os
 from argparse import ArgumentParser
 from datetime import datetime
 
+import yaml
+from box import Box
+
 from breds.breds import BREDS
 # from lucene_looper import find_all_text_occurrences
 from logging_setup_dla.logging import set_up_root_logger
@@ -19,22 +22,15 @@ logger = logging.getLogger(__name__)
 def main():
 
     logger.info("Starting BREDS")
-    parser = ArgumentParser()
-    parser.add_argument('--configuration', type=str, required=True)
-    parser.add_argument('--seeds_file', type=str, required=True)
-    parser.add_argument('--negative_seeds', type=str, required=True)
-    parser.add_argument('--similarity', type=float, required=True)
-    parser.add_argument('--confidence', type=float, required=True)
-    parser.add_argument('--objects', type=str, required=True)
-    parser.add_argument('--cache_config_fname', type=str, required=True)
-    parser.add_argument('--vg_objects', type=str, required=True)
-    parser.add_argument('--vg_objects_anchors', type=str, required=True)
-    args = parser.parse_args()
+    with open("config.yml", "r") as ymlfile:
+        cfg = Box(yaml.safe_load(ymlfile))
+        # cfg = Box(yaml.safe_load(ymlfile), default_box=True, default_box_attr=None)
 
-    breads = BREDS(args.configuration, args.seeds_file, args.negative_seeds, args.similarity, args.confidence, args.objects, args.vg_objects, args.vg_objects_anchors)
+
+    breads = BREDS(cfg.path.configuration, cfg.path.seeds_file, cfg.path.negative_seeds, cfg.thresholds.similarity, cfg.thresholds.confidence, cfg.path.objects, cfg.path.vg_objects, cfg.path.vg_objects_anchors)
 
     cache_config = configparser.ConfigParser()
-    cache_config.read(args.cache_config_fname)
+    cache_config.read(cfg.path.cache_config_fname)
     cache_type = 'COREF' if breads.config.coreference else 'NOCOREF'
     htmls_fname = cache_config[cache_type].get('htmls')
     tuples_fname = cache_config[cache_type].get('tuples')

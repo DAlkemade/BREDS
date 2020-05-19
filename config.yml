@@ -8,6 +8,7 @@ path:
   cache_config_fname: "cache_files_VG_YOLO.ini"
   vg_objects: "D:/GitHubD/visual-size-comparison/data/objects.json"
   vg_objects_anchors: "D:/GitHubD/visual-size-comparison/data/test_objects.csv"
+  final_seeds_cache: "notable_runs/20200515visualandcoref/final_seeds_20200514-114752.json"
 
 
 thresholds:
