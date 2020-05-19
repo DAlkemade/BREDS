@@ -1,0 +1,15 @@
+path:
+  test_pairs: "test_pairs.txt"
+  unseen_objects: "data_numeric/unseen_objects.txt"
+  configuration: "parameters.cfg"
+  seeds_file: "data_numeric/seeds_positive.txt"
+  negative_seeds: "data_numeric/seeds_negative.txt"
+  objects: "data_numeric/VG_YOLO_intersection_train.txt"
+  cache_config_fname: "cache_files_VG_YOLO.ini"
+  vg_objects: "D:/GitHubD/visual-size-comparison/data/objects.json"
+  vg_objects_anchors: "D:/GitHubD/visual-size-comparison/data/test_objects.csv"
+
+
+thresholds:
+  similarity: 0.7
+  confidence: 0.7
