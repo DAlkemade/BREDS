@@ -3,10 +3,11 @@ import json
 import logging
 import os
 from datetime import datetime
-from typing import List
+from typing import List, Dict
 
 import yaml
 from box import Box
+import numpy as np
 from logging_setup_dla.logging import set_up_root_logger
 from visual_size_comparison.config import VisualConfig
 from visual_size_comparison.propagation import build_cooccurrence_graph, Pair, VisualPropagation
@@ -51,17 +52,40 @@ def main():
             logger.info(f'{unseen_object} not in visuals')
             continue
         none_count = 0
+        lower_bounds = set()
+        upper_bounds = set()
         for numeric_seed in numeric_seeds.keys():
             pair = Pair(unseen_object, numeric_seed)
             if pair.both_in_list(objects):
                 fraction_larger = prop.compare_pair(pair)
                 if fraction_larger is None:
                     none_count += 1
+                    continue
+                if fraction_larger < .5:
+                    upper_bounds.add(numeric_seed)
+                if fraction_larger > .5:
+                    lower_bounds.add(numeric_seed)
                 logger.debug(f'{pair.e1} {pair.e2} fraction larger: {fraction_larger}')
             else:
                 logger.warning(f'{pair.e1} or {pair.e2} not in VG. Objects: {objects}')
-        logger.info(f"None count for {unseen_object}: {none_count} out of {len(numeric_seeds.keys())}")
 
+
+        lower_bounds_sizes = fill_sizes_list(lower_bounds, numeric_seeds)
+        upper_bounds_sizes = fill_sizes_list(upper_bounds, numeric_seeds)
+
+        logger.info(f"None count for {unseen_object}: {none_count} out of {len(numeric_seeds.keys())}")
+        logger.info(f"Lower bounds (n={len(lower_bounds)}): \n\t{lower_bounds}\n\t{lower_bounds_sizes}")
+        logger.info(f"Upper bounds (n={len(upper_bounds)}): \n\t{upper_bounds}\n\t{upper_bounds_sizes}")
+
+
+def fill_sizes_list(objects: set, seeds_dict: Dict[str, list]) -> list:
+    res = list()
+    for o in objects:
+        sizes = seeds_dict[o]
+        mean = np.mean(sizes)
+        res.append(mean)
+    res = list(sorted(res))
+    return res
 
 if __name__ == "__main__":
     try:
