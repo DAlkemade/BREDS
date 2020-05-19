@@ -10,7 +10,7 @@ from logging_setup_dla.logging import set_up_root_logger
 from breds.breds_inference import predict_sizes, gather_sizes_with_bootstrapping_patterns, compile_results, \
     find_similar_words, create_reverse_lookup
 from breds.config import Config
-from breds.visual import VisualConfig
+from visual_size_comparison.config import VisualConfig
 
 set_up_root_logger(f'INFERENCE_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.path.join(os.getcwd(), 'logs'))
 

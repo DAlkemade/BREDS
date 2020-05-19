@@ -19,7 +19,8 @@ from breds.pattern import Pattern, pattern_factory
 from breds.sentence import Sentence
 from breds.similarity import similarity_all
 from breds.tuple import Tuple
-from breds.visual import VisualConfig, check_tuple_with_visuals
+from breds.visual import check_tuple_with_visuals
+from visual_size_comparison.config import VisualConfig
 
 logger = logging.getLogger(__name__)
 PRINT_TUPLES = True

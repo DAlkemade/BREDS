@@ -9,7 +9,7 @@ from nltk.corpus import stopwords
 
 from breds.reverb import Reverb
 from breds.seed import Seed
-from breds.visual import VisualConfig
+from visual_size_comparison.config import VisualConfig
 
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
