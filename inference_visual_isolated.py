@@ -49,7 +49,7 @@ class VisualPropagation:
 
         return good_paths
 
-    def compare_pairs(self, pairs: Set[Pair]):
+    def compare_pairs(self, pairs: Set[Pair]) -> None:
         for pair in pairs:
             self.compare_pair(pair)
 
@@ -133,6 +133,24 @@ def main():
     visual_config = config.visual_config
     objects = list(visual_config.entity_to_synsets.keys())
     logger.info(f'Objects: {objects}')
+    G = build_cooccurrence_graph(objects, visual_config)
+
+    test_pairs: List[Pair] = list()
+    for line in fileinput.input(test_pairs_fname):
+        split = line.split(',')
+        test_pairs.append(Pair(split[0].strip().replace(' ','_'), split[1].strip().replace(' ','_')))
+
+    prop = VisualPropagation(G, config.visual_config)
+    for test_pair in test_pairs:
+        if test_pair.both_in_list(objects):
+            # TODO: bigrams not found
+            fraction_larger = prop.compare_pair(test_pair)
+            logger.info(f'{test_pair.e1} {test_pair.e2} fraction larger: {fraction_larger}')
+        else:
+            logger.warning(f'{test_pair.e1} or {test_pair.e2} not in VG. Objects: {objects}')
+
+
+def build_cooccurrence_graph(objects: list, visual_config: VisualConfig) -> nx.Graph:
     G = nx.Graph()
     G.add_nodes_from(objects)
     logger.info(f'Number of nodes: {G.number_of_nodes()}')
@@ -149,20 +167,7 @@ def main():
     nr_edges = G.number_of_edges()
     max_edges = G.number_of_nodes() ** 2
     logger.info(f'Number of edges: {nr_edges} (sparsity: {nr_edges / max_edges})')
-
-    test_pairs: List[Pair] = list()
-    for line in fileinput.input(test_pairs_fname):
-        split = line.split(',')
-        test_pairs.append(Pair(split[0].strip().replace(' ','_'), split[1].strip().replace(' ','_')))
-
-    prop = VisualPropagation(G, config.visual_config)
-    for test_pair in test_pairs:
-        if test_pair.both_in_list(objects):
-            # TODO: bigrams not found
-            fraction_larger = prop.compare_pair(test_pair)
-            logger.info(f'{test_pair.e1} {test_pair.e2} fraction larger: {fraction_larger}')
-        else:
-            logger.warning(f'{test_pair.e1} or {test_pair.e2} not in VG. Objects: {objects}')
+    return G
 
 
 if __name__ == "__main__":
