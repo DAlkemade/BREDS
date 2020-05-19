@@ -24,16 +24,18 @@ def main():
     logger.info("Starting BREDS")
     with open("config.yml", "r") as ymlfile:
         cfg = Box(yaml.safe_load(ymlfile))
-        # cfg = Box(yaml.safe_load(ymlfile), default_box=True, default_box_attr=None)
+        # cfg = Bothrex(yaml.safe_load(ymlfile), default_box=True, default_box_attr=None)
 
 
-    breads = BREDS(cfg.path.configuration, cfg.path.seeds_file, cfg.path.negative_seeds, cfg.thresholds.similarity, cfg.thresholds.confidence, cfg.path.objects, cfg.path.vg_objects, cfg.path.vg_objects_anchors)
+    breads = BREDS(cfg.path.configuration, cfg.path.seeds_file, cfg.path.negative_seeds, cfg.parameters.similarity, cfg.parameters.confidence, cfg.path.objects, cfg.path.vg_objects, cfg.path.vg_objects_anchors)
 
-    cache_config = configparser.ConfigParser()
-    cache_config.read(cfg.path.cache_config_fname)
-    cache_type = 'COREF' if breads.config.coreference else 'NOCOREF'
-    htmls_fname = cache_config[cache_type].get('htmls')
-    tuples_fname = cache_config[cache_type].get('tuples')
+    if breads.config.coreference:
+        cache_paths = cfg.path.coref
+    else:
+        cache_paths = cfg.path.coref
+
+    htmls_fname = cache_paths.htmls
+    tuples_fname = cache_paths.tuples
 
     breads.generate_tuples(htmls_fname, tuples_fname)
     breads.init_bootstrap(tuples=None)

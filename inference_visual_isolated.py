@@ -24,8 +24,8 @@ def main():
 
     # TODO check whether the objects aren't in the bootstrapped objects
     visual_config = VisualConfig(cfg.path.vg_objects, cfg.path.vg_objects_anchors)
-    config = Config(cfg.path.configuration, cfg.path.seeds_file, cfg.path.negative_seeds, cfg.thresholds.similarity,
-                    cfg.thresholds.confidence,
+    config = Config(cfg.path.configuration, cfg.path.seeds_file, cfg.path.negative_seeds, cfg.parameters.similarity,
+                    cfg.parameters.confidence,
                     cfg.path.objects, visual_config)
 
     visual_config = config.visual_config
