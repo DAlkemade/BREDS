@@ -44,9 +44,26 @@ def main():
 
     all_new_objects = set(objects_lookup.keys()).union(unseen_objects)
 
+    #TODo extract html rettrieval from gather_sizes_with_bootstrapping_patterns so that I can also use them for regex
+
+    # BOOTSTRAP PATTERNS GENERATED WITHOUT USING VISUALS
+
+    # BOOTSTRAP PATTERNS GENERATED USING VISUALS
     tuples_bootstrap = gather_sizes_with_bootstrapping_patterns(cache_fname, config, patterns, all_new_objects)
 
+
+    ##################### INFERENCE ###############################
+    # REGEX
+
+    # RAW NUMERIC BOOSTRAPPING
+
+    # NUMERIC BOOSTRAPPING WITH VISUALS
     all_sizes = compile_results(tuples_bootstrap, objects_lookup, similar_words, unseen_objects)
+
+    # NUMERIC BOOTSTRAPPING WITH VISUALS AND BACKOFF
+
+    # VISUAL PROPAGATION WITH RANGES
+    # TODO maybe also do backoff for this
 
     # TODO maybe also use visual propagation here
 
