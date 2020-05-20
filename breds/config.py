@@ -135,7 +135,7 @@ class Config(object):
 
     def read_word2vec(self):
         logger.info("Loading word2vec model ...\n")
-        self.word2vec = KeyedVectors.load_word2vec_format(self.word2vecmodelpath, binary=True)
+        self.word2vec = load_word2vec(self.word2vecmodelpath)
         self.vec_dim = self.word2vec.vector_size
         logger.info(f"{self.vec_dim} dimensions")
 
@@ -170,6 +170,9 @@ class Config(object):
             seed_dict[e1] = Seed(e1, size)
             return True
 
+
+def load_word2vec(word2vecmodelpath: str):
+    return KeyedVectors.load_word2vec_format(word2vecmodelpath, binary=True)
 
 
 def read_objects_of_interest(objects_path) -> set:

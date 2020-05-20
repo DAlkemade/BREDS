@@ -2,14 +2,16 @@ import fileinput
 import logging
 import os
 import pickle
+import random
+import string
 from collections import defaultdict
 from functools import partial
-from typing import List
+from typing import List, Dict, DefaultDict
 
 import numpy as np
 from nltk.corpus import wordnet as wn
 
-from breds.breds import process_objects, update_tuples_confidences
+from breds.breds import process_objects, update_tuples_confidences, generate_tuples
 from breds.config import Weights
 from breds.htmls import scrape_htmls
 from breds.similarity import similarity_all
@@ -78,23 +80,18 @@ def predict_sizes(all_sizes: dict) -> None:
         # TODO return for each object a size and a confidence
 
 
-def gather_sizes_with_bootstrapping_patterns(cache_fname, config, patterns, all_new_objects):
-    if os.path.exists(cache_fname):
-        with open(cache_fname, 'rb') as f:
-            candidate_tuples = pickle.load(f)
-    else:
-
-        htmls_lookup = scrape_htmls('htmls_unseen_objects.pkl', list(all_new_objects))
-
-        # TODO coreferences
-        logger.info(f'Using coreference: {config.coreference}')
-        tuples = process_objects(all_new_objects, htmls_lookup, config)
-
-        candidate_tuples = extract_tuples(config, patterns, tuples)
+def randomString(stringLength=8):
+    # from https://pynative.com/python-generate-random-string/
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(stringLength))
 
 
-        with open(cache_fname, 'wb') as f:
-            pickle.dump(candidate_tuples, f, pickle.HIGHEST_PROTOCOL)
+def gather_sizes_with_bootstrapping_patterns(config, patterns, all_new_objects) -> DefaultDict[Tuple, list]:
+
+    tuples = generate_tuples(randomString(), randomString(), config, names=all_new_objects)
+
+    candidate_tuples = extract_tuples(config, patterns, tuples)
+
     return candidate_tuples
 
 
@@ -127,7 +124,7 @@ def compile_results(candidate_tuples, objects_lookup, similar_words, unseen_obje
     return all_sizes
 
 
-def extract_tuples(config, patterns, tuples):
+def extract_tuples(config, patterns, tuples) -> DefaultDict[Tuple, list]:
     candidate_tuples = defaultdict(list)
     for t in tuples:
         for extraction_pattern in patterns:
@@ -151,15 +148,14 @@ def create_reverse_lookup(similar_words):
     return objects_lookup
 
 
-def find_similar_words(config, unseen_objects):
-    config.read_word2vec()
+def find_similar_words(word2vec_model, unseen_objects):
     similar_words = defaultdict(lambda: defaultdict(list))
     for entity in unseen_objects:
         # Word2vec
         # TODO the results for cheetah and container ship are not great, should probably be a last resort
         # TODO can be sped up if necessary:
         #  https://radimrehurek.com/gensim/auto_examples/tutorials/run_annoy.html#sphx-glr-auto-examples-tutorials-run-annoy-py
-        most_similar = config.word2vec.most_similar(positive=entity.split(),
+        most_similar = word2vec_model.most_similar(positive=entity.split(),
                                                     topn=5)  # TODO maybe use a bigram model? Because now those can not be entered and not be given as similar words
         most_similar = [m for m in most_similar if m[1] > .6]
         # logger.info(most_similar)

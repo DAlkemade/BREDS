@@ -1,4 +1,5 @@
 import fileinput
+import json
 import logging
 import os
 import pickle
@@ -11,7 +12,7 @@ from logging_setup_dla.logging import set_up_root_logger
 
 from breds.breds_inference import predict_sizes, gather_sizes_with_bootstrapping_patterns, compile_results, \
     find_similar_words, create_reverse_lookup
-from breds.config import Config
+from breds.config import Config, load_word2vec
 from visual_size_comparison.config import VisualConfig
 
 set_up_root_logger(f'INFERENCE_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.path.join(os.getcwd(), 'logs'))
@@ -34,8 +35,8 @@ def main():
     unseen_objects = set([line.strip() for line in fileinput.input(unseen_objects_fname)])
 
     #TODO recognize abstract words and reject
-    cache_fname = 'inference_cache.pkl'
-    similar_words = find_similar_words(config, unseen_objects)
+    word2vec_model = load_word2vec(cfg.parameters.word2vec_path)
+    similar_words = find_similar_words(word2vec_model, unseen_objects)
 
     #TODO also add linguistics thing with removing head nouns
 
@@ -49,7 +50,8 @@ def main():
     # BOOTSTRAP PATTERNS GENERATED WITHOUT USING VISUALS
 
     # BOOTSTRAP PATTERNS GENERATED USING VISUALS
-    tuples_bootstrap = gather_sizes_with_bootstrapping_patterns(cache_fname, config, patterns, all_new_objects)
+    # TODO replace this by loading cache
+    tuples_bootstrap = gather_sizes_with_bootstrapping_patterns(config, patterns, all_new_objects)
 
 
     ##################### INFERENCE ###############################
@@ -59,14 +61,15 @@ def main():
 
     # NUMERIC BOOSTRAPPING WITH VISUALS
     all_sizes = compile_results(tuples_bootstrap, objects_lookup, similar_words, unseen_objects)
-
+    with open('backoff_sizes.json', 'w') as f:
+        json.dump(all_sizes, f)
     # NUMERIC BOOTSTRAPPING WITH VISUALS AND BACKOFF
 
     # VISUAL PROPAGATION WITH RANGES
     # TODO maybe also do backoff for this
 
     # TODO maybe also use visual propagation here
-
+    # TODO move this to other repo
     predict_sizes(all_sizes)
 
     logger.info('Finished')

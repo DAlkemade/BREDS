@@ -65,7 +65,7 @@ class BREDS(object):
     def __init__(self, cfg: Box):
         self.curr_iteration = 0
         self.patterns = list()
-        self.processed_tuples = list()
+        self.processed_tuples: List[Tuple] = list()
         self.candidate_tuples = defaultdict(list)
         visual_config = VisualConfig(cfg.path.vg_objects, cfg.path.vg_objects_anchors)
         self.config = Config(cfg, visual_config)
@@ -79,56 +79,7 @@ class BREDS(object):
         :param sentences_file:
         """
 
-        if os.path.exists(tuples_fname):
-            with open(tuples_fname, "rb") as f_in:
-                logger.info("\nLoading processed tuples from disk...")
-                self.processed_tuples = pickle.load(f_in)
-            logger.info(f"{len(self.processed_tuples)} tuples loaded")
-
-        else:
-
-            # load needed stuff, word2vec model and a pos-tagger
-
-            logger.info("\nGenerating relationship instances from sentences")
-            names = self.config.objects
-
-            if os.path.exists(htmls_fname):
-                logger.info("Loading htmls from disk")
-                with open(htmls_fname, "rb") as f_html:
-                    htmls_lookup = pickle.load(f_html)
-            else:
-                logger.info("Retrieving htmls")
-                if self.config.coreference:
-                    raise ValueError(
-                        'We have not implemented lazy coreferences. You need to parse these in advance on a GPU.')
-                htmls_lookup = scrape_htmls(htmls_fname, list(names))
-
-            logger.info(f'Using coreference: {self.config.coreference}')
-            self.config.read_word2vec()
-
-            self.processed_tuples += process_objects(names, htmls_lookup, self.config)
-
-            logger.info(f"\n{len(self.processed_tuples)} tuples generated")
-
-            print("Writing generated tuples to disk")
-            with open(tuples_fname, "wb") as f_out:
-                pickle.dump(self.processed_tuples, f_out)
-
-        object_occurrence = dict()
-        for o in self.config.objects:
-            object_occurrence[o] = 0
-        for t in self.processed_tuples:
-            try:
-                object_occurrence[t.e1] += 1
-            except KeyError:
-                logger.warning(f'{t.e1} not in objects')
-        occurrences = list(object_occurrence.values())
-        max_value = 100
-        bins = np.linspace(0, max_value, max_value+1)
-        clipped_values = np.clip(occurrences, bins[0], bins[-1])
-        hist, _, _ = plt.hist(clipped_values, bins=bins)
-        logger.info(f'Number of objects with no tuple: {hist[0]}')
-        plt.show()
+        self.processed_tuples += generate_tuples(htmls_fname, tuples_fname, self.config)
 
 
     def match_seeds_tuples(self):
@@ -440,3 +391,65 @@ def process_objects(names: set, htmls_lookup: dict, config: Config):
                               config)
                     tuples.append(t)
     return tuples
+
+
+def generate_tuples(htmls_fname: str, tuples_fname: str, config: Config, names = None) -> List[Tuple]:
+    """
+    Generate tuples instances from a text file with sentences where named entities are
+    already tagged
+
+    :param sentences_file:
+    """
+    if names is None:
+        names = config.objects
+
+    if os.path.exists(tuples_fname):
+        with open(tuples_fname, "rb") as f_in:
+            logger.info("\nLoading processed tuples from disk...")
+            processed_tuples = pickle.load(f_in)
+        logger.info(f"{len(processed_tuples)} tuples loaded")
+
+    else:
+
+        # load needed stuff, word2vec model and a pos-tagger
+
+        logger.info("\nGenerating relationship instances from sentences")
+
+        if os.path.exists(htmls_fname):
+            logger.info("Loading htmls from disk")
+            with open(htmls_fname, "rb") as f_html:
+                htmls_lookup = pickle.load(f_html)
+        else:
+            logger.info("Retrieving htmls")
+            if config.coreference:
+                raise ValueError(
+                    'We have not implemented lazy coreferences. You need to parse these in advance on a GPU.')
+            htmls_lookup = scrape_htmls(htmls_fname, list(names))
+
+        logger.info(f'Using coreference: {config.coreference}')
+        config.read_word2vec()
+
+        processed_tuples = process_objects(names, htmls_lookup, config)
+
+        logger.info(f"\n{len(processed_tuples)} tuples generated")
+
+        print("Writing generated tuples to disk")
+        with open(tuples_fname, "wb") as f_out:
+            pickle.dump(processed_tuples, f_out)
+
+    object_occurrence = dict()
+    for o in names:
+        object_occurrence[o] = 0
+    for t in processed_tuples:
+        try:
+            object_occurrence[t.e1] += 1
+        except KeyError:
+            logger.warning(f'{t.e1} not in objects')
+    occurrences = list(object_occurrence.values())
+    max_value = 100
+    bins = np.linspace(0, max_value, max_value+1)
+    clipped_values = np.clip(occurrences, bins[0], bins[-1])
+    hist, _, _ = plt.hist(clipped_values, bins=bins)
+    logger.info(f'Number of objects with no tuple: {hist[0]}')
+    plt.show()
+    return processed_tuples
