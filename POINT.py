@@ -26,8 +26,8 @@ def main():
     patterns = load_patterns(cfg)
 
     # unseen_objects_fname = cfg.path.unseen_objects
-    input: DataFrame = pd.from_csv(cfg.path.dev)
-    unseen_objects = list(input['object'])
+    input: DataFrame = pd.read_csv(cfg.path.dev)
+    unseen_objects = list(input['object'])[:2]
 
 
 
@@ -45,18 +45,19 @@ def main():
 
     # TODO think about format to save in
     # TODO should I just predict the maximum value? As we are looking for the maximum dimension of an object
-    with open(f'point_predictions_bootstrapping_visual={cfg.visual_confidence}_coref={cfg.coreference}.json', 'w') as f:
+    with open(f'point_predictions_bootstrapping_visual={cfg.parameters.visual_confidence}_coref={cfg.parameters.coreference}.json', 'w') as f:
         json.dump(point_predictions, f)
 
     res = []
     for _, row in input.iterrows():
         min = row['min']
         max = row['max']
-        pred_size = point_predictions[row['object']]
-        if pred_size is None:
-            res.append(None)
-        else:
-            res.append(pred_size < max and pred_size > min)
+        try:
+            pred_size = point_predictions[row['object']]
+            correct = max > pred_size > min
+        except KeyError:
+            correct = None
+        res.append(correct)
 
     res = np.array(res)
     nan_count = np.isnan(res).sum()
