@@ -3,17 +3,14 @@ import json
 import logging
 import os
 import pickle
-from argparse import ArgumentParser
-from collections import defaultdict
 from datetime import datetime
 
 import yaml
 from box import Box
 from logging_setup_dla.logging import set_up_root_logger
 
-from breds.breds_inference import predict_sizes, gather_sizes_with_bootstrapping_patterns, compile_results, \
-    find_similar_words, create_reverse_lookup
-from breds.config import Config, load_word2vec
+from breds.breds_inference import gather_sizes_with_bootstrapping_patterns, predict_using_tuples
+from breds.config import Config
 from visual_size_comparison.config import VisualConfig
 
 set_up_root_logger(f'INFERENCE_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.path.join(os.getcwd(), 'logs'))
@@ -38,32 +35,21 @@ def main():
     unseen_objects_fname = cfg.path.unseen_objects
     with open(patterns_fname, 'rb') as f:
         patterns = pickle.load(f)
+    unseen_objects = set([line.strip() for line in fileinput.input(unseen_objects_fname)])
+
+
     # TODO check whether the objects aren't in the bootstrapped objects
     visual_config = VisualConfig(cfg.path.vg_objects, cfg.path.vg_objects_anchors)
     config = Config(cfg, visual_config)
-    unseen_objects = set([line.strip() for line in fileinput.input(unseen_objects_fname)])
 
     #TODO recognize abstract words and reject
-
 
     # TODO implement caching different patterns for visual and non-visual to enable comparison
     # Same for coreference. now it's just using the same patterns
     # BOOTSTRAP PATTERNS GENERATED USING VISUALS
     tuples_bootstrap = gather_sizes_with_bootstrapping_patterns(config, patterns, unseen_objects)
-    for t in tuples_bootstrap.keys():
-        logger.info(t.sentence)
-        logger.info(f"{t.e1} {t.e2}")
-        logger.info(t.confidence)
-        logger.info("\n")
 
-
-    collated = defaultdict(list)
-    for t in tuples_bootstrap:
-        collated[t.e1].append(t.e2)
-
-    point_predictions = dict()
-    for o in unseen_objects:
-        point_predictions[o] = max(collated[o])
+    point_predictions = predict_using_tuples(tuples_bootstrap, unseen_objects)
 
     # TODO think about format to save in
     # TODO should I just predict the maximum value? As we are looking for the maximum dimension of an object

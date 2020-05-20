@@ -91,6 +91,11 @@ def gather_sizes_with_bootstrapping_patterns(config, patterns, all_new_objects) 
     tuples = generate_tuples(randomString(), randomString(), config, names=all_new_objects)
 
     candidate_tuples = extract_tuples(config, patterns, tuples)
+    for t in candidate_tuples.keys():
+        logger.info(t.sentence)
+        logger.info(f"{t.e1} {t.e2}")
+        logger.info(t.confidence)
+        logger.info("\n")
 
     return candidate_tuples
 
@@ -174,3 +179,17 @@ def find_similar_words(word2vec_model, unseen_objects):
             similar_words[entity]['hyponyms'] += hyponyms
             similar_words[entity]['hypernyms'] += hypernyms
     return similar_words
+
+
+def predict_using_tuples(tuples_bootstrap, unseen_objects):
+    collated = defaultdict(list)
+    for t in tuples_bootstrap:
+        collated[t.e1].append(t.e2)
+    point_predictions = dict()
+    for o in unseen_objects:
+        try:
+            max_size = max(collated[o])
+        except ValueError:
+            max_size = None
+        point_predictions[o] = max_size
+    return point_predictions
