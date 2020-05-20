@@ -9,10 +9,12 @@ from functools import partial
 from typing import List, Dict, DefaultDict
 
 import numpy as np
+from box import Box
 from nltk.corpus import wordnet as wn
+from visual_size_comparison.config import VisualConfig
 
 from breds.breds import process_objects, update_tuples_confidences, generate_tuples
-from breds.config import Weights
+from breds.config import Weights, Config
 from breds.htmls import scrape_htmls
 from breds.similarity import similarity_all
 from breds.tuple import Tuple
@@ -86,7 +88,9 @@ def randomString(stringLength=8):
     return ''.join(random.choice(letters) for i in range(stringLength))
 
 
-def gather_sizes_with_bootstrapping_patterns(config, patterns, all_new_objects) -> DefaultDict[Tuple, list]:
+def gather_sizes_with_bootstrapping_patterns(cfg: Box, patterns, all_new_objects) -> DefaultDict[Tuple, list]:
+    visual_config = VisualConfig(cfg.path.vg_objects, cfg.path.vg_objects_anchors)
+    config = Config(cfg, visual_config)
 
     tuples = generate_tuples(randomString(), randomString(), config, names=all_new_objects)
 
@@ -193,3 +197,24 @@ def predict_using_tuples(tuples_bootstrap, unseen_objects):
             max_size = None
         point_predictions[o] = max_size
     return point_predictions
+
+
+def load_patterns(cfg: Box):
+    patterns_paths = cfg.path.patterns
+    if cfg.parameters.coreference:
+        patterns_paths = patterns_paths.coref
+    else:
+        patterns_paths = patterns_paths.coref
+    if cfg.parameters.visual_confidence:
+        patterns_fname = patterns_paths.visual
+    else:
+        patterns_fname = patterns_paths.no_visual
+    with open(patterns_fname, 'rb') as f:
+        patterns = pickle.load(f)
+    return patterns
+
+
+def load_unseen_objects(cfg):
+    unseen_objects_fname = cfg.path.unseen_objects
+    unseen_objects = set([line.strip() for line in fileinput.input(unseen_objects_fname)])
+    return unseen_objects
