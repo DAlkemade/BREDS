@@ -33,9 +33,11 @@ def main():
     config = Config(cfg, visual_config)
     unseen_objects = set([line.strip() for line in fileinput.input(unseen_objects_fname)])
 
-
+    #TODO recognize abstract words and reject
     cache_fname = 'inference_cache.pkl'
     similar_words = find_similar_words(config, unseen_objects)
+
+    #TODO also add linguistics thing with removing head nouns
 
     # Create object lookup
     objects_lookup = create_reverse_lookup(similar_words)
