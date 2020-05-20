@@ -26,7 +26,15 @@ def main():
         cfg = Box(yaml.safe_load(ymlfile))
         # cfg = Bothrex(yaml.safe_load(ymlfile), default_box=True, default_box_attr=None)
 
-    patterns_fname = cfg.path.patterns_cache
+    patterns_paths = cfg.path.patterns
+    if cfg.parameters.coreference:
+        patterns_paths = patterns_paths.coref
+    else:
+        patterns_paths = patterns_paths.coref
+    if cfg.parameters.visual_confidence:
+        patterns_fname = patterns_paths.visual
+    else:
+        patterns_fname = patterns_paths.no_visual
     unseen_objects_fname = cfg.path.unseen_objects
     with open(patterns_fname, 'rb') as f:
         patterns = pickle.load(f)
@@ -48,7 +56,7 @@ def main():
         logger.info(t.confidence)
         logger.info("\n")
 
-    #TODO add coreference to INFERENCE
+
     collated = defaultdict(list)
     for t in tuples_bootstrap:
         collated[t.e1].append(t.e2)

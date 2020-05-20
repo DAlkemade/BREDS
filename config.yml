@@ -7,7 +7,13 @@ path:
   vg_objects: "D:/GitHubD/visual-size-comparison/data/objects.json"
   vg_objects_anchors: "D:/GitHubD/visual-size-comparison/data/test_objects.csv"
   final_seeds_cache: "notable_runs/20200515visualandcoref/final_seeds_20200514-114752.json"
-  patterns_cache: "patterns_20200514-114752.pkl"
+  patterns:
+    coref:
+      visual: "patterns_20200514-114752.pkl"
+      no_visual: "todo.pkl"
+    no_coref:
+      visual: "todo.pkl"
+      no_visual: "todo.pkl"
   coref:
     htmls: "htmls_VG_YOLO_coref.pkl"
     tuples: "tuples_VG_YOLO_coref.pkl"
@@ -79,7 +85,7 @@ parameters:
 
   coreference: False
 
-  visual_confidence: True
+  visual_confidence: False
 
   visual_cutoff: .5
 
