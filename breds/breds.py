@@ -287,7 +287,11 @@ class BREDS(object):
                         tuples_sorted = sorted(extracted_tuples, key=lambda tpl: tpl.confidence,
                                                reverse=True)
                         for t in tuples_sorted:
-                            logger.info(t.sentence)
+                            try:
+                                logger.info(t.sentence)
+                            except UnicodeEncodeError:
+                                logger.info("Can't encode sentence")
+                                pass
                             logger.info(f"{t.e1} {t.e2}")
                             logger.info(t.confidence)
                             logger.info("\n")
