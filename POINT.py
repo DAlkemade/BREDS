@@ -27,7 +27,7 @@ def main():
 
     # unseen_objects_fname = cfg.path.unseen_objects
     input: DataFrame = pd.read_csv(cfg.path.dev)
-    unseen_objects = list(input['object'])[:2]
+    unseen_objects = list(input['object'])
 
 
 
@@ -52,10 +52,12 @@ def main():
     for _, row in input.iterrows():
         min = row['min']
         max = row['max']
-        try:
-            pred_size = point_predictions[row['object']]
+        object = row['object']
+        pred_size = point_predictions[object]
+        logger.info(f'pred: {pred_size} min: {min} max: {max}')
+        if pred_size is not None:
             correct = max > pred_size > min
-        except KeyError:
+        else:
             correct = None
         res.append(correct)
 
