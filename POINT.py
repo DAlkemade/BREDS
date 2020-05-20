@@ -9,8 +9,6 @@ from box import Box
 from logging_setup_dla.logging import set_up_root_logger
 
 from breds.breds_inference import gather_sizes_with_bootstrapping_patterns, predict_using_tuples, load_patterns
-from breds.config import Config
-from visual_size_comparison.config import VisualConfig
 
 set_up_root_logger(f'INFERENCE_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.path.join(os.getcwd(), 'logs'))
 
@@ -27,11 +25,9 @@ def main():
     unseen_objects_fname = cfg.path.unseen_objects
     unseen_objects = set([line.strip() for line in fileinput.input(unseen_objects_fname)])
 
-
     # TODO check whether the objects aren't in the bootstrapped objects
 
-
-    #TODO recognize abstract words and reject
+    # TODO recognize abstract words and reject
 
     # TODO implement caching different patterns for visual and non-visual to enable comparison
     # Same for coreference. now it's just using the same patterns
