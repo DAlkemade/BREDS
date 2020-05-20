@@ -61,12 +61,11 @@ def main():
             correct = None
         res.append(correct)
 
-    res = np.array(res)
-    nan_count = np.isnan(res).sum()
+    nan_count = sum([x is None for x in res])
     logger.info(f'Number of nans: {nan_count}')
     logger.info(f'Recall: {1 - (nan_count/len(res))}')
 
-    res_clean = res[~np.isnan(res)]
+    res_clean = [x for x in res if x is not None]
     precision = np.mean(res_clean)
     logger.info(f'Precision: {precision}')
 

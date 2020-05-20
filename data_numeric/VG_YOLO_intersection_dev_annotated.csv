@@ -61,7 +61,7 @@ granny smith,0.05,0.1
 life buoy,0.5,0.8
 earflap,0.05,0.3
 spam,0.05,0.3
-coverlet,1.8,2.2
+coverlet,1.5,2.2
 bean,0.01,0.1
 kudu,1.8,2.4
 paper,0.1,0.4
@@ -70,7 +70,7 @@ politician,1.6,2.1
 jinrikisha,2,3
 eyepatch,0.03,0.15
 collie,0.4,0.7
-tanager,0.15,0.18
+tanager,0.15,0.2
 newspaper,0.3,0.5
 location,0,500
 hairbrush,0.05,0.2
