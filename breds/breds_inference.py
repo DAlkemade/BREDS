@@ -192,6 +192,8 @@ def predict_using_tuples(tuples_bootstrap, unseen_objects):
     point_predictions = dict()
     for o in unseen_objects:
         try:
+            # TODO think about whether taking the max is good
+
             max_size = max(collated[o])
         except ValueError:
             max_size = None
@@ -204,7 +206,7 @@ def load_patterns(cfg: Box):
     if cfg.parameters.coreference:
         patterns_paths = patterns_paths.coref
     else:
-        patterns_paths = patterns_paths.coref
+        patterns_paths = patterns_paths.no_coref
     if cfg.parameters.visual_confidence:
         patterns_fname = patterns_paths.visual
     else:

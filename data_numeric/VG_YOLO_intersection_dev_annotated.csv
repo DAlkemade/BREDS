@@ -1,4 +1,5 @@
-padding,,
+object,min,max
+padding,0,2.0
 leaf,0.01,2
 chick,0.05,0.2
 ship,3,500
@@ -26,86 +27,86 @@ nan,1.5,2.1
 dowel,0.05,0.2
 rearview mirror,0.2,0.35
 parachute,10,50
-fabric,,
-chapel,,
-dainty,,
-seabird,,
-sports car,,
-performer,,
-redhead,,
-mouse,,
-mantis,,
-gate,,
-vehicle,,
-gourd,,
-girl,,
-knee pad,,
-bib,,
-yacht,,
-mirror,,
-transom,,
-porch,,
-machine gun,,
-impala,,
-baseball glove,,
-campanile,,
-pooch,,
-kitchen,,
-trap,,
-shoulder pad,,
-sunscreen,,
-leader,,
-leash,,
-granny smith,,
-life buoy,,
-earflap,,
-spam,,
-coverlet,,
-bean,,
-kudu,,
-paper,,
-wheelchair,,
-politician,,
-jinrikisha,,
-eyepatch,,
-collie,,
-tanager,,
-newspaper,,
-location,,
-hairbrush,,
-pocketknife,,
-rider,,
-sunglasses,,
-espresso,,
-plaza,,
-paint,,
-wind turbine,,
-appliance,,
-twin,,
-gravy boat,,
-ice tea,,
-offspring,,
-athlete,,
-toilet,,
-walnut,,
-candle,,
-saguaro,,
-crayon,,
-oil tanker,,
-male child,,
-bunk bed,,
-shelf bracket,,
-apple,,
-diaper,,
-videodisk,,
-air terminal,,
-dust storm,,
-wagon,,
-grandchild,,
-candy,,
-jumbojet,,
-breastplate,,
-outboard motor,,
-nurse,,
-kitchen utensil,,
-typewriter,,
+fabric,0,10
+chapel,4,300
+dainty,0.02,0.2
+seabird,0.1,2
+sports car,3,6
+performer,1.6,2.1
+redhead,1.6,2.1
+mouse,0.04,0.15
+mantis,0.02,0.1
+gate,1,6
+vehicle,1,20
+gourd,0.1,0.4
+girl,0.3,1.5
+knee pad,0.1,0.2
+bib,0.15,0.3
+yacht,5,200
+mirror,0.05,3
+transom,2,40
+porch,2,10
+machine gun,0.4,2
+impala,1,2
+baseball glove,0.15,0.3
+campanile,20,100
+pooch,0.4,1.5
+kitchen,2,8
+trap,0.1,1
+shoulder pad,0.4,0.7
+sunscreen,0.1,0.3
+leader,1.6,2.1
+leash,0.3,3
+granny smith,0.05,0.1
+life buoy,0.5,0.8
+earflap,0.05,0.3
+spam,0.05,0.3
+coverlet,1.8,2.2
+bean,0.01,0.1
+kudu,1.8,2.4
+paper,0.1,0.4
+wheelchair,0.6,1
+politician,1.6,2.1
+jinrikisha,2,3
+eyepatch,0.03,0.15
+collie,0.4,0.7
+tanager,0.15,0.18
+newspaper,0.3,0.5
+location,0,500
+hairbrush,0.05,0.2
+pocketknife,0.05,0.2
+rider,1.6,2.1
+sunglasses,0.08,0.15
+espresso,0.05,0.1
+plaza,20,400
+paint,0,2000
+wind turbine,40,90
+appliance,0.1,1.5
+twin,1.6,2.1
+gravy boat,0.2,0.3
+ice tea,0.05,0.15
+offspring,0.01,6
+athlete,1.6,2.1
+toilet,0.4,1
+walnut,0.02,0.05
+candle,0.02,0.3
+saguaro,0.03,18
+crayon,0.03,0.08
+oil tanker,200,500
+male child,0.2,1.5
+bunk bed,1.8,2.5
+shelf bracket,0.15,0.6
+apple,0.05,0.1
+diaper,0.1,0.3
+videodisk,0.1,0.2
+air terminal,200,2000
+dust storm,1000,100000
+wagon,2,80
+grandchild,0.3,2.1
+candy,0.01,0.2
+jumbojet,40,100
+breastplate,0.6,1.2
+outboard motor,0.4,2
+nurse,1.6,2.1
+kitchen utensil,0.05,0.3
+typewriter,0.3,0.6
