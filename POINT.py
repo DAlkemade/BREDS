@@ -22,7 +22,7 @@ def main():
     with open("config.yml", "r") as ymlfile:
         cfg = Box(yaml.safe_load(ymlfile))
         # cfg = Bothrex(yaml.safe_load(ymlfile), default_box=True, default_box_attr=None)
-
+    os.chdir(cfg.path.work_dir)
     patterns = load_patterns(cfg)
 
     # unseen_objects_fname = cfg.path.unseen_objects

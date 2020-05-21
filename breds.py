@@ -26,7 +26,7 @@ def main():
         cfg = Box(yaml.safe_load(ymlfile))
         # cfg = Bothrex(yaml.safe_load(ymlfile), default_box=True, default_box_attr=None)
 
-
+    os.chdir(cfg.path.work_dir)
     breads = BREDS(cfg)
 
     if breads.config.coreference:

@@ -1,4 +1,5 @@
 path:
+  work_dir: "D:/GitHubD/BREDS"
   test_pairs: "test_pairs.txt"
   unseen_objects: "data_numeric/unseen_objects.txt"
   seeds_file: "data_numeric/seeds_positive.txt"
@@ -20,7 +21,7 @@ path:
   no_coref:
     htmls: "htmls_VG_YOLO.pkl"
     tuples: "tuples_VG_YOLO.pkl"
-  dev: "D:/GitHubD/BREDS/data_numeric/VG_YOLO_intersection_dev_annotated.csv"
+  dev: "data_numeric/VG_YOLO_intersection_dev_annotated.csv"
 
 
 parameters:
