@@ -79,11 +79,12 @@ def predict_sizes(all_sizes: dict) -> None:
         # TODO return for each object a size and a confidence
 
 
-def gather_sizes_with_bootstrapping_patterns(cfg: Box, patterns, all_new_objects) -> DefaultDict[Tuple, list]:
+def gather_sizes_with_bootstrapping_patterns(cfg: Box, patterns, all_new_objects, htmls_cache = None) -> DefaultDict[Tuple, list]:
     visual_config = VisualConfig(cfg.path.vg_objects, cfg.path.vg_objects_anchors)
     config = Config(cfg, visual_config)
-
-    tuples = generate_tuples(randomString(), randomString(), config, names=all_new_objects)
+    if htmls_cache is None:
+        htmls_cache = randomString()
+    tuples = generate_tuples(htmls_cache, randomString(), config, names=all_new_objects)
 
     candidate_tuples = extract_tuples(config, patterns, tuples)
     for t in candidate_tuples.keys():

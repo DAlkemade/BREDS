@@ -32,7 +32,7 @@ def main():
     if breads.config.coreference:
         cache_paths = cfg.path.coref
     else:
-        cache_paths = cfg.path.coref
+        cache_paths = cfg.path.no_coref
 
     htmls_fname = cache_paths.htmls
     tuples_fname = cache_paths.tuples
