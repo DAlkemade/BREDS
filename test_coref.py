@@ -1,7 +1,7 @@
 import neuralcoref
 import spacy
 
-from parse_coref import parse_coref
+from breds.coref import parse_coref
 
 
 def test_coref():

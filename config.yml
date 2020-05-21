@@ -10,7 +10,7 @@ path:
   patterns:
     coref:
       visual: "patterns_20200514-114752.pkl"
-      no_visual: "todo.pkl"
+      no_visual: "notable_runs/20200520novisualwithcoref/patterns_20200520-232753.pkl"
     no_coref:
       visual: "todo.pkl"
       no_visual: "notable_runs/20200520novisualnocoref/patterns_20200520-192741.pkl"

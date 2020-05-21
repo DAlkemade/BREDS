@@ -3,6 +3,9 @@ import logging
 import operator
 import os
 import pickle
+
+import neuralcoref
+import spacy
 import sys
 import time
 from collections import defaultdict
@@ -14,6 +17,7 @@ from box import Box
 from matplotlib import pyplot as plt
 from nltk import load, tokenize
 
+from breds.util import randomString
 from breds.config import Config
 from breds.htmls import scrape_htmls
 from breds.pattern import Pattern, pattern_factory
@@ -22,6 +26,8 @@ from breds.similarity import similarity_all
 from breds.tuple import Tuple
 from breds.visual import check_tuple_with_visuals
 from visual_size_comparison.config import VisualConfig
+
+from breds.coref import find_corefs
 
 logger = logging.getLogger(__name__)
 PRINT_TUPLES = True
@@ -425,10 +431,15 @@ def generate_tuples(htmls_fname: str, tuples_fname: str, config: Config, names =
                 htmls_lookup = pickle.load(f_html)
         else:
             logger.info("Retrieving htmls")
-            if config.coreference:
-                raise ValueError(
-                    'We have not implemented lazy coreferences. You need to parse these in advance on a GPU.')
             htmls_lookup = scrape_htmls(htmls_fname, list(names))
+
+            if config.coreference:
+                spacy.prefer_gpu()
+                nlp = spacy.load('en_core_web_sm')
+                neuralcoref.add_to_pipe(nlp)
+                htmls_lookup_coref = dict()
+                find_corefs(htmls_fname, htmls_lookup, htmls_lookup_coref, names, nlp)
+                htmls_lookup = htmls_lookup_coref
 
         logger.info(f'Using coreference: {config.coreference}')
         config.read_word2vec()

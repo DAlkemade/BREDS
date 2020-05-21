@@ -28,6 +28,7 @@ def main():
     # unseen_objects_fname = cfg.path.unseen_objects
     input: DataFrame = pd.read_csv(cfg.path.dev)
     unseen_objects = list(input['object'])
+    logger.info(f'Unseen objects: {unseen_objects}')
 
 
 

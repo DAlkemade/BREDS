@@ -1,23 +1,20 @@
 import fileinput
 import logging
-import os
 import pickle
-import random
-import string
 from collections import defaultdict
 from functools import partial
-from typing import List, Dict, DefaultDict
+from typing import List, DefaultDict
 
 import numpy as np
 from box import Box
 from nltk.corpus import wordnet as wn
 from visual_size_comparison.config import VisualConfig
 
-from breds.breds import process_objects, update_tuples_confidences, generate_tuples
+from breds.breds import update_tuples_confidences, generate_tuples
 from breds.config import Weights, Config
-from breds.htmls import scrape_htmls
 from breds.similarity import similarity_all
 from breds.tuple import Tuple
+from breds.util import randomString
 
 logger = logging.getLogger(__name__)
 
@@ -80,12 +77,6 @@ def predict_sizes(all_sizes: dict) -> None:
         #  https://www.statsmodels.org/stable/generated/statsmodels.stats.weightstats.ttest_ind.html
 
         # TODO return for each object a size and a confidence
-
-
-def randomString(stringLength=8):
-    # from https://pynative.com/python-generate-random-string/
-    letters = string.ascii_lowercase
-    return ''.join(random.choice(letters) for i in range(stringLength))
 
 
 def gather_sizes_with_bootstrapping_patterns(cfg: Box, patterns, all_new_objects) -> DefaultDict[Tuple, list]:
