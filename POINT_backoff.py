@@ -33,7 +33,7 @@ def main():
     input_fname = cfg.path.dev
     input: DataFrame = pd.read_csv(input_fname)
     input = input.astype({'object': str})
-    unseen_objects = list(input['object'])[:1]
+    unseen_objects = list(input['object'])
     logger.info(f'Unseen objects: {unseen_objects}')
 
     cache_fname = 'backoff_sizes.pkl'
