@@ -177,19 +177,22 @@ def find_similar_words(word2vec_model, unseen_objects):
     return similar_words
 
 
-def predict_using_tuples(tuples_bootstrap, unseen_objects):
+def predict_using_tuples(tuples_bootstrap, unseen_objects, maximum=True):
     collated = defaultdict(list)
     for t in tuples_bootstrap:
         collated[t.e1].append(t.e2)
     point_predictions = dict()
     for o in unseen_objects:
-        try:
+        sizes = collated[o]
+        if len(sizes) > 0:
             # TODO think about whether taking the max is good
-
-            max_size = max(collated[o])
-        except ValueError:
-            max_size = None
-        point_predictions[o] = max_size
+            if maximum:
+                size = max(sizes)
+            else:
+                size = np.mean(sizes)
+        else:
+            size = None
+        point_predictions[o] = size
     return point_predictions
 
 
