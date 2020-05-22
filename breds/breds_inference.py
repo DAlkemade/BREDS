@@ -3,7 +3,7 @@ import logging
 import pickle
 from collections import defaultdict
 from functools import partial
-from typing import List, DefaultDict
+from typing import List, DefaultDict, Dict
 
 import numpy as np
 from box import Box
@@ -33,12 +33,13 @@ def read_weights(parameters_fname: str):
     return weights
 
 
-def predict_sizes(all_sizes: dict) -> None:
+def predict_sizes(all_sizes: dict) -> Dict[str, float]:
     """Predict the final size for objects using provided sizes for the objects and their related objects.
 
     :param all_sizes: dictionary with as keys the objects we are predicting and the values a dict with relevant sizes
     of the object itself and relevant sizes
     """
+    predictions = dict()
     for object, sims_dict in all_sizes.items():
         logger.info('\n')
         logger.debug(f'Processing for {object}')
@@ -53,13 +54,16 @@ def predict_sizes(all_sizes: dict) -> None:
         hypernyms = sims_dict['hypernyms']
         word2vecs = sims_dict['word2vec']
 
-        try:
-            direct_highest_confidence: Tuple = max(directs, key=lambda item: item.confidence)
-            logger.info(
-                f'Direct highest confidence: {direct_highest_confidence.e1} {direct_highest_confidence.e2} with conf {direct_highest_confidence.confidence}')
-        except ValueError:
-            direct_highest_confidence = None
+        # try:
+        #     direct_highest_confidence: Tuple = max(directs, key=lambda item: item.confidence)
+        #     logger.info(
+        #         f'Direct highest confidence: {direct_highest_confidence.e1} {direct_highest_confidence.e2} with conf {direct_highest_confidence.confidence}')
+        # except ValueError:
+        #     direct_highest_confidence = None
+        size_direct = predict_point(True, directs)
+        logger.info(f'Size direct: {size_direct}')
 
+        # TODO instead of taking means, maybe take the mean of the MAX for each hyponym, hypernym, etc
         hyponym_mean = weighted_tuple_mean(hyponyms)
         logger.info(f'Hyponym mean: {hyponym_mean}')
 
@@ -77,6 +81,21 @@ def predict_sizes(all_sizes: dict) -> None:
         #  https://www.statsmodels.org/stable/generated/statsmodels.stats.weightstats.ttest_ind.html
 
         # TODO return for each object a size and a confidence
+        if size_direct is not None:
+            size = size_direct
+        elif hyponym_mean is not None:
+            size = hyponym_mean
+        elif hypernym_mean is not None:
+            size = hypernym_mean
+        elif word2vec_mean is not None:
+            size = word2vec_mean
+        else:
+            size = None
+
+
+        predictions[object] = size
+
+    return predictions
 
 
 def gather_sizes_with_bootstrapping_patterns(cfg: Box, patterns, all_new_objects, htmls_cache = None) -> DefaultDict[Tuple, list]:
@@ -184,16 +203,21 @@ def predict_using_tuples(tuples_bootstrap, unseen_objects, maximum=True):
     point_predictions = dict()
     for o in unseen_objects:
         sizes = collated[o]
-        if len(sizes) > 0:
-            # TODO think about whether taking the max is good
-            if maximum:
-                size = max(sizes)
-            else:
-                size = np.mean(sizes)
-        else:
-            size = None
+        size = predict_point(maximum, sizes)
         point_predictions[o] = size
     return point_predictions
+
+
+def predict_point(maximum, sizes):
+    if len(sizes) > 0:
+        # TODO think about whether taking the max is good
+        if maximum:
+            size = max(sizes)
+        else:
+            size = np.mean(sizes)
+    else:
+        size = None
+    return size
 
 
 def load_patterns(cfg: Box):

@@ -14,7 +14,7 @@ from logging_setup_dla.logging import set_up_root_logger
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
 
-set_up_root_logger(f'BREDS_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.getcwd())
+set_up_root_logger(f'BREDS_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.path.join(os.getcwd(), 'logs'))
 
 logger = logging.getLogger(__name__)
 

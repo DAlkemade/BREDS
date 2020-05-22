@@ -85,9 +85,9 @@ parameters:
 
   word2vec_path: afp_apw_xin_embeddings.bin
 
-  coreference: True
+  coreference: False
 
-  visual_confidence: True
+  visual_confidence: False
 
   visual_cutoff: .5
 
