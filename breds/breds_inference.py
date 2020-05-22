@@ -196,6 +196,10 @@ def find_similar_words(word2vec_model, unseen_objects):
             # logger.info(synset.lexname())
             similar_words[entity]['hyponyms'] += hyponyms
             similar_words[entity]['hypernyms'] += hypernyms
+
+        words = entity.strip().split(' ')
+        head_noun = words[-1]
+        similar_words[entity]['head_noun'] = [head_noun]
     return similar_words
 
 
