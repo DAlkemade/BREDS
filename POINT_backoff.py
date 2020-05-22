@@ -38,7 +38,7 @@ def main():
 
     cache_fname = 'backoff_sizes.pkl'
     if "data_numeric/VG_YOLO_intersection_dev_annotated.csv" in input_fname and os.path.exists(cache_fname):
-        with open(cache_fname, 'r') as f:
+        with open(cache_fname, 'rb') as f:
             all_sizes = pickle.load(f)
 
 
