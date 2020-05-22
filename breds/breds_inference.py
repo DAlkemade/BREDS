@@ -179,7 +179,10 @@ def find_similar_words(word2vec_model, unseen_objects):
                                                     topn=5)  # TODO maybe use a bigram model? Because now those can not be entered and not be given as similar words
         most_similar = [m for m in most_similar if m[1] > .6]
         # logger.info(most_similar)
-        words, _ = zip(*most_similar)
+        if len(most_similar) > 0:
+            words, _ = zip(*most_similar)
+        else:
+            words = list()
         similar_words[entity]['word2vec'] = words
 
         # TODO maybe use synset1.path_similarity(synset2)
