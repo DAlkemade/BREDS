@@ -54,7 +54,7 @@ def main():
         tuples_bootstrap = gather_sizes_with_bootstrapping_patterns(cfg, patterns, all_new_objects)
 
         all_sizes = compile_results(tuples_bootstrap, objects_lookup, similar_words, unseen_objects)
-        with open(cache_fname, 'w') as f:
+        with open(cache_fname, 'wb') as f:
             pickle.dump(all_sizes, f)
 
     predictions = predict_sizes(all_sizes)
