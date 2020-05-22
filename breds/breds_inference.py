@@ -60,7 +60,7 @@ def predict_sizes(all_sizes: dict) -> Dict[str, float]:
         #         f'Direct highest confidence: {direct_highest_confidence.e1} {direct_highest_confidence.e2} with conf {direct_highest_confidence.confidence}')
         # except ValueError:
         #     direct_highest_confidence = None
-        size_direct = predict_point(True, directs)
+        size_direct = predict_point(True, [t.e2 for t in directs])
         logger.info(f'Size direct: {size_direct}')
 
         # TODO instead of taking means, maybe take the mean of the MAX for each hyponym, hypernym, etc
