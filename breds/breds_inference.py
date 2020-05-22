@@ -1,5 +1,6 @@
 import fileinput
 import logging
+import operator
 import pickle
 from collections import defaultdict
 from functools import partial
@@ -8,6 +9,8 @@ from typing import List, DefaultDict, Dict
 import numpy as np
 from box import Box
 from nltk.corpus import wordnet as wn
+from sklearn.cluster import KMeans
+from sklearn.covariance import EllipticEnvelope
 from visual_size_comparison.config import VisualConfig
 
 from breds.breds import update_tuples_confidences, generate_tuples
@@ -74,6 +77,21 @@ def predict_sizes(all_sizes: dict) -> Dict[str, float]:
         word2vec_mean = weighted_tuple_mean(word2vecs)
         logger.info(f'Word2vec mean: {word2vec_mean}')
 
+        outlier_detector = EllipticEnvelope(contamination=.2)
+        sizes_array = np.reshape([t.e2 for t in word2vecs], (-1, 1))
+        with np.errstate(all='raise'):
+            try:
+                # Fit detector
+                outlier_detector.fit(sizes_array)
+                preds = outlier_detector.predict(sizes_array)
+                selected_word2vecs = np.extract(preds == 1, word2vecs)
+            except (ValueError, RuntimeWarning, FloatingPointError):
+                selected_word2vecs = []
+
+        selected_word2vec_mean = weighted_tuple_mean(selected_word2vecs)
+        logger.info(f'All word2vecs: {word2vecs} selected word2vecs: {word2vecs}')
+        logger.info(f'Mean of selected word2vecs: {selected_word2vec_mean}')
+
 
         head_noun_size = predict_point(True, [t.e2 for t in head_nouns])
         logger.info(f'Head noun size: {head_noun_size}')
@@ -94,8 +112,8 @@ def predict_sizes(all_sizes: dict) -> Dict[str, float]:
             size = hypernym_mean
         elif head_noun_size is not None:
             size = head_noun_size
-        elif word2vec_mean is not None:
-            size = word2vec_mean
+        elif selected_word2vec_mean is not None:
+            size = selected_word2vec_mean
         else:
             size = None
 
