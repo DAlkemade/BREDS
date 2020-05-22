@@ -53,6 +53,7 @@ def predict_sizes(all_sizes: dict) -> Dict[str, float]:
         hyponyms = sims_dict['hyponyms']
         hypernyms = sims_dict['hypernyms']
         word2vecs = sims_dict['word2vec']
+        head_nouns = sims_dict['head_noun']
 
         # try:
         #     direct_highest_confidence: Tuple = max(directs, key=lambda item: item.confidence)
@@ -73,6 +74,10 @@ def predict_sizes(all_sizes: dict) -> Dict[str, float]:
         word2vec_mean = weighted_tuple_mean(word2vecs)
         logger.info(f'Word2vec mean: {word2vec_mean}')
 
+
+        head_noun_size = predict_point(True, [t.e2 for t in head_nouns])
+        logger.info(f'Head noun size: {head_noun_size}')
+
         # TODO use results in an order, e.g direct finds -> mean of hyponyms -> mean of hypernyms -> word2vec
         #  Maybe this is something I should experiment with
 
@@ -87,6 +92,8 @@ def predict_sizes(all_sizes: dict) -> Dict[str, float]:
             size = hyponym_mean
         elif hypernym_mean is not None:
             size = hypernym_mean
+        elif head_noun_size is not None:
+            size = head_noun_size
         elif word2vec_mean is not None:
             size = word2vec_mean
         else:
@@ -198,8 +205,12 @@ def find_similar_words(word2vec_model, unseen_objects):
             similar_words[entity]['hypernyms'] += hypernyms
 
         words = entity.strip().split(' ')
-        head_noun = words[-1]
-        similar_words[entity]['head_noun'] = [head_noun]
+        head_nouns = list()
+        if len(words) > 1:
+            head_noun = words[-1]
+            head_nouns.append(head_noun)
+
+        similar_words[entity]['head_noun'] = head_nouns
     return similar_words
 
 
