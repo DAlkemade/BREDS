@@ -57,7 +57,7 @@ def main():
         with open(cache_fname, 'wb') as f:
             pickle.dump(all_sizes, f)
 
-    predictions = predict_sizes(all_sizes)
+    predictions = predict_sizes(all_sizes, unseen_objects)
 
     with open(f'backoff_predictions.pkl', 'wb') as f:
         pickle.dump(predictions, f)

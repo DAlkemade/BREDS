@@ -36,14 +36,20 @@ def read_weights(parameters_fname: str):
     return weights
 
 
-def predict_sizes(all_sizes: dict) -> Dict[str, float]:
+def predict_sizes(all_sizes: dict, objects: list) -> Dict[str, float]:
     """Predict the final size for objects using provided sizes for the objects and their related objects.
 
     :param all_sizes: dictionary with as keys the objects we are predicting and the values a dict with relevant sizes
     of the object itself and relevant sizes
     """
     predictions = dict()
-    for object, sims_dict in all_sizes.items():
+    for object in objects:
+        try:
+            sims_dict = all_sizes[object]
+        except KeyError:
+            logger.warning(f'No sizes for {object}')
+            sims_dict = defaultdict(list)
+
         logger.info('\n')
         logger.debug(f'Processing for {object}')
         for key, values in sims_dict.items():
@@ -123,6 +129,10 @@ def predict_sizes(all_sizes: dict) -> Dict[str, float]:
     return predictions
 
 
+def filter_tuples(candidate_tuples, dev_threshold):
+    return [t for t in candidate_tuples if t.confidence > dev_threshold]
+
+
 def gather_sizes_with_bootstrapping_patterns(cfg: Box, patterns, all_new_objects, htmls_cache = None) -> DefaultDict[Tuple, list]:
     visual_config = VisualConfig(cfg.path.vg_objects, cfg.path.vg_objects_anchors)
     config = Config(cfg, visual_config)
@@ -131,13 +141,15 @@ def gather_sizes_with_bootstrapping_patterns(cfg: Box, patterns, all_new_objects
     tuples = generate_tuples(htmls_cache, randomString(), config, names=all_new_objects)
 
     candidate_tuples = extract_tuples(config, patterns, tuples)
+    filtered_tuples = filter_tuples(candidate_tuples, cfg.parameters.dev_threshold)
+
     for t in candidate_tuples.keys():
         logger.info(t.sentence)
         logger.info(f"{t.e1} {t.e2}")
         logger.info(t.confidence)
         logger.info("\n")
 
-    return candidate_tuples
+    return filtered_tuples
 
 
 def weighted_tuple_mean(tuples: List[Tuple]):
@@ -235,7 +247,10 @@ def find_similar_words(word2vec_model, unseen_objects):
 def predict_using_tuples(tuples_bootstrap, unseen_objects, maximum=True):
     collated = defaultdict(list)
     for t in tuples_bootstrap:
+
         collated[t.e1].append(t.e2)
+        logger.info(f'Confidence: {t.confidence}')
+
     point_predictions = dict()
     for o in unseen_objects:
         sizes = collated[o]
