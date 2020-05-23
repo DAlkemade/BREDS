@@ -58,7 +58,7 @@ def predict_sizes(all_sizes: dict, objects: list, cfg: BackoffSettings) -> Dict[
             logger.warning(f'No sizes for {object}')
             sims_dict = defaultdict(list)
 
-        logger.info('\n')
+        logger.debug('\n')
         logger.debug(f'Processing for {object}')
         for key, values in sims_dict.items():
             logger.debug(f'\n{key} finds:')
@@ -83,13 +83,13 @@ def predict_sizes(all_sizes: dict, objects: list, cfg: BackoffSettings) -> Dict[
 
         # TODO instead of taking means, maybe take the mean of the MAX for each hyponym, hypernym, etc
         hyponym_mean = weighted_tuple_mean(hyponyms)
-        logger.info(f'Hyponym mean: {hyponym_mean}')
+        logger.debug(f'Hyponym mean: {hyponym_mean}')
 
         hypernym_mean = weighted_tuple_mean(hypernyms)
-        logger.info(f'Hypernym mean: {hypernym_mean}')
+        logger.debug(f'Hypernym mean: {hypernym_mean}')
 
         word2vec_mean = weighted_tuple_mean(word2vecs)
-        logger.info(f'Word2vec mean: {word2vec_mean}')
+        logger.debug(f'Word2vec mean: {word2vec_mean}')
 
         outlier_detector = EllipticEnvelope(contamination=.2)
         sizes_array = np.reshape([t.e2 for t in word2vecs], (-1, 1))
@@ -103,12 +103,12 @@ def predict_sizes(all_sizes: dict, objects: list, cfg: BackoffSettings) -> Dict[
                 selected_word2vecs = []
 
         selected_word2vec_mean = weighted_tuple_mean(selected_word2vecs)
-        logger.info(f'All word2vecs: {word2vecs} selected word2vecs: {word2vecs}')
-        logger.info(f'Mean of selected word2vecs: {selected_word2vec_mean}')
+        logger.debug(f'All word2vecs: {word2vecs} selected word2vecs: {word2vecs}')
+        logger.debug(f'Mean of selected word2vecs: {selected_word2vec_mean}')
 
 
         head_noun_size = predict_point(True, [t.e2 for t in head_nouns])
-        logger.info(f'Head noun size: {head_noun_size}')
+        logger.debug(f'Head noun size: {head_noun_size}')
 
         # TODO use results in an order, e.g direct finds -> mean of hyponyms -> mean of hypernyms -> word2vec
         #  Maybe this is something I should experiment with
