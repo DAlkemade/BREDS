@@ -59,6 +59,12 @@ def main():
 
     # with open(f'backoff_predictions.pkl', 'wb') as f:
     #     pickle.dump(predictions, f)
+    logger.info('No backoff')
+    direct = BackoffSettings()
+    predictions_direct = predict_sizes(all_sizes, unseen_objects, direct)
+    precision_recall(input, predictions_direct)
+    range_distance(input, predictions_direct)
+
     logger.info('word2vec')
     only_word2vec = BackoffSettings(use_word2vec=True)
     predictions_word2vec = predict_sizes(all_sizes, unseen_objects, only_word2vec)
