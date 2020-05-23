@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 import pickle
@@ -12,7 +11,7 @@ from logging_setup_dla.logging import set_up_root_logger
 from pandas import DataFrame
 
 from breds.breds_inference import predict_sizes, gather_sizes_with_bootstrapping_patterns, compile_results, \
-    find_similar_words, create_reverse_lookup, load_patterns
+    find_similar_words, create_reverse_lookup, load_patterns, BackoffSettings
 from breds.config import load_word2vec
 
 set_up_root_logger(f'INFERENCE_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.path.join(os.getcwd(), 'logs'))
@@ -57,13 +56,33 @@ def main():
         with open(cache_fname, 'wb') as f:
             pickle.dump(all_sizes, f)
 
-    predictions = predict_sizes(all_sizes, unseen_objects)
 
-    with open(f'backoff_predictions.pkl', 'wb') as f:
-        pickle.dump(predictions, f)
+    # with open(f'backoff_predictions.pkl', 'wb') as f:
+    #     pickle.dump(predictions, f)
+    only_word2vec = BackoffSettings(use_word2vec=True)
+    predictions_word2vec = predict_sizes(all_sizes, unseen_objects, only_word2vec)
+    precision_recall(input, predictions_word2vec)
+    range_distance(input, predictions_word2vec)
 
-    precision_recall(input, predictions)
-    range_distance(input, predictions)
+
+
+    only_hypernyms = BackoffSettings(use_hypernyms=True)
+    predictions_hypernyms = predict_sizes(all_sizes, unseen_objects, only_hypernyms)
+    precision_recall(input, predictions_hypernyms)
+    range_distance(input, predictions_hypernyms)
+
+
+    only_hyponyms = BackoffSettings(use_hyponyms=True)
+    predictions_hyponyms = predict_sizes(all_sizes, unseen_objects, only_hyponyms)
+    precision_recall(input, predictions_hyponyms)
+    range_distance(input, predictions_hyponyms)
+
+    only_head_noun = BackoffSettings(use_head_noun=True)
+    predictions_head = predict_sizes(all_sizes, unseen_objects, only_head_noun)
+    precision_recall(input, predictions_head)
+    range_distance(input, predictions_head)
+
+
 
     logger.info('Finished')
 

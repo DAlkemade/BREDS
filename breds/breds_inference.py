@@ -36,7 +36,15 @@ def read_weights(parameters_fname: str):
     return weights
 
 
-def predict_sizes(all_sizes: dict, objects: list) -> Dict[str, float]:
+class BackoffSettings:
+    def __init__(self, use_word2vec: bool = False, use_hypernyms: bool = False, use_hyponyms: bool = False, use_head_noun: bool = False):
+        self.use_word2vec = use_word2vec
+        self.use_hypernyms = use_hypernyms
+        self.use_hyponyms = use_hyponyms
+        self.use_head_noun = use_head_noun
+
+
+def predict_sizes(all_sizes: dict, objects: list, cfg: BackoffSettings) -> Dict[str, float]:
     """Predict the final size for objects using provided sizes for the objects and their related objects.
 
     :param all_sizes: dictionary with as keys the objects we are predicting and the values a dict with relevant sizes
@@ -112,13 +120,13 @@ def predict_sizes(all_sizes: dict, objects: list) -> Dict[str, float]:
         # TODO return for each object a size and a confidence
         if size_direct is not None:
             size = size_direct
-        elif hyponym_mean is not None:
+        elif hyponym_mean is not None and cfg.use_hyponyms:
             size = hyponym_mean
-        elif hypernym_mean is not None:
+        elif hypernym_mean is not None and cfg.use_hypernyms:
             size = hypernym_mean
-        elif head_noun_size is not None:
+        elif head_noun_size is not None and cfg.use_head_noun:
             size = head_noun_size
-        elif selected_word2vec_mean is not None:
+        elif selected_word2vec_mean is not None and cfg.use_word2vec:
             size = selected_word2vec_mean
         else:
             size = None
