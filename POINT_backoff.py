@@ -59,24 +59,25 @@ def main():
 
     # with open(f'backoff_predictions.pkl', 'wb') as f:
     #     pickle.dump(predictions, f)
+    logger.info('word2vec')
     only_word2vec = BackoffSettings(use_word2vec=True)
     predictions_word2vec = predict_sizes(all_sizes, unseen_objects, only_word2vec)
     precision_recall(input, predictions_word2vec)
     range_distance(input, predictions_word2vec)
 
-
-
+    logger.info('hypernyms')
     only_hypernyms = BackoffSettings(use_hypernyms=True)
     predictions_hypernyms = predict_sizes(all_sizes, unseen_objects, only_hypernyms)
     precision_recall(input, predictions_hypernyms)
     range_distance(input, predictions_hypernyms)
 
-
+    logger.info('Hyponyms')
     only_hyponyms = BackoffSettings(use_hyponyms=True)
     predictions_hyponyms = predict_sizes(all_sizes, unseen_objects, only_hyponyms)
     precision_recall(input, predictions_hyponyms)
     range_distance(input, predictions_hyponyms)
 
+    logger.info('Head noun')
     only_head_noun = BackoffSettings(use_head_noun=True)
     predictions_head = predict_sizes(all_sizes, unseen_objects, only_head_noun)
     precision_recall(input, predictions_head)
