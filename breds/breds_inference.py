@@ -138,7 +138,12 @@ def predict_sizes(all_sizes: dict, objects: list, cfg: BackoffSettings) -> Dict[
 
 
 def filter_tuples(candidate_tuples, dev_threshold):
-    return [t for t in candidate_tuples if t.confidence > dev_threshold]
+    filtered: DefaultDict[Tuple, list] = defaultdict(list)
+    for t, v in candidate_tuples.items():
+        if t.confidence > dev_threshold:
+            filtered[t].append(v)
+
+    return filtered
 
 
 def gather_sizes_with_bootstrapping_patterns(cfg: Box, patterns, all_new_objects, htmls_cache = None) -> DefaultDict[Tuple, list]:
