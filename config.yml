@@ -93,4 +93,6 @@ parameters:
 
   dev_threshold: .3
 
+  visual_at_inference: False
+
 
