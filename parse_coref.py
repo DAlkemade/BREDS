@@ -59,9 +59,11 @@ def get_all_objects(objects_path, work_dir: str = '') -> list:
 
 def load_cache(htmls_coref_cache_fname):
     if os.path.exists(htmls_coref_cache_fname):
+        logger.info(f'Loading coref cache')
         with open(htmls_coref_cache_fname, "rb") as f:
             htmls_lookup_coref = pickle.load(f)
     else:
+        logger.info('No coref cache')
         htmls_lookup_coref = dict()
     return htmls_lookup_coref
 
