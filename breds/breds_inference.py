@@ -146,7 +146,7 @@ def filter_tuples(candidate_tuples, dev_threshold):
     return filtered
 
 
-def gather_sizes_with_bootstrapping_patterns(cfg: Box, patterns, all_new_objects, visual_at_inference: bool) -> DefaultDict[Tuple, list]:
+def gather_sizes_with_bootstrapping_patterns(cfg: Box, patterns, all_new_objects) -> DefaultDict[Tuple, list]:
     visual_config = VisualConfig(cfg.path.vg_objects, cfg.path.vg_objects_anchors)
     config = Config(cfg, visual_config)
     tuples = generate_tuples(randomString(), config, names=all_new_objects)
