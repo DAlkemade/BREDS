@@ -28,6 +28,7 @@ from breds.visual import check_tuple_with_visuals
 from visual_size_comparison.config import VisualConfig
 
 from breds.coref import find_corefs
+from parse_coref import load_cache
 
 logger = logging.getLogger(__name__)
 PRINT_TUPLES = True
@@ -77,7 +78,7 @@ class BREDS(object):
         self.config = Config(cfg, visual_config)
         # TODO change to full matrix
 
-    def generate_tuples(self, htmls_fname: str, tuples_fname: str):
+    def generate_tuples(self, tuples_fname: str):
         """
         Generate tuples instances from a text file with sentences where named entities are
         already tagged
@@ -85,7 +86,7 @@ class BREDS(object):
         :param sentences_file:
         """
 
-        self.processed_tuples += generate_tuples(htmls_fname, tuples_fname, self.config)
+        self.processed_tuples += generate_tuples(tuples_fname, self.config)
 
 
     def match_seeds_tuples(self):
@@ -403,7 +404,7 @@ def process_objects(names: set, htmls_lookup: dict, config: Config):
     return tuples
 
 
-def generate_tuples(htmls_fname: str, tuples_fname: str, config: Config, names = None) -> List[Tuple]:
+def generate_tuples(tuples_fname: str, config: Config, names = None) -> List[Tuple]:
     """
     Generate tuples instances from a text file with sentences where named entities are
     already tagged
@@ -425,21 +426,19 @@ def generate_tuples(htmls_fname: str, tuples_fname: str, config: Config, names =
 
         logger.info("\nGenerating relationship instances from sentences")
 
-        if os.path.exists(htmls_fname):
-            logger.info("Loading htmls from disk")
-            with open(htmls_fname, "rb") as f_html:
-                htmls_lookup = pickle.load(f_html)
-        else:
-            logger.info("Retrieving htmls")
-            htmls_lookup = scrape_htmls(htmls_fname, list(names))
 
-            if config.coreference:
-                spacy.prefer_gpu()
-                nlp = spacy.load('en_core_web_sm')
-                neuralcoref.add_to_pipe(nlp)
-                htmls_lookup_coref = dict()
-                find_corefs(htmls_fname, htmls_lookup, htmls_lookup_coref, names, nlp)
-                htmls_lookup = htmls_lookup_coref
+
+        logger.info("Retrieving htmls")
+        htmls_lookup = scrape_htmls(config.htmls_cache, list(names))
+
+        if config.coreference:
+            spacy.prefer_gpu()
+            nlp = spacy.load('en_core_web_sm')
+            neuralcoref.add_to_pipe(nlp)
+            coref_cache_fname = config.htmls_cache_coref
+            htmls_lookup_coref = load_cache(coref_cache_fname)
+            find_corefs(coref_cache_fname, htmls_lookup, htmls_lookup_coref, names, nlp)
+            htmls_lookup = htmls_lookup_coref
 
         logger.info(f'Using coreference: {config.coreference}')
         config.read_word2vec()

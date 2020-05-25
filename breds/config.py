@@ -74,6 +74,8 @@ class Config(object):
         self.weights.alpha = float(cfg.parameters.alpha)
         self.weights.beta = float(cfg.parameters.beta)
         self.weights.gamma = float(cfg.parameters.gamma)
+        self.htmls_cache = str(cfg.path.htmls_cache)
+        self.htmls_cache_coref = str(cfg.path.htmls_cache_coref)
 
         self.tag_type = cfg.parameters.tags_type
         if self.tag_type != 'simple':

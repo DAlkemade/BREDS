@@ -58,6 +58,13 @@ def get_resolved(doc, clusters):
 def find_corefs(htmls_coref_cache_fname, htmls_lookup, htmls_lookup_coref, names, nlp):
     timestamp = time.time()
     logger.info(f'Started at time {timestamp}')
+    count_not_in_cache = 0
+    for name in names:
+        if name not in htmls_lookup_coref.keys():
+            count_not_in_cache += 1
+
+    logger.info(f'Doing coref; {count_not_in_cache} names are not in coref cache')
+
     for name in tqdm.tqdm(names):
         if name in htmls_lookup_coref.keys():
             continue

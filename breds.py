@@ -34,10 +34,10 @@ def main():
     else:
         cache_paths = cfg.path.no_coref
 
-    htmls_fname = cache_paths.htmls
     tuples_fname = cache_paths.tuples
 
-    breads.generate_tuples(htmls_fname, tuples_fname)
+
+    breads.generate_tuples(tuples_fname)
     breads.init_bootstrap(tuples=None)
 
 

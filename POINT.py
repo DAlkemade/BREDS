@@ -33,17 +33,6 @@ def main():
     unseen_objects = list(input['object'])
     logger.info(f'Unseen objects: {unseen_objects}')
 
-    htmls_fname = None
-    if "VG_YOLO" in cfg.path.dev:
-        assert type(cfg.parameters.coreference) is bool
-        if cfg.parameters.coreference:
-            cache_paths = cfg.path.coref
-        else:
-            cache_paths = cfg.path.no_coref
-
-        htmls_fname = cache_paths.htmls
-
-
     # TODO check whether the objects aren't in the bootstrapped objects
 
     # TODO recognize abstract words and reject
@@ -51,7 +40,7 @@ def main():
     # TODO implement caching different patterns for visual and non-visual to enable comparison
     # Same for coreference. now it's just using the same patterns
     # BOOTSTRAP PATTERNS GENERATED USING VISUALS
-    tuples_bootstrap = gather_sizes_with_bootstrapping_patterns(cfg, patterns, unseen_objects, htmls_cache=htmls_fname)
+    tuples_bootstrap = gather_sizes_with_bootstrapping_patterns(cfg, patterns, unseen_objects)
 
     point_predictions = predict_using_tuples(tuples_bootstrap, unseen_objects, maximum=True)
 

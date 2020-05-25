@@ -146,12 +146,10 @@ def filter_tuples(candidate_tuples, dev_threshold):
     return filtered
 
 
-def gather_sizes_with_bootstrapping_patterns(cfg: Box, patterns, all_new_objects, htmls_cache = None) -> DefaultDict[Tuple, list]:
+def gather_sizes_with_bootstrapping_patterns(cfg: Box, patterns, all_new_objects) -> DefaultDict[Tuple, list]:
     visual_config = VisualConfig(cfg.path.vg_objects, cfg.path.vg_objects_anchors)
     config = Config(cfg, visual_config)
-    if htmls_cache is None:
-        htmls_cache = randomString()
-    tuples = generate_tuples(htmls_cache, randomString(), config, names=all_new_objects)
+    tuples = generate_tuples(randomString(), config, names=all_new_objects)
 
     candidate_tuples = extract_tuples(config, patterns, tuples)
     filtered_tuples = filter_tuples(candidate_tuples, cfg.parameters.dev_threshold)
