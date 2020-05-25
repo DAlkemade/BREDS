@@ -46,7 +46,7 @@ def main():
 
     # TODO think about format to save in
     # TODO should I just predict the maximum value? As we are looking for the maximum dimension of an object
-    with open(f'point_predictions_bootstrapping_visual={cfg.parameters.visual_confidence}_coref={cfg.parameters.coreference}confidence_thr={cfg.parameters.confidence}.pkl', 'wb') as f:
+    with open(f'point_predictions_bootstrapping_visual={cfg.parameters.visual_confidence}_coref={cfg.parameters.coreference}dev_thr={cfg.parameters.dev_threshold}.pkl', 'wb') as f:
         pickle.dump(point_predictions, f)
 
     precision_recall(input, point_predictions)
