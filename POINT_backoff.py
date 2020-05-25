@@ -89,6 +89,12 @@ def main():
     precision_recall(input, predictions_head)
     range_distance(input, predictions_head)
 
+    logger.info('word2vec + hypernyms')
+    only_head_noun = BackoffSettings(use_word2vec=True, use_hypernyms=True)
+    predictions_head = predict_sizes(all_sizes, unseen_objects, only_head_noun)
+    precision_recall(input, predictions_head)
+    range_distance(input, predictions_head)
+
 
 
     logger.info('Finished')
