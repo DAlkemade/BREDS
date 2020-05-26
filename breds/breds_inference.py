@@ -232,6 +232,8 @@ def find_similar_words(word2vec_model, unseen_objects):
                                                     topn=N_WORD2VEC)  # TODO maybe use a bigram model? Because now those can not be entered and not be given as similar words
         most_similar_filtered = list()
         for sim in most_similar:
+            # if sim[1] < .5:
+            #     continue
             # check if noun
             word = sim[0]
             synsets = wn.synsets(word.replace(' ', '_'))
