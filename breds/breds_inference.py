@@ -22,7 +22,7 @@ from breds.util import randomString
 logger = logging.getLogger(__name__)
 
 N_WORD2VEC = 10
-CONTAMINATION_FRAC = .3
+CONTAMINATION_FRAC = .4
 
 def read_weights(parameters_fname: str):
     weights = Weights()
@@ -230,7 +230,20 @@ def find_similar_words(word2vec_model, unseen_objects):
         #  https://radimrehurek.com/gensim/auto_examples/tutorials/run_annoy.html#sphx-glr-auto-examples-tutorials-run-annoy-py
         most_similar = word2vec_model.most_similar(positive=entity.split(),
                                                     topn=N_WORD2VEC)  # TODO maybe use a bigram model? Because now those can not be entered and not be given as similar words
-        most_similar = [m for m in most_similar if m[1] > .6]
+        most_similar_filtered = list()
+        for sim in most_similar:
+            # check if noun
+            synsets = wn.synsets(sim.replace(' ', '_'))
+            synsets_noun = wn.synsets(sim.replace(' ', '_'), pos=wn.NOUN)
+            if len(synsets) > 0:
+                if len(synsets_noun) > 0:
+                    # only append a recognized word if it is a noun
+                    most_similar_filtered.append(sim)
+            else:
+                # append any unknown word of which we don't know the POS
+                most_similar_filtered.append(sim)
+
+        most_similar = most_similar_filtered
         # logger.info(most_similar)
         if len(most_similar) > 0:
             words, _ = zip(*most_similar)
