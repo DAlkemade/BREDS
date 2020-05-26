@@ -74,6 +74,10 @@ def main():
 
     evaluate_settings(BackoffSettings(use_word2vec=True, use_hyponyms=True), all_sizes, unseen_objects, input)
 
+    evaluate_settings(BackoffSettings(use_word2vec=True, use_hyponyms=True, use_head_noun=True), all_sizes, unseen_objects, input)
+
+    evaluate_settings(BackoffSettings(use_word2vec=True, use_hyponyms=True, use_head_noun=True, use_hypernyms=True), all_sizes, unseen_objects, input)
+
     logger.info('Finished')
 
 
