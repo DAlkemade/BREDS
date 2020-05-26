@@ -233,8 +233,9 @@ def find_similar_words(word2vec_model, unseen_objects):
         most_similar_filtered = list()
         for sim in most_similar:
             # check if noun
-            synsets = wn.synsets(sim.replace(' ', '_'))
-            synsets_noun = wn.synsets(sim.replace(' ', '_'), pos=wn.NOUN)
+            word = sim[0]
+            synsets = wn.synsets(word.replace(' ', '_'))
+            synsets_noun = wn.synsets(word.replace(' ', '_'), pos=wn.NOUN)
             if len(synsets) > 0:
                 if len(synsets_noun) > 0:
                     # only append a recognized word if it is a noun
