@@ -45,10 +45,14 @@ def main():
     else:
         word2vec_model = load_word2vec(cfg.parameters.word2vec_path)
         similar_words = find_similar_words(word2vec_model, unseen_objects)
-
+        word2vec_counts = []
+        for entity, entity_dict in similar_words.items():
+            word2vec_counts.append(len(entity_dict['word2vec']))
+        logger.info(f'Average length of word2vec list: {np.mean(word2vec_counts)}')
 
         # Create object lookup
         objects_lookup = create_reverse_lookup(similar_words)
+
 
         all_new_objects = set(objects_lookup.keys()).union(unseen_objects)
 
@@ -58,9 +62,7 @@ def main():
         with open(cache_fname, 'wb') as f:
             pickle.dump(all_sizes, f)
 
-        word2vec_counts = []
-        for entity, entity_dict in similar_words.items():
-            word2vec_counts.append(len(entity_dict['word2vec']))
+
         logger.info(f'Average length of word2vec list: {np.mean(word2vec_counts)}')
 
 
