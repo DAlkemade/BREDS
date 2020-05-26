@@ -7,7 +7,7 @@ path:
   objects: "data_numeric/VG_YOLO_intersection_train.txt"
   vg_objects: "D:/GitHubD/visual-size-comparison/data/objects.json"
   vg_objects_anchors: "D:/GitHubD/visual-size-comparison/data/test_objects.csv"
-  final_seeds_cache: "notable_runs/20200521visualandcoref/final_seeds_20200521-134836.json"
+  final_seeds_cache: "notable_runs/visual_no_coref/final_seeds_20200525-180627.json"
   patterns:
     coref:
       visual: "notable_runs/20200521visualandcoref/patterns_20200521-134836.pkl"
