@@ -21,6 +21,8 @@ from breds.util import randomString
 
 logger = logging.getLogger(__name__)
 
+N_WORD2VEC = 10
+CONTAMINATION_FRAC = .3
 
 def read_weights(parameters_fname: str):
     weights = Weights()
@@ -106,7 +108,7 @@ def predict_sizes(all_sizes: dict, objects: list, cfg: BackoffSettings) -> Dict[
         word2vec_mean = weighted_tuple_mean(word2vecs)
         logger.debug(f'Word2vec mean: {word2vec_mean}')
 
-        outlier_detector = EllipticEnvelope(contamination=.2)
+        outlier_detector = EllipticEnvelope(contamination=CONTAMINATION_FRAC)
         sizes_array = np.reshape([t.e2 for t in word2vecs], (-1, 1))
         with np.errstate(all='raise'):
             try:
@@ -241,7 +243,7 @@ def find_similar_words(word2vec_model, unseen_objects):
         # TODO can be sped up if necessary:
         #  https://radimrehurek.com/gensim/auto_examples/tutorials/run_annoy.html#sphx-glr-auto-examples-tutorials-run-annoy-py
         most_similar = word2vec_model.most_similar(positive=entity.split(),
-                                                    topn=5)  # TODO maybe use a bigram model? Because now those can not be entered and not be given as similar words
+                                                    topn=N_WORD2VEC)  # TODO maybe use a bigram model? Because now those can not be entered and not be given as similar words
         most_similar = [m for m in most_similar if m[1] > .6]
         # logger.info(most_similar)
         if len(most_similar) > 0:
