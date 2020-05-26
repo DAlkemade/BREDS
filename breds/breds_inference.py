@@ -43,6 +43,21 @@ class BackoffSettings:
         self.use_hyponyms = use_hyponyms
         self.use_head_noun = use_head_noun
 
+    def print(self):
+        enabled = []
+        if self.use_word2vec:
+            enabled.append('word2vec')
+        if self.use_hyponyms:
+            enabled.append('hyponyms')
+        if self.use_hypernyms:
+            enabled.append('hypernyms')
+        if self.use_head_noun:
+            enabled.append('head noun')
+
+        logger.info(f'Enabled: {enabled}')
+
+
+
 
 def predict_sizes(all_sizes: dict, objects: list, cfg: BackoffSettings) -> Dict[str, float]:
     """Predict the final size for objects using provided sizes for the objects and their related objects.

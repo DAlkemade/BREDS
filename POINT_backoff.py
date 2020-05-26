@@ -60,45 +60,28 @@ def main():
     # with open(f'backoff_predictions.pkl', 'wb') as f:
     #     pickle.dump(predictions, f)
     logger.info('No backoff')
-    direct = BackoffSettings()
-    predictions_direct = predict_sizes(all_sizes, unseen_objects, direct)
-    precision_recall(input, predictions_direct)
-    range_distance(input, predictions_direct)
+    evaluate_settings(BackoffSettings(), all_sizes, unseen_objects, input)
 
-    logger.info('word2vec')
-    only_word2vec = BackoffSettings(use_word2vec=True)
-    predictions_word2vec = predict_sizes(all_sizes, unseen_objects, only_word2vec)
-    precision_recall(input, predictions_word2vec)
-    range_distance(input, predictions_word2vec)
+    evaluate_settings(BackoffSettings(use_word2vec=True), all_sizes, unseen_objects, input)
 
-    logger.info('hypernyms')
-    only_hypernyms = BackoffSettings(use_hypernyms=True)
-    predictions_hypernyms = predict_sizes(all_sizes, unseen_objects, only_hypernyms)
-    precision_recall(input, predictions_hypernyms)
-    range_distance(input, predictions_hypernyms)
+    evaluate_settings(BackoffSettings(use_hypernyms=True), all_sizes, unseen_objects, input)
 
-    logger.info('Hyponyms')
-    only_hyponyms = BackoffSettings(use_hyponyms=True)
-    predictions_hyponyms = predict_sizes(all_sizes, unseen_objects, only_hyponyms)
-    precision_recall(input, predictions_hyponyms)
-    range_distance(input, predictions_hyponyms)
+    evaluate_settings(BackoffSettings(use_hyponyms=True), all_sizes, unseen_objects, input)
 
-    logger.info('Head noun')
-    only_head_noun = BackoffSettings(use_head_noun=True)
-    predictions_head = predict_sizes(all_sizes, unseen_objects, only_head_noun)
-    precision_recall(input, predictions_head)
-    range_distance(input, predictions_head)
+    evaluate_settings(BackoffSettings(use_head_noun=True), all_sizes, unseen_objects, input)
 
-    logger.info('word2vec + hypernyms')
-    only_head_noun = BackoffSettings(use_word2vec=True, use_hypernyms=True)
-    predictions_head = predict_sizes(all_sizes, unseen_objects, only_head_noun)
-    precision_recall(input, predictions_head)
-    range_distance(input, predictions_head)
+    evaluate_settings(BackoffSettings(use_word2vec=True, use_hypernyms=True), all_sizes, unseen_objects, input)
 
-
+    evaluate_settings(BackoffSettings(use_word2vec=True, use_hyponyms=True), all_sizes, unseen_objects, input)
 
     logger.info('Finished')
 
+
+def evaluate_settings(settings:BackoffSettings, all_sizes, objects, input):
+    settings.print()
+    predictions = predict_sizes(all_sizes, objects, settings)
+    precision_recall(input, predictions)
+    range_distance(input, predictions)
 
 if __name__ == "__main__":
     try:
