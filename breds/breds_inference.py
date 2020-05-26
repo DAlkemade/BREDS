@@ -75,13 +75,6 @@ def predict_sizes(all_sizes: dict, objects: list, cfg: BackoffSettings) -> Dict[
             logger.warning(f'No sizes for {object}')
             sims_dict = defaultdict(list)
 
-        logger.debug('\n')
-        logger.debug(f'Processing for {object}')
-        for key, values in sims_dict.items():
-            logger.debug(f'\n{key} finds:')
-            for t in values:
-                logger.debug(t.sentence)
-                logger.debug(f"{t.e1} {t.e2} with confidence {t.confidence}")
 
         directs = sims_dict['itself']
         hyponyms = sims_dict['hyponyms']
@@ -96,17 +89,13 @@ def predict_sizes(all_sizes: dict, objects: list, cfg: BackoffSettings) -> Dict[
         # except ValueError:
         #     direct_highest_confidence = None
         size_direct = predict_point(True, [t.e2 for t in directs])
-        logger.debug(f'Size direct: {size_direct}')
 
         # TODO instead of taking means, maybe take the mean of the MAX for each hyponym, hypernym, etc
         hyponym_mean = weighted_tuple_mean(hyponyms)
-        logger.debug(f'Hyponym mean: {hyponym_mean}')
 
         hypernym_mean = weighted_tuple_mean(hypernyms)
-        logger.debug(f'Hypernym mean: {hypernym_mean}')
 
         word2vec_mean = weighted_tuple_mean(word2vecs)
-        logger.debug(f'Word2vec mean: {word2vec_mean}')
 
         outlier_detector = EllipticEnvelope(contamination=CONTAMINATION_FRAC)
         sizes_array = np.reshape([t.e2 for t in word2vecs], (-1, 1))
@@ -120,12 +109,9 @@ def predict_sizes(all_sizes: dict, objects: list, cfg: BackoffSettings) -> Dict[
                 selected_word2vecs = []
 
         selected_word2vec_mean = weighted_tuple_mean(selected_word2vecs)
-        logger.debug(f'All word2vecs: {word2vecs} selected word2vecs: {word2vecs}')
-        logger.debug(f'Mean of selected word2vecs: {selected_word2vec_mean}')
 
 
         head_noun_size = predict_point(True, [t.e2 for t in head_nouns])
-        logger.debug(f'Head noun size: {head_noun_size}')
 
         # TODO use results in an order, e.g direct finds -> mean of hyponyms -> mean of hypernyms -> word2vec
         #  Maybe this is something I should experiment with
