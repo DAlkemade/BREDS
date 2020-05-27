@@ -39,7 +39,7 @@ def iterativily_find_size(lower_bounds_sizes, upper_bounds_sizes):
     logger.info(f'Scale: {size_scale}')
     count_l = 0
     count_r = 0
-    while max(l) > min(u):
+    while len(u) >= 1 and len(l) >= 1 and max(l) > min(u):
         r = random.random()
         if r < size_scale:
             l.remove(max(l))
@@ -49,6 +49,12 @@ def iterativily_find_size(lower_bounds_sizes, upper_bounds_sizes):
             count_r += 1
     logger.info(f'Removed total {count_l + count_r} out of {total_objects}; lower: {count_l} upper: {count_r}')
     logger.info(f'Final max(l): {max(l)} min(u): {min(u)}')
+    if len(u) == 0 and len(l) == 0:
+        return None
+    if len(u) == 0:
+        return max(l)
+    if len(l) == 0:
+        return min(u)
     return (max(l) + min(u)) / 2
 
 def iterativily_find_size_evenly(lower_bounds_sizes, upper_bounds_sizes):
@@ -57,7 +63,7 @@ def iterativily_find_size_evenly(lower_bounds_sizes, upper_bounds_sizes):
 
     total_objects = len(u) + len(l)
     count = 0
-    while max(l) > min(u) and len(u) >= 1 and len(l) >= 1:
+    while len(u) >= 1 and len(l) >= 1 and max(l) > min(u):
         if count % 2 == 0:
             l.remove(max(l))
         else:
