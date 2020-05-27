@@ -48,6 +48,10 @@ def iterativily_find_size(lower_bounds_sizes, upper_bounds_sizes):
             u.remove(min(u))
             count_r += 1
     logger.info(f'Removed total {count_l + count_r} out of {total_objects}; lower: {count_l} upper: {count_r}')
+    return find_hyperplane(l, u)
+
+
+def find_hyperplane(l, u):
     if len(u) == 0 and len(l) == 0:
         logger.info('both none')
         return None
@@ -59,6 +63,7 @@ def iterativily_find_size(lower_bounds_sizes, upper_bounds_sizes):
         return min(u)
     logger.info(f'Final max(l): {max(l)} min(u): {min(u)}')
     return (max(l) + min(u)) / 2
+
 
 def iterativily_find_size_evenly(lower_bounds_sizes, upper_bounds_sizes):
     l = lower_bounds_sizes.copy()
@@ -72,16 +77,9 @@ def iterativily_find_size_evenly(lower_bounds_sizes, upper_bounds_sizes):
         else:
             u.remove(min(u))
         count += 1
-    logger.info(f'Removed total {count} out of {total_objects}')
-    logger.info(f'Final max(l): {max(l)} min(u): {min(u)}')
-    if len(u) == 0 and len(l) == 0:
-        return None
-    if len(u) == 0:
-        return max(l)
-    if len(l) == 0:
-        return min(u)
 
-    return (max(l) + min(u)) / 2
+    logger.info(f'Removed total {count} out of {total_objects}')
+    return find_hyperplane(l, u)
 
 
 
