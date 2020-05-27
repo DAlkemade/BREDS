@@ -49,6 +49,21 @@ def iterativily_find_size(lower_bounds_sizes, upper_bounds_sizes):
     logger.info(f'Final max(l): {max(l)} min(u): {min(u)}')
     return (max(l) + min(u)) / 2
 
+def iterativily_find_size_evenly(lower_bounds_sizes, upper_bounds_sizes):
+    l = lower_bounds_sizes.copy()
+    u = upper_bounds_sizes.copy()
+    total_objects = len(u) + len(l)
+    count = 0
+    while max(l) > min(u):
+        if count % 2 == 0:
+            l.remove(max(l))
+        else:
+            u.remove(min(u))
+        count += 1
+    logger.info(f'Removed total {count} out of {total_objects}')
+    logger.info(f'Final max(l): {max(l)} min(u): {min(u)}')
+    return (max(l) + min(u)) / 2
+
 
 
 def main():
@@ -76,6 +91,7 @@ def main():
     numeric_seeds = dict((key.strip().replace(' ', '_'), value) for (key, value) in numeric_seeds.items())
 
     point_predictions = dict()
+    point_predictions_evenly = dict()
     prop = VisualPropagation(G, config.visual_config)
     for unseen_object in unseen_objects:
         logger.info(f'Processing {unseen_object}')
@@ -106,7 +122,9 @@ def main():
 
         # size = predict_size_with_bounds(lower_bounds_sizes, upper_bounds_sizes)
         size = iterativily_find_size(lower_bounds_sizes, upper_bounds_sizes)
-        point_predictions[unseen_object] = size
+        size_evently = iterativily_find_size_evenly(lower_bounds_sizes, upper_bounds_sizes)
+        point_predictions[unseen_object.replace('_',' ')] = size
+        point_predictions_evenly[unseen_object.replace('_', ' ')] = size_evently
         logger.info(f'\nObject: {unseen_object}')
         logger.info(f'Size: {size}')
         logger.info(f"None count: {none_count} out of {len(numeric_seeds.keys())}")
@@ -116,8 +134,17 @@ def main():
     with open(f'point_predictions_visual_ranges.pkl', 'wb') as f:
         pickle.dump(point_predictions, f)
 
+    with open(f'point_predictions_visual_ranges_evenly.pkl', 'wb') as f:
+        pickle.dump(point_predictions_evenly, f)
+
+    logger.info('NOT evenly')
     precision_recall(input, point_predictions)
     range_distance(input, point_predictions)
+
+    logger.info('EVENLY')
+    precision_recall(input, point_predictions_evenly)
+    range_distance(input, point_predictions_evenly)
+
 
     logger.info('Finished')
 
