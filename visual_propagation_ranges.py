@@ -114,6 +114,7 @@ def main():
     point_predictions_svm = dict()
     prop = VisualPropagation(G, config.visual_config)
     for unseen_object in unseen_objects:
+        unseen_object = unseen_object.replace(' ', '_')
         logger.info(f'Processing {unseen_object}')
         if unseen_object not in objects:
             logger.info(f'{unseen_object} not in visuals')
