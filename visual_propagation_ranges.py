@@ -5,6 +5,7 @@ import math
 import os
 import pickle
 import random
+import time
 from datetime import datetime
 from typing import List, Dict
 import pandas as pd
@@ -15,6 +16,7 @@ from box import Box
 import numpy as np
 from logging_setup_dla.logging import set_up_root_logger
 from pandas import DataFrame
+from sklearn.ensemble import IsolationForest
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from visual_size_comparison.config import VisualConfig
@@ -92,6 +94,7 @@ def main():
 
     point_predictions = dict()
     point_predictions_evenly = dict()
+    point_predictions_svm = dict()
     prop = VisualPropagation(G, config.visual_config)
     for unseen_object in unseen_objects:
         logger.info(f'Processing {unseen_object}')
@@ -122,11 +125,17 @@ def main():
 
         # size = predict_size_with_bounds(lower_bounds_sizes, upper_bounds_sizes)
         size = iterativily_find_size(lower_bounds_sizes, upper_bounds_sizes)
-        size_evently = iterativily_find_size_evenly(lower_bounds_sizes, upper_bounds_sizes)
+        size_evenly = iterativily_find_size_evenly(lower_bounds_sizes, upper_bounds_sizes)
+        size_svm = predict_size_with_bounds(lower_bounds_sizes, upper_bounds_sizes)
+
+
         point_predictions[unseen_object.replace('_',' ')] = size
-        point_predictions_evenly[unseen_object.replace('_', ' ')] = size_evently
+        point_predictions_evenly[unseen_object.replace('_', ' ')] = size_evenly
+        point_predictions_svm[unseen_object.replace('_', ' ')] = size_svm
         logger.info(f'\nObject: {unseen_object}')
         logger.info(f'Size: {size}')
+        logger.info(f'Size evenly: {size_evenly}')
+        logger.info(f'Size svm: {size_svm}')
         logger.info(f"None count: {none_count} out of {len(numeric_seeds.keys())}")
         logger.info(f"Lower bounds (n={len(lower_bounds)}): mean: {np.mean(lower_bounds_sizes)} median: {np.median(lower_bounds_sizes)}\n\t{lower_bounds}\n\t{lower_bounds_sizes}")
         logger.info(f"Upper bounds (n={len(upper_bounds)}): mean: {np.mean(upper_bounds_sizes)} median: {np.median(upper_bounds_sizes)}\n\t{upper_bounds}\n\t{upper_bounds_sizes}")
@@ -137,6 +146,9 @@ def main():
     with open(f'point_predictions_visual_ranges_evenly.pkl', 'wb') as f:
         pickle.dump(point_predictions_evenly, f)
 
+    with open(f'point_predictions_visual_ranges_svm.pkl', 'wb') as f:
+        pickle.dump(point_predictions_svm, f)
+
     logger.info('NOT evenly')
     precision_recall(input, point_predictions)
     range_distance(input, point_predictions)
@@ -145,10 +157,30 @@ def main():
     precision_recall(input, point_predictions_evenly)
     range_distance(input, point_predictions_evenly)
 
+    logger.info('SVM')
+    precision_recall(input, point_predictions_svm)
+    range_distance(input, point_predictions_svm)
+
 
     logger.info('Finished')
 
+def remove_outliers(bounds: list):
+    outlier_detector = IsolationForest(random_state=0, contamination=.01)
+    try:
+        preds = outlier_detector.fit_predict(np.reshape(bounds, (-1,1)))
+        res = list(np.extract(preds == 1, bounds))
+        logger.info(f'Removed: {np.extract(preds == -1, bounds)}')
+    except (ValueError, RuntimeWarning, FloatingPointError):
+        res = bounds
+    return res
+
+
 def predict_size_with_bounds(lower_bounds_sizes, upper_bounds_sizes) -> float:
+    logger.info(lower_bounds_sizes)
+    logger.info(upper_bounds_sizes)
+    lower_bounds_sizes = remove_outliers(lower_bounds_sizes)
+    upper_bounds_sizes = remove_outliers(upper_bounds_sizes)
+
     data = list(zip(lower_bounds_sizes, len(lower_bounds_sizes) * [0])) + list(
         zip(upper_bounds_sizes, len(upper_bounds_sizes) * [1]))
     x, y = zip(*data)
@@ -160,13 +192,16 @@ def predict_size_with_bounds(lower_bounds_sizes, upper_bounds_sizes) -> float:
 
 
 def get_boundary_value(x, y):
-    clf = SVC(gamma='auto', decision_function_shape='ovo', kernel='linear', C=100000000, cache_size=2000)
+    clf = SVC(gamma='auto', decision_function_shape='ovo', kernel='linear', C=1000, cache_size=2000, max_iter=5*95660014)
 
 
     # logger.info(f'scaler: scale {scaler.scale_} mean {scaler.mean_}')
     logger.info(f'Fit svm on {len(y)} data points')
     #TODO maybe cluster with kemans to reduce number of data points if it gets stuck
     clf.fit(x, y)
+    if clf.fit_status_ == 1:
+        # Not correctly fitted within max_iter
+        return None
     #w_norm is a in y = a*x + b
     intercept = clf.intercept_
     w_norm = np.linalg.norm(clf.coef_)
