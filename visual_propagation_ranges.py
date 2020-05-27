@@ -106,6 +106,8 @@ def main():
         numeric_seeds = json.load(f)
 
     numeric_seeds = dict((key.strip().replace(' ', '_'), value) for (key, value) in numeric_seeds.items())
+    del numeric_seeds['rhine'] # There is a 'rhine' in VG, which was included in VG as the river. fixing this manually,
+    # since it's in a lot of results
 
     point_predictions = dict()
     point_predictions_evenly = dict()
