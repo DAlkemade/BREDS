@@ -117,6 +117,9 @@ def main():
         logger.info(f'Processing {unseen_object}')
         if unseen_object not in objects:
             logger.info(f'{unseen_object} not in visuals')
+            point_predictions[unseen_object.replace('_', ' ')] = None
+            point_predictions_evenly[unseen_object.replace('_', ' ')] = None
+            point_predictions_svm[unseen_object.replace('_', ' ')] = None
             continue
         none_count = 0
         lower_bounds = set()
