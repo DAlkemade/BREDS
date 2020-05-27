@@ -54,9 +54,10 @@ def iterativily_find_size(lower_bounds_sizes, upper_bounds_sizes):
 def iterativily_find_size_evenly(lower_bounds_sizes, upper_bounds_sizes):
     l = lower_bounds_sizes.copy()
     u = upper_bounds_sizes.copy()
+
     total_objects = len(u) + len(l)
     count = 0
-    while max(l) > min(u):
+    while max(l) > min(u) and len(u) >= 1 and len(l) >= 1:
         if count % 2 == 0:
             l.remove(max(l))
         else:
@@ -64,6 +65,13 @@ def iterativily_find_size_evenly(lower_bounds_sizes, upper_bounds_sizes):
         count += 1
     logger.info(f'Removed total {count} out of {total_objects}')
     logger.info(f'Final max(l): {max(l)} min(u): {min(u)}')
+    if len(u) == 0 and len(l) == 0:
+        return None
+    if len(u) == 0:
+        return max(l)
+    if len(l) == 0:
+        return min(u)
+
     return (max(l) + min(u)) / 2
 
 
