@@ -54,7 +54,7 @@ def main():
 
 
 
-    prop = VisualPropagation(G, config.visual_config)
+    prop = VisualPropagation(G, config.visual_config, max_path_length=3)
 
 
     # calc coverage and precision
