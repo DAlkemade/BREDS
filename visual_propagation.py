@@ -5,6 +5,7 @@ from argparse import ArgumentParser
 from datetime import datetime
 from typing import List
 
+import tqdm
 import yaml
 from box import Box
 from logging_setup_dla.logging import set_up_root_logger
@@ -57,7 +58,7 @@ def main():
     # calc coverage and precision
     golds = list()
     preds = list()
-    for test_pair in test_pairs:
+    for test_pair in tqdm.tqdm(test_pairs):
         object1 = test_pair.e1.replace('_', ' ')
         object2 = test_pair.e2.replace('_', ' ')
         row1 = input.loc[object1]
