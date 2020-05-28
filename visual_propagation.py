@@ -77,7 +77,10 @@ def main():
 
         if test_pair.both_in_list(objects):
             fraction_larger = prop.compare_pair(test_pair)
-            res = fraction_larger > .5
+            if fraction_larger is None:
+                res = None
+            else:
+                res = fraction_larger > .5
             logger.debug(f'{test_pair.e1} {test_pair.e2} fraction larger: {fraction_larger}')
         else:
             res = None
