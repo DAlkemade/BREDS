@@ -93,7 +93,7 @@ def main():
         preds.append(res)
 
     useful_counts = prop.useful_path_counts
-    plt.hist(useful_counts, bins=30)
+    plt.hist(useful_counts, bins=1000)
     plt.xlabel('Number of useful paths')
     plt.savefig('useful_paths.png')
 
