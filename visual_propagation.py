@@ -88,6 +88,7 @@ def main():
 
         preds.append(res)
 
+    logger.info(f'Total number of test cases: {len(golds)}')
     coverage, accuracy = coverage_accuracy(golds, preds)
     logger.info(f'Coverage: {coverage}')
     logger.info(f'Accuracy: {accuracy}')
