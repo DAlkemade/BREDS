@@ -16,6 +16,7 @@ from visual_size_comparison.propagation import build_cooccurrence_graph, Pair, V
 from breds.config import Config
 import pandas as pd
 from learning_sizes_evaluation.evaluate import coverage_accuracy
+from matplotlib import  pyplot as plt
 
 set_up_root_logger(f'INFERENCE_VISUAL_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.path.join(os.getcwd(), 'logs'))
 logger = logging.getLogger(__name__)
@@ -87,6 +88,11 @@ def main():
             logger.debug(f'{test_pair.e1} or {test_pair.e2} not in VG. Objects: {objects}')
 
         preds.append(res)
+
+    useful_counts = prop.useful_path_counts
+    plt.hist(useful_counts, bins=30)
+    plt.xlabel('Number of useful paths')
+    plt.savefig('useful_paths.png')
 
     logger.info(f'Total number of test cases: {len(golds)}')
     coverage, accuracy = coverage_accuracy(golds, preds)
