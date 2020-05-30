@@ -126,3 +126,4 @@ htmls.pkl
 *.log
 final_seeds_20200427-170429.json
 notable_runs/
+results_backoff.csv

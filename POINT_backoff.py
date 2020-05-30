@@ -87,8 +87,8 @@ def main():
     results.append(evaluate_settings(BackoffSettings(use_direct=True, use_hyponyms=True), all_sizes, unseen_objects, input))
 
     results.append(evaluate_settings(BackoffSettings(use_direct=True, use_head_noun=True), all_sizes, unseen_objects, input))
-    #
-    # results.append(evaluate_settings(BackoffSettings(use_word2vec=True, use_hypernyms=True), all_sizes, unseen_objects, input)
+
+    results.append(evaluate_settings(BackoffSettings(use_direct=True, use_hyponyms=True, use_hypernyms=True), all_sizes, unseen_objects, input))
     #
     # evaluate_settings(BackoffSettings(use_word2vec=True, use_hyponyms=True), all_sizes, unseen_objects, input)
     #
