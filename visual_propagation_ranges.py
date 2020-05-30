@@ -23,7 +23,7 @@ from visual_size_comparison.config import VisualConfig
 from visual_size_comparison.propagation import build_cooccurrence_graph, Pair, VisualPropagation
 
 from breds.config import Config
-from sklearn.svm import SVC
+from sklearn.svm import SVC, LinearSVC
 from matplotlib import pyplot as plt
 from learning_sizes_evaluation.evaluate import precision_recall, range_distance
 
@@ -213,16 +213,16 @@ def predict_size_with_bounds(lower_bounds_sizes, upper_bounds_sizes) -> float:
 
 
 def get_boundary_value(x, y):
-    clf = SVC(gamma='auto', decision_function_shape='ovo', kernel='linear', C=1000, cache_size=2000, max_iter=5*95660014)
+    clf = LinearSVC(dual=True, C=1000, max_iter=5*95660014, loss='hinge')
 
 
     # logger.info(f'scaler: scale {scaler.scale_} mean {scaler.mean_}')
     logger.info(f'Fit svm on {len(y)} data points')
     #TODO maybe cluster with kemans to reduce number of data points if it gets stuck
     clf.fit(x, y)
-    if clf.fit_status_ == 1:
-        # Not correctly fitted within max_iter
-        return None
+    # if clf.fit_status_ == 1:
+    #     # Not correctly fitted within max_iter
+    #     return None
     #w_norm is a in y = a*x + b
     intercept = clf.intercept_
     w_norm = np.linalg.norm(clf.coef_)
@@ -237,7 +237,6 @@ def get_boundary_value(x, y):
     pivot_point = -1 * clf.decision_function(z)[0] / w_norm
 
     return pivot_point
-
 
 def fill_sizes_list(objects: set, seeds_dict: Dict[str, list]) -> list:
     res = list()
