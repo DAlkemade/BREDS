@@ -7,7 +7,7 @@ from datetime import datetime
 import pandas as pd
 import yaml
 from box import Box
-from learning_sizes_evaluation.evaluate import precision_recall, range_distance
+from learning_sizes_evaluation.evaluate import precision_recall, range_distance, Result
 from logging_setup_dla.logging import set_up_root_logger
 from pandas import DataFrame
 
@@ -68,33 +68,45 @@ def main():
 
     # with open(f'backoff_predictions.pkl', 'wb') as f:
     #     pickle.dump(predictions, f)
+    results = list()
     logger.info('No backoff')
-    evaluate_settings(BackoffSettings(), all_sizes, unseen_objects, input)
+    results.append(evaluate_settings(BackoffSettings(use_direct=True), all_sizes, unseen_objects, input))
 
-    evaluate_settings(BackoffSettings(use_word2vec=True), all_sizes, unseen_objects, input)
+    results.append(evaluate_settings(BackoffSettings(use_word2vec=True), all_sizes, unseen_objects, input))
 
-    evaluate_settings(BackoffSettings(use_hypernyms=True), all_sizes, unseen_objects, input)
+    results.append(evaluate_settings(BackoffSettings(use_hypernyms=True), all_sizes, unseen_objects, input))
 
-    evaluate_settings(BackoffSettings(use_hyponyms=True), all_sizes, unseen_objects, input)
+    results.append(evaluate_settings(BackoffSettings(use_hyponyms=True), all_sizes, unseen_objects, input))
 
-    evaluate_settings(BackoffSettings(use_head_noun=True), all_sizes, unseen_objects, input)
+    results.append(evaluate_settings(BackoffSettings(use_head_noun=True), all_sizes, unseen_objects, input))
 
-    evaluate_settings(BackoffSettings(use_word2vec=True, use_hypernyms=True), all_sizes, unseen_objects, input)
+    results.append(evaluate_settings(BackoffSettings(use_direct=True, use_word2vec=True), all_sizes, unseen_objects, input))
 
-    evaluate_settings(BackoffSettings(use_word2vec=True, use_hyponyms=True), all_sizes, unseen_objects, input)
+    results.append(evaluate_settings(BackoffSettings(use_direct=True, use_hypernyms=True), all_sizes, unseen_objects, input))
 
-    evaluate_settings(BackoffSettings(use_word2vec=True, use_hyponyms=True, use_head_noun=True), all_sizes, unseen_objects, input)
+    results.append(evaluate_settings(BackoffSettings(use_direct=True, use_hyponyms=True), all_sizes, unseen_objects, input))
 
-    evaluate_settings(BackoffSettings(use_word2vec=True, use_hyponyms=True, use_head_noun=True, use_hypernyms=True), all_sizes, unseen_objects, input)
+    results.append(evaluate_settings(BackoffSettings(use_direct=True, use_head_noun=True), all_sizes, unseen_objects, input))
+    #
+    # results.append(evaluate_settings(BackoffSettings(use_word2vec=True, use_hypernyms=True), all_sizes, unseen_objects, input)
+    #
+    # evaluate_settings(BackoffSettings(use_word2vec=True, use_hyponyms=True), all_sizes, unseen_objects, input)
+    #
+    # evaluate_settings(BackoffSettings(use_word2vec=True, use_hyponyms=True, use_head_noun=True), all_sizes, unseen_objects, input)
+    #
+    # evaluate_settings(BackoffSettings(use_word2vec=True, use_hyponyms=True, use_head_noun=True, use_hypernyms=True), all_sizes, unseen_objects, input)
 
+    results_df = pd.DataFrame(results)
+    results_df.to_csv('results_backoff.csv')
     logger.info('Finished')
 
 
 def evaluate_settings(settings:BackoffSettings, all_sizes, objects, input):
     settings.print()
     predictions = predict_sizes(all_sizes, objects, settings)
-    precision_recall(input, predictions)
-    range_distance(input, predictions)
+    selectivity, coverage = precision_recall(input, predictions)
+    mean, mean_squared, median = range_distance(input, predictions)
+    return Result(selectivity, coverage, mean, mean_squared, median)
 
 if __name__ == "__main__":
     try:

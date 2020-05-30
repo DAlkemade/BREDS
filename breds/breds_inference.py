@@ -39,7 +39,8 @@ def read_weights(parameters_fname: str):
 
 
 class BackoffSettings:
-    def __init__(self, use_word2vec: bool = False, use_hypernyms: bool = False, use_hyponyms: bool = False, use_head_noun: bool = False):
+    def __init__(self, use_direct = False, use_word2vec: bool = False, use_hypernyms: bool = False, use_hyponyms: bool = False, use_head_noun: bool = False):
+        self.use_direct = use_direct
         self.use_word2vec = use_word2vec
         self.use_hypernyms = use_hypernyms
         self.use_hyponyms = use_hyponyms
@@ -121,7 +122,7 @@ def predict_sizes(all_sizes: dict, objects: list, cfg: BackoffSettings) -> Dict[
         #  https://www.statsmodels.org/stable/generated/statsmodels.stats.weightstats.ttest_ind.html
 
         # TODO return for each object a size and a confidence
-        if size_direct is not None:
+        if size_direct is not None and cfg.use_direct:
             size = size_direct
         elif hyponym_mean is not None and cfg.use_hyponyms:
             size = hyponym_mean

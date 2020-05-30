@@ -15,7 +15,7 @@ from visual_size_comparison.propagation import build_cooccurrence_graph, Pair, V
 
 from breds.config import Config
 import pandas as pd
-from learning_sizes_evaluation.evaluate import coverage_accuracy
+from learning_sizes_evaluation.evaluate import coverage_accuracy_relational
 from matplotlib import  pyplot as plt
 import numpy as np
 
@@ -102,7 +102,7 @@ def main():
     logger.info(f'Not recog count: {not_recognized_count}')
 
     logger.info(f'Total number of test cases: {len(golds)}')
-    coverage, accuracy = coverage_accuracy(golds, preds)
+    coverage, accuracy = coverage_accuracy_relational(golds, preds)
     logger.info(f'Coverage: {coverage}')
     logger.info(f'Accuracy: {accuracy}')
 
