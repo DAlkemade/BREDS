@@ -154,9 +154,7 @@ George Lucas;1.7018
 Isaac Newton;1.6764
 
 Eiffel tower;300
-Burj Khalifa;828
 Statue of Liberty;93
-Empire State Building;381
 Usain Bolt;1.95
 Mount Everest;8848
 Toyota Prius;4.6
