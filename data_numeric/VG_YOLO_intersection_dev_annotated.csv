@@ -19,7 +19,7 @@ grate,0.1,5
 kangaroo,0.4,2
 military officer,1.6,2.1
 rail fence,2,500
-wicker basket,0.3,0.6
+wicker basket,0.3,0.7
 spoke,0.2,0.4
 rug,1,4
 warship,50,350
@@ -27,7 +27,7 @@ nan,1.5,2.1
 dowel,0.05,0.2
 rearview mirror,0.2,0.35
 parachute,10,50
-fabric,0,10
+fabric,0.02,3
 chapel,4,300
 dainty,0.02,0.2
 seabird,0.1,2
@@ -72,15 +72,13 @@ eyepatch,0.03,0.15
 collie,0.4,0.7
 tanager,0.15,0.2
 newspaper,0.3,0.5
-location,0,500
 hairbrush,0.05,0.2
 pocketknife,0.05,0.2
 rider,1.6,2.1
 sunglasses,0.08,0.15
 espresso,0.05,0.1
-plaza,20,400
-paint,0,2000
-wind turbine,40,90
+plaza,20,800
+wind turbine,40,150
 appliance,0.1,1.5
 twin,1.6,2.1
 gravy boat,0.2,0.3
@@ -100,7 +98,7 @@ apple,0.05,0.1
 diaper,0.1,0.3
 videodisk,0.1,0.2
 air terminal,200,2000
-dust storm,1000,100000
+dust storm,10000,200000
 wagon,2,80
 grandchild,0.3,2.1
 candy,0.01,0.2
