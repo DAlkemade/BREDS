@@ -48,6 +48,8 @@ class BackoffSettings:
 
     def print(self) -> str:
         enabled = []
+        if self.use_direct:
+            enabled.append('direct')
         if self.use_word2vec:
             enabled.append('word2vec')
         if self.use_hyponyms:
