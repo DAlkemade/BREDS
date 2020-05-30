@@ -46,7 +46,7 @@ class BackoffSettings:
         self.use_hyponyms = use_hyponyms
         self.use_head_noun = use_head_noun
 
-    def print(self):
+    def print(self) -> str:
         enabled = []
         if self.use_word2vec:
             enabled.append('word2vec')
@@ -58,6 +58,7 @@ class BackoffSettings:
             enabled.append('head noun')
 
         logger.info(f'Enabled: {enabled}')
+        return str(enabled)
 
 
 

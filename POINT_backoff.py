@@ -106,7 +106,7 @@ def evaluate_settings(settings:BackoffSettings, all_sizes, objects, input):
     predictions = predict_sizes(all_sizes, objects, settings)
     selectivity, coverage = precision_recall(input, predictions)
     mean, mean_squared, median = range_distance(input, predictions)
-    return Result(selectivity, coverage, mean, mean_squared, median)
+    return Result(settings.print(), selectivity, coverage, mean, mean_squared, median)
 
 if __name__ == "__main__":
     try:
