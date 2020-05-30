@@ -1,2 +1,6 @@
 cheetah
 container ship
+elephant
+car
+dog
+house
