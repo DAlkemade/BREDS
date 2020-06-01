@@ -25,7 +25,7 @@ from visual_size_comparison.propagation import build_cooccurrence_graph, Pair, V
 from breds.config import Config
 from sklearn.svm import SVC, LinearSVC
 from matplotlib import pyplot as plt
-from learning_sizes_evaluation.evaluate import precision_recall, range_distance
+from learning_sizes_evaluation.evaluate import precision_recall, range_distance, Result
 
 set_up_root_logger(f'RANGES_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.path.join(os.getcwd(), 'logs'))
 logger = logging.getLogger(__name__)
@@ -170,20 +170,6 @@ def main():
     with open(f'point_predictions_visual_ranges_svm.pkl', 'wb') as f:
         pickle.dump(point_predictions_svm, f)
 
-    logger.info('NOT evenly')
-    precision_recall(input, point_predictions)
-    range_distance(input, point_predictions)
-
-    logger.info('EVENLY')
-    precision_recall(input, point_predictions_evenly)
-    range_distance(input, point_predictions_evenly)
-
-    logger.info('SVM')
-    precision_recall(input, point_predictions_svm)
-    range_distance(input, point_predictions_svm)
-
-
-    logger.info('Finished')
 
 def remove_outliers(bounds: list):
     outlier_detector = IsolationForest(random_state=0, contamination=.01)
