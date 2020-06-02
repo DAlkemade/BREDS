@@ -22,7 +22,7 @@ from breds.util import randomString
 logger = logging.getLogger(__name__)
 
 N_WORD2VEC = 50
-CONTAMINATION_FRAC = .3
+CONTAMINATION_FRAC = .5
 
 def read_weights(parameters_fname: str):
     weights = Weights()
