@@ -1,26 +1,25 @@
-import fileinput
 import logging
 import os
-from argparse import ArgumentParser
 from datetime import datetime
 from typing import List
 
+import numpy as np
+import pandas as pd
 import tqdm
 import yaml
 from box import Box
+from learning_sizes_evaluation.evaluate import coverage_accuracy_relational, RelationalResult
 from logging_setup_dla.logging import set_up_root_logger
-from sklearn.metrics import precision_score, recall_score
+from matplotlib import pyplot as plt
 from visual_size_comparison.config import VisualConfig
 from visual_size_comparison.propagation import build_cooccurrence_graph, Pair, VisualPropagation
 
-from breds.config import Config
-import pandas as pd
-from learning_sizes_evaluation.evaluate import coverage_accuracy_relational
-from matplotlib import  pyplot as plt
-import numpy as np
+from breds.breds_inference import find_similar_words, BackoffSettings
+from breds.config import Config, load_word2vec
 
 set_up_root_logger(f'INFERENCE_VISUAL_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.path.join(os.getcwd(), 'logs'))
 logger = logging.getLogger(__name__)
+
 
 def main():
     with open("config.yml", "r") as ymlfile:
@@ -36,12 +35,11 @@ def main():
 
     row_count = len(input.index)
     for i in range(row_count):
-        for j in range(i+1,row_count):
+        for j in range(i + 1, row_count):
             row1 = input.iloc[i]
             row2 = input.iloc[j]
             pair = Pair(row1.at['object'].strip().replace(' ', '_'), row2.at['object'].strip().replace(' ', '_'))
             test_pairs.append(pair)
-
 
     # TODO check whether the objects aren't in the bootstrapped objects
     visual_config = VisualConfig(cfg.path.vg_objects, cfg.path.vg_objects_anchors)
@@ -52,61 +50,132 @@ def main():
     logger.info(f'Objects: {objects}')
     G = build_cooccurrence_graph(objects, visual_config)
 
-
-
-    prop = VisualPropagation(G, config.visual_config)
-
+    word2vec_model = load_word2vec(cfg.parameters.word2vec_path)
+    similar_words = find_similar_words(word2vec_model, unseen_objects, n_word2vec=200)
 
     # calc coverage and precision
-    golds = list()
-    preds = list()
-    not_recognized_count = 0
-    for test_pair in tqdm.tqdm(test_pairs):
-        object1 = test_pair.e1.replace('_', ' ')
-        object2 = test_pair.e2.replace('_', ' ')
-        row1 = input.loc[object1]
-        row2 = input.loc[object2]
+    results = list()
+    settings: List[BackoffSettings] = [
+        BackoffSettings(use_direct=True),
+        BackoffSettings(use_word2vec=True),
+        BackoffSettings(use_hypernyms=True),
+        BackoffSettings(use_hyponyms=True),
+        BackoffSettings(use_head_noun=True),
+        # BackoffSettings(use_direct=True, use_word2vec=True),
+        # BackoffSettings(use_direct=True, use_hypernyms=True),
+        # BackoffSettings(use_direct=True, use_hyponyms=True),
+        # BackoffSettings(use_direct=True, use_head_noun=True),
+        # BackoffSettings(use_direct=True, use_hyponyms=True)
+    ]
+    for setting in settings:
+        preds = list()
+        golds = list()
+        not_recognized_count = 0
 
-        larger1 = float(row1.at['min']) > float(row2.at['max'])
-        larger2 = float(row2.at['min']) > float(row1.at['max'])
-        if not larger1 and not larger2:
-            # ranges overlap, not evaluating
-            continue
-        if larger1:
-            gold_larger = True
-        else:
-            gold_larger = False
-        golds.append(gold_larger)
+        prop = VisualPropagation(G, config.visual_config)
+        logger.info(f'\nRunning for setting {setting.print()}')
 
-        if test_pair.both_in_list(objects):
-            fraction_larger = prop.compare_pair(test_pair)
-            if fraction_larger is None:
-                res = None
+        for test_pair in tqdm.tqdm(test_pairs):
+            object1 = test_pair.e1.replace('_', ' ')
+            object2 = test_pair.e2.replace('_', ' ')
+            row1 = input.loc[object1]
+            row2 = input.loc[object2]
+
+            larger1 = float(row1.at['min']) > float(row2.at['max'])
+            larger2 = float(row2.at['min']) > float(row1.at['max'])
+            if not larger1 and not larger2:
+                # ranges overlap, not evaluating
+                continue
+            if larger1:
+                gold_larger = True
             else:
-                res = fraction_larger > .5
-            logger.debug(f'{test_pair.e1} {test_pair.e2} fraction larger: {fraction_larger}')
-        else:
-            res = None
-            not_recognized_count += 1
-            logger.debug(f'{test_pair.e1} or {test_pair.e2} not in VG. Objects: {objects}')
+                gold_larger = False
+            golds.append(gold_larger)
 
-        preds.append(res)
-
-    useful_counts = prop.useful_path_counts
-    plt.hist(useful_counts, bins=1000)
-    plt.xlabel('Number of useful paths')
-    plt.savefig('useful_paths.png')
-
-    useful_counts = np.array(useful_counts)
-    logger.info(f'Number of objects with no useful path: {len(np.extract(useful_counts == 0 , useful_counts))}')
-    logger.info(f'Not recog count: {not_recognized_count}')
-
-    logger.info(f'Total number of test cases: {len(golds)}')
-    coverage, accuracy = coverage_accuracy_relational(golds, preds)
-    logger.info(f'Coverage: {coverage}')
-    logger.info(f'Accuracy: {accuracy}')
+            # TODO implement backoff mechanism
+            recognizable_objects1 = fill_objects_list(object1, setting, objects, similar_words)
+            recognizable_objects2 = fill_objects_list(object2, setting, objects, similar_words)
+            comparisons = list()
+            for o1 in recognizable_objects1:
+                for o2 in recognizable_objects2:
+                    fraction_larger = prop.compare_pair(Pair(o1, o2))
+                    if fraction_larger is not None:
+                        comparisons.append(fraction_larger)
+                    logger.debug(f'{o1} {o2} fraction larger: {fraction_larger}')
+            if len(comparisons) > 0:
+                fraction_larger_mean = np.mean(comparisons)
+                res = fraction_larger_mean > .5
+            else:
+                res = None
 
 
+            preds.append(res)
+
+        useful_counts = prop.useful_path_counts
+        plt.hist(useful_counts, bins=1000)
+        plt.xlabel('Number of useful paths')
+        plt.savefig('useful_paths.png')
+
+        useful_counts = np.array(useful_counts)
+        logger.info(f'Number of objects with no useful path: {len(np.extract(useful_counts == 0, useful_counts))}')
+        logger.info(f'Not recog count: {not_recognized_count}')
+
+        logger.info(f'Total number of test cases: {len(golds)}')
+        coverage, selectivity = coverage_accuracy_relational(golds, preds)
+        logger.info(f'Coverage: {coverage}')
+        logger.info(f'selectivity: {selectivity}')
+
+        results.append(RelationalResult(setting.print(), selectivity, coverage))
+
+    results_df = pd.DataFrame(results)
+    results_df.to_csv('results_visual_backoff.csv')
+
+def check_if_in_vg(word_list, vg_objects):
+    res = list()
+    for word in word_list:
+        word = word.replace(' ', "_")
+        if word in vg_objects:
+            res.append(word)
+    return res
+
+
+def fill_objects_list(entity: str, setting: BackoffSettings, vg_objects: list, similar_words_lookup):
+    synset_string = entity.replace(' ','_')
+    entity_string = entity.replace('_', " ")
+    recognizable_objects = list()
+    similar_words = similar_words_lookup[entity_string]
+    #TODO check if this gets two-word objects!!
+    if setting.use_direct:
+        if synset_string in vg_objects:
+            recognizable_objects.append(synset_string)
+
+    elif len(recognizable_objects) ==0 and setting.use_hyponyms:
+        hyponyms = similar_words['hyponyms']
+        if len(hyponyms) > 0:
+            recognizable_objects += check_if_in_vg(hyponyms, vg_objects)
+
+    elif len(recognizable_objects) == 0 and setting.use_hypernyms:
+        hypernyms = similar_words['hypernyms']
+        if len(hypernyms) > 0:
+            recognizable_objects += check_if_in_vg(hypernyms, vg_objects)
+
+    elif len(recognizable_objects) == 0 and setting.use_head_noun:
+        head_nouns = similar_words['head_noun']
+        assert type(head_nouns) is list
+        if len(head_nouns) > 0:
+            recognizable_objects += check_if_in_vg(head_nouns, vg_objects)
+
+    elif len(recognizable_objects) ==0 and setting.use_word2vec:
+        word2vecs = similar_words['word2vec']
+        if len(word2vecs) > 0:
+            all_word2vecs_in_vg = check_if_in_vg(word2vecs, vg_objects)
+            if len(all_word2vecs_in_vg) > 0:
+                best_three = all_word2vecs_in_vg[:min(3,len(all_word2vecs_in_vg))]
+                recognizable_objects += best_three
+
+    else:
+        logger.debug(f'{synset_string} and fallback objects not in VG.')
+    return recognizable_objects
 
 if __name__ == "__main__":
     try:

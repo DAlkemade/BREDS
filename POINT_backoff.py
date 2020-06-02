@@ -7,7 +7,7 @@ from datetime import datetime
 import pandas as pd
 import yaml
 from box import Box
-from learning_sizes_evaluation.evaluate import precision_recall, range_distance, Result
+from learning_sizes_evaluation.evaluate import precision_recall, range_distance, Result, distances_hist, get_distances
 from logging_setup_dla.logging import set_up_root_logger
 from pandas import DataFrame
 
@@ -72,7 +72,8 @@ def main():
     logger.info('No backoff')
     results.append(evaluate_settings(BackoffSettings(use_direct=True), all_sizes, unseen_objects, input))
 
-    results.append(evaluate_settings(BackoffSettings(use_word2vec=True), all_sizes, unseen_objects, input))
+    word2vecsettings = evaluate_settings(BackoffSettings(use_word2vec=True), all_sizes, unseen_objects, input)
+    results.append(word2vecsettings)
 
     results.append(evaluate_settings(BackoffSettings(use_hypernyms=True), all_sizes, unseen_objects, input))
 
@@ -98,6 +99,9 @@ def main():
 
     results_df = pd.DataFrame(results)
     results_df.to_csv('results_backoff.csv')
+
+    word2vecpreds = predict_sizes(all_sizes, unseen_objects, word2vecsettings)
+    distances_hist({'word2vec fallback': get_distances(input, word2vecpreds)}, ['word2vec fallback'], save=True)
     logger.info('Finished')
 
 

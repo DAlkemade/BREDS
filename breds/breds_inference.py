@@ -225,7 +225,7 @@ def create_reverse_lookup(similar_words):
     return objects_lookup
 
 
-def find_similar_words(word2vec_model, unseen_objects):
+def find_similar_words(word2vec_model, unseen_objects, n_word2vec=N_WORD2VEC):
     similar_words = defaultdict(lambda: defaultdict(list))
     for entity in unseen_objects:
         # Word2vec
@@ -233,7 +233,7 @@ def find_similar_words(word2vec_model, unseen_objects):
         # TODO can be sped up if necessary:
         #  https://radimrehurek.com/gensim/auto_examples/tutorials/run_annoy.html#sphx-glr-auto-examples-tutorials-run-annoy-py
         most_similar = word2vec_model.most_similar(positive=entity.split(),
-                                                    topn=N_WORD2VEC)  # TODO maybe use a bigram model? Because now those can not be entered and not be given as similar words
+                                                    topn=n_word2vec)  # TODO maybe use a bigram model? Because now those can not be entered and not be given as similar words
         most_similar_filtered = list()
         for sim in most_similar:
             # if sim[1] < .5:
