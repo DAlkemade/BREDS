@@ -72,8 +72,8 @@ def main():
     logger.info('No backoff')
     results.append(evaluate_settings(BackoffSettings(use_direct=True), all_sizes, unseen_objects, input))
 
-    word2vecsettings = evaluate_settings(BackoffSettings(use_word2vec=True), all_sizes, unseen_objects, input)
-    results.append(word2vecsettings)
+    word2vecsettings = BackoffSettings(use_word2vec=True)
+    results.append(evaluate_settings(word2vecsettings, all_sizes, unseen_objects, input))
 
     results.append(evaluate_settings(BackoffSettings(use_hypernyms=True), all_sizes, unseen_objects, input))
 

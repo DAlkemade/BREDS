@@ -103,6 +103,8 @@ def main():
                         comparisons.append(fraction_larger)
                     logger.debug(f'{o1} {o2} fraction larger: {fraction_larger}')
             if len(comparisons) > 0:
+                # larger_results = [c > .5 for c in comparisons]
+                # fraction_larger_mean = np.mean(larger_results)
                 fraction_larger_mean = np.mean(comparisons)
                 res = fraction_larger_mean > .5
             else:
