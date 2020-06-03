@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 def compare_linguistic_with_backoff(setting: BackoffSettings, all_sizes, test_pair: Pair, median: float) -> bool:
     #TODO think of a proxy for confidence using the backoff level and the difference between the sizes
     res1 = predict_size(all_sizes, setting, test_pair.e1)
-    res2 = predict_size(all_sizes, setting, test_pair.e1)
+    res2 = predict_size(all_sizes, setting, test_pair.e2)
     if res1 is not None and res2 is not None:
         res = res1 > res2
     else:
