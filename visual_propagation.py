@@ -14,7 +14,7 @@ from matplotlib import pyplot as plt
 from visual_size_comparison.config import VisualConfig
 from visual_size_comparison.propagation import build_cooccurrence_graph, Pair, VisualPropagation
 
-from breds.breds_inference import find_similar_words, BackoffSettings
+from breds.breds_inference import find_similar_words, BackoffSettings, comparison_dev_set
 from breds.config import Config, load_word2vec
 
 set_up_root_logger(f'INFERENCE_VISUAL_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.path.join(os.getcwd(), 'logs'))
@@ -69,9 +69,8 @@ def main():
         logger.info(f'\nRunning for setting {setting.print()}')
 
         for test_pair in tqdm.tqdm(test_pairs):
-            #TODO let both return confidence; use the higher one
+            #TODO return confidence; use the higher one
             res_visual = compare_visual_with_backoff(objects, prop, setting, similar_words, test_pair)
-            res_textual = compare_linguistic_with_backoff(setting, similar_words, test_pair)
 
             preds.append(res_visual)
 
@@ -116,35 +115,6 @@ def compare_visual_with_backoff(objects, prop, setting, similar_words, test_pair
     else:
         res = None
     return res
-
-
-def comparison_dev_set(cfg):
-    input: pd.DataFrame = pd.read_csv(cfg.path.dev)
-    input = input.astype({'object': str})
-    input.set_index(['object'], inplace=True, drop=False)
-    unseen_objects = list(input['object'])
-    logger.info(f'Unseen objects: {unseen_objects}')
-    test_pairs: List[Pair] = list()
-    row_count = len(input.index)
-    for i in range(row_count):
-        for j in range(i + 1, row_count):
-            row1 = input.iloc[i]
-            row2 = input.iloc[j]
-            pair = Pair(row1.at['object'].strip().replace(' ', '_'), row2.at['object'].strip().replace(' ', '_'))
-
-            larger1 = float(row1.at['min']) > float(row2.at['max'])
-            larger2 = float(row2.at['min']) > float(row1.at['max'])
-            if not larger1 and not larger2:
-                # ranges overlap, not evaluating
-                continue
-            if larger1:
-                gold_larger = True
-            else:
-                gold_larger = False
-            pair.larger = gold_larger
-
-            test_pairs.append(pair)
-    return test_pairs, unseen_objects
 
 
 def check_if_in_vg(word_list, vg_objects):

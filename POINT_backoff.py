@@ -1,9 +1,7 @@
 import logging
 import os
-import pickle
 from typing import List
 
-import numpy as np
 from datetime import datetime
 
 import pandas as pd
@@ -13,9 +11,7 @@ from learning_sizes_evaluation.evaluate import precision_recall, range_distance,
 from logging_setup_dla.logging import set_up_root_logger
 from pandas import DataFrame
 
-from breds.breds_inference import predict_sizes, gather_sizes_with_bootstrapping_patterns, compile_results, \
-    find_similar_words, create_reverse_lookup, load_patterns, BackoffSettings
-from breds.config import load_word2vec
+from breds.breds_inference import predict_sizes, load_patterns, BackoffSettings, get_all_sizes_bootstrapping
 
 set_up_root_logger(f'INFERENCE_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.path.join(os.getcwd(), 'logs'))
 
@@ -39,33 +35,7 @@ def main():
     logger.info(f'Unseen objects: {unseen_objects}')
 
     cache_fname = 'backoff_sizes.pkl'
-    if "data_numeric/VG_YOLO_intersection_dev_annotated.csv" in input_fname and os.path.exists(cache_fname):
-        with open(cache_fname, 'rb') as f:
-            all_sizes = pickle.load(f)
-
-
-    else:
-        word2vec_model = load_word2vec(cfg.parameters.word2vec_path)
-        similar_words = find_similar_words(word2vec_model, unseen_objects)
-        word2vec_counts = []
-        for entity, entity_dict in similar_words.items():
-            word2vec_counts.append(len(entity_dict['word2vec']))
-        logger.info(f'Average length of word2vec list: {np.mean(word2vec_counts)}')
-
-        # Create object lookup
-        objects_lookup = create_reverse_lookup(similar_words)
-
-
-        all_new_objects = set(objects_lookup.keys()).union(unseen_objects)
-
-        tuples_bootstrap = gather_sizes_with_bootstrapping_patterns(cfg, patterns, all_new_objects)
-
-        all_sizes = compile_results(tuples_bootstrap, objects_lookup, similar_words, unseen_objects)
-        with open(cache_fname, 'wb') as f:
-            pickle.dump(all_sizes, f)
-
-
-        logger.info(f'Average length of word2vec list: {np.mean(word2vec_counts)}')
+    all_sizes = get_all_sizes_bootstrapping(cache_fname, cfg, input_fname, patterns, unseen_objects)
 
 
     # with open(f'backoff_predictions.pkl', 'wb') as f:
@@ -82,7 +52,8 @@ def main():
         BackoffSettings(use_direct=True, use_hyponyms=True),
         BackoffSettings(use_direct=True, use_head_noun=True),
         BackoffSettings(use_direct=True, use_hyponyms=True),
-        BackoffSettings(use_direct=True, use_hyponyms=True, use_hypernyms=True)
+        BackoffSettings(use_direct=True, use_hyponyms=True, use_hypernyms=True),
+        BackoffSettings(use_direct=True, use_hyponyms=True, use_hypernyms=True, use_word2vec=True)
     ]
     for setting in settings:
         logger.info(f'Setting: {setting.print()}')

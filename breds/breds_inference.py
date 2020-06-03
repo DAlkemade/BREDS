@@ -1,23 +1,28 @@
 import fileinput
 import logging
 import operator
+import os
 import pickle
 from collections import defaultdict
 from functools import partial
 from typing import List, DefaultDict, Dict
 
 import numpy as np
+import pandas as pd
 from box import Box
 from nltk.corpus import wordnet as wn
 from sklearn.cluster import KMeans
 from sklearn.covariance import EllipticEnvelope
 from visual_size_comparison.config import VisualConfig
+from visual_size_comparison.propagation import Pair
 
+from POINT_backoff import logger
 from breds.breds import update_tuples_confidences, generate_tuples
-from breds.config import Weights, Config
+from breds.config import Weights, Config, load_word2vec
 from breds.similarity import similarity_all
 from breds.tuple import Tuple
 from breds.util import randomString
+from visual_propagation import logger
 
 logger = logging.getLogger(__name__)
 
@@ -73,76 +78,68 @@ def predict_sizes(all_sizes: dict, objects: list, cfg: BackoffSettings) -> Dict[
     """
     predictions = dict()
     for object in objects:
-        try:
-            sims_dict = all_sizes[object]
-        except KeyError:
-            logger.warning(f'No sizes for {object}')
-            sims_dict = defaultdict(list)
-
-
-        directs = sims_dict['itself']
-        hyponyms = sims_dict['hyponyms']
-        hypernyms = sims_dict['hypernyms']
-        word2vecs = sims_dict['word2vec']
-        head_nouns = sims_dict['head_noun']
-
-        # try:
-        #     direct_highest_confidence: Tuple = max(directs, key=lambda item: item.confidence)
-        #     logger.info(
-        #         f'Direct highest confidence: {direct_highest_confidence.e1} {direct_highest_confidence.e2} with conf {direct_highest_confidence.confidence}')
-        # except ValueError:
-        #     direct_highest_confidence = None
-        size_direct = predict_point(True, [t.e2 for t in directs])
-
-        # TODO instead of taking means, maybe take the mean of the MAX for each hyponym, hypernym, etc
-        hyponym_mean = weighted_tuple_mean(hyponyms)
-
-        hypernym_mean = weighted_tuple_mean(hypernyms)
-
-        outlier_detector = EllipticEnvelope(contamination=CONTAMINATION_FRAC)
-        if len(word2vecs) > 0:
-            word2vecs = word2vecs[:min(5, len(word2vecs))]
-        word2vecs = word2vecs[:]
-        sizes_array = np.reshape([t.e2 for t in word2vecs], (-1, 1))
-        with np.errstate(all='raise'):
-            try:
-                # Fit detector
-                outlier_detector.fit(sizes_array)
-                preds = outlier_detector.predict(sizes_array)
-                selected_word2vecs = np.extract(preds == 1, word2vecs)
-            except (ValueError, RuntimeWarning, FloatingPointError):
-                selected_word2vecs = word2vecs
-
-        selected_word2vec_mean = weighted_tuple_mean(selected_word2vecs)
-
-
-        head_noun_size = predict_point(True, [t.e2 for t in head_nouns])
-
-        # TODO use results in an order, e.g direct finds -> mean of hyponyms -> mean of hypernyms -> word2vec
-        #  Maybe this is something I should experiment with
-
-        # TODO maybe at this point do a ttest between the two objects, using their best distribution.
-        #  Weigh the importance of each point with their confidences, if possible:
-        #  https://www.statsmodels.org/stable/generated/statsmodels.stats.weightstats.ttest_ind.html
-
-        # TODO return for each object a size and a confidence
-        if size_direct is not None and cfg.use_direct:
-            size = size_direct
-        elif hyponym_mean is not None and cfg.use_hyponyms:
-            size = hyponym_mean
-        elif hypernym_mean is not None and cfg.use_hypernyms:
-            size = hypernym_mean
-        elif head_noun_size is not None and cfg.use_head_noun:
-            size = head_noun_size
-        elif selected_word2vec_mean is not None and cfg.use_word2vec:
-            size = selected_word2vec_mean
-        else:
-            size = None
-
+        size = predict_size(all_sizes, cfg, object)
 
         predictions[object] = size
 
     return predictions
+
+
+def predict_size(all_sizes: dict, cfg: BackoffSettings, object: str):
+    try:
+        sims_dict = all_sizes[object]
+    except KeyError:
+        logger.warning(f'No sizes for {object}')
+        sims_dict = defaultdict(list)
+    directs = sims_dict['itself']
+    hyponyms = sims_dict['hyponyms']
+    hypernyms = sims_dict['hypernyms']
+    word2vecs = sims_dict['word2vec']
+    head_nouns = sims_dict['head_noun']
+    # try:
+    #     direct_highest_confidence: Tuple = max(directs, key=lambda item: item.confidence)
+    #     logger.info(
+    #         f'Direct highest confidence: {direct_highest_confidence.e1} {direct_highest_confidence.e2} with conf {direct_highest_confidence.confidence}')
+    # except ValueError:
+    #     direct_highest_confidence = None
+    size_direct = predict_point(True, [t.e2 for t in directs])
+    # TODO instead of taking means, maybe take the mean of the MAX for each hyponym, hypernym, etc
+    hyponym_mean = weighted_tuple_mean(hyponyms)
+    hypernym_mean = weighted_tuple_mean(hypernyms)
+    outlier_detector = EllipticEnvelope(contamination=CONTAMINATION_FRAC)
+    if len(word2vecs) > 0:
+        word2vecs = word2vecs[:min(5, len(word2vecs))]
+    word2vecs = word2vecs[:]
+    sizes_array = np.reshape([t.e2 for t in word2vecs], (-1, 1))
+    with np.errstate(all='raise'):
+        try:
+            # Fit detector
+            outlier_detector.fit(sizes_array)
+            preds = outlier_detector.predict(sizes_array)
+            selected_word2vecs = np.extract(preds == 1, word2vecs)
+        except (ValueError, RuntimeWarning, FloatingPointError):
+            selected_word2vecs = word2vecs
+    selected_word2vec_mean = weighted_tuple_mean(selected_word2vecs)
+    head_noun_size = predict_point(True, [t.e2 for t in head_nouns])
+    # TODO use results in an order, e.g direct finds -> mean of hyponyms -> mean of hypernyms -> word2vec
+    #  Maybe this is something I should experiment with
+    # TODO maybe at this point do a ttest between the two objects, using their best distribution.
+    #  Weigh the importance of each point with their confidences, if possible:
+    #  https://www.statsmodels.org/stable/generated/statsmodels.stats.weightstats.ttest_ind.html
+    # TODO return for each object a size and a confidence
+    if size_direct is not None and cfg.use_direct:
+        size = size_direct
+    elif hyponym_mean is not None and cfg.use_hyponyms:
+        size = hyponym_mean
+    elif hypernym_mean is not None and cfg.use_hypernyms:
+        size = hypernym_mean
+    elif head_noun_size is not None and cfg.use_head_noun:
+        size = head_noun_size
+    elif selected_word2vec_mean is not None and cfg.use_word2vec:
+        size = selected_word2vec_mean
+    else:
+        size = None
+    return size
 
 
 def filter_tuples(candidate_tuples, dev_threshold):
@@ -327,3 +324,61 @@ def load_unseen_objects(cfg):
     unseen_objects_fname = cfg.path.unseen_objects
     unseen_objects = set([line.strip() for line in fileinput.input(unseen_objects_fname)])
     return unseen_objects
+
+
+def comparison_dev_set(cfg):
+    input: pd.DataFrame = pd.read_csv(cfg.path.dev)
+    input = input.astype({'object': str})
+    input.set_index(['object'], inplace=True, drop=False)
+    unseen_objects = list(input['object'])
+    logger.info(f'Unseen objects: {unseen_objects}')
+    test_pairs: List[Pair] = list()
+    row_count = len(input.index)
+    for i in range(row_count):
+        for j in range(i + 1, row_count):
+            row1 = input.iloc[i]
+            row2 = input.iloc[j]
+            pair = Pair(row1.at['object'].strip().replace(' ', '_'), row2.at['object'].strip().replace(' ', '_'))
+
+            larger1 = float(row1.at['min']) > float(row2.at['max'])
+            larger2 = float(row2.at['min']) > float(row1.at['max'])
+            if not larger1 and not larger2:
+                # ranges overlap, not evaluating
+                continue
+            if larger1:
+                gold_larger = True
+            else:
+                gold_larger = False
+            pair.larger = gold_larger
+
+            test_pairs.append(pair)
+    return test_pairs, unseen_objects
+
+
+def get_all_sizes_bootstrapping(cache_fname, cfg, input_fname, patterns, unseen_objects):
+    if "data_numeric/VG_YOLO_intersection_dev_annotated.csv" in input_fname and os.path.exists(cache_fname):
+        with open(cache_fname, 'rb') as f:
+            all_sizes = pickle.load(f)
+
+
+    else:
+        word2vec_model = load_word2vec(cfg.parameters.word2vec_path)
+        similar_words = find_similar_words(word2vec_model, unseen_objects)
+        word2vec_counts = []
+        for entity, entity_dict in similar_words.items():
+            word2vec_counts.append(len(entity_dict['word2vec']))
+        logger.info(f'Average length of word2vec list: {np.mean(word2vec_counts)}')
+
+        # Create object lookup
+        objects_lookup = create_reverse_lookup(similar_words)
+
+        all_new_objects = set(objects_lookup.keys()).union(unseen_objects)
+
+        tuples_bootstrap = gather_sizes_with_bootstrapping_patterns(cfg, patterns, all_new_objects)
+
+        all_sizes = compile_results(tuples_bootstrap, objects_lookup, similar_words, unseen_objects)
+        with open(cache_fname, 'wb') as f:
+            pickle.dump(all_sizes, f)
+
+        logger.info(f'Average length of word2vec list: {np.mean(word2vec_counts)}')
+    return all_sizes
