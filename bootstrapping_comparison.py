@@ -23,10 +23,10 @@ logger = logging.getLogger(__name__)
 
 
 def compare_linguistic_with_backoff(setting, all_sizes, test_pair: Pair) -> bool:
+    #TODO think of a proxy for confidence using the backoff level and the difference between the sizes
     res1 = predict_size(all_sizes, setting, test_pair.e1)
     res2 = predict_size(all_sizes, setting, test_pair.e1)
-    #TODO
-    pass
+    return res1 > res2
 
 
 def main():
@@ -37,8 +37,6 @@ def main():
     test_pairs, unseen_objects = comparison_dev_set(cfg)
 
     # TODO check whether the objects aren't in the bootstrapped objects
-    visual_config = VisualConfig(cfg.path.vg_objects, cfg.path.vg_objects_anchors)
-    config = Config(cfg, visual_config)
 
     patterns = load_patterns(cfg)
     cache_fname = 'backoff_sizes.pkl'
