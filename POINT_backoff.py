@@ -64,7 +64,7 @@ def main():
     results_df.to_csv('results_backoff.csv')
 
     word2vecsettings = BackoffSettings(use_word2vec=True)
-    word2vecpreds = predict_sizes(all_sizes, unseen_objects, word2vecsettings)
+    word2vecpreds = predict_sizes(all_sizes, unseen_objects, word2vecsettings, median)
     distances_hist({'word2vec fallback': get_distances(input, word2vecpreds)}, ['word2vec fallback'], save=True)
     logger.info('Finished')
 
