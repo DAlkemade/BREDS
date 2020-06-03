@@ -21,25 +21,17 @@ set_up_root_logger(f'INFERENCE_VISUAL_{datetime.now().strftime("%d%m%Y%H%M%S")}'
 logger = logging.getLogger(__name__)
 
 
+def compare_linguistic_with_backoff(setting, similar_words, test_pair):
+    #TODO
+    pass
+
+
 def main():
     with open("config.yml", "r") as ymlfile:
         cfg = Box(yaml.safe_load(ymlfile))
         # cfg = Box(yaml.safe_load(ymlfile), default_box=True, default_box_attr=None)
 
-    input: pd.DataFrame = pd.read_csv(cfg.path.dev)
-    input = input.astype({'object': str})
-    input.set_index(['object'], inplace=True, drop=False)
-    unseen_objects = list(input['object'])
-    logger.info(f'Unseen objects: {unseen_objects}')
-    test_pairs: List[Pair] = list()
-
-    row_count = len(input.index)
-    for i in range(row_count):
-        for j in range(i + 1, row_count):
-            row1 = input.iloc[i]
-            row2 = input.iloc[j]
-            pair = Pair(row1.at['object'].strip().replace(' ', '_'), row2.at['object'].strip().replace(' ', '_'))
-            test_pairs.append(pair)
+    test_pairs, unseen_objects = comparison_dev_set(cfg)
 
     # TODO check whether the objects aren't in the bootstrapped objects
     visual_config = VisualConfig(cfg.path.vg_objects, cfg.path.vg_objects_anchors)
@@ -67,51 +59,21 @@ def main():
         # BackoffSettings(use_direct=True, use_head_noun=True),
         # BackoffSettings(use_direct=True, use_hyponyms=True)
     ]
+    golds = [p.larger for p in test_pairs]
+
     for setting in settings:
         preds = list()
-        golds = list()
         not_recognized_count = 0
 
         prop = VisualPropagation(G, config.visual_config)
         logger.info(f'\nRunning for setting {setting.print()}')
 
         for test_pair in tqdm.tqdm(test_pairs):
-            object1 = test_pair.e1.replace('_', ' ')
-            object2 = test_pair.e2.replace('_', ' ')
-            row1 = input.loc[object1]
-            row2 = input.loc[object2]
+            #TODO let both return confidence; use the higher one
+            res_visual = compare_visual_with_backoff(objects, prop, setting, similar_words, test_pair)
+            res_textual = compare_linguistic_with_backoff(setting, similar_words, test_pair)
 
-            larger1 = float(row1.at['min']) > float(row2.at['max'])
-            larger2 = float(row2.at['min']) > float(row1.at['max'])
-            if not larger1 and not larger2:
-                # ranges overlap, not evaluating
-                continue
-            if larger1:
-                gold_larger = True
-            else:
-                gold_larger = False
-            golds.append(gold_larger)
-
-            # TODO implement backoff mechanism
-            recognizable_objects1 = fill_objects_list(object1, setting, objects, similar_words)
-            recognizable_objects2 = fill_objects_list(object2, setting, objects, similar_words)
-            comparisons = list()
-            for o1 in recognizable_objects1:
-                for o2 in recognizable_objects2:
-                    fraction_larger = prop.compare_pair(Pair(o1, o2))
-                    if fraction_larger is not None:
-                        comparisons.append(fraction_larger)
-                    logger.debug(f'{o1} {o2} fraction larger: {fraction_larger}')
-            if len(comparisons) > 0:
-                # larger_results = [c > .5 for c in comparisons]
-                # fraction_larger_mean = np.mean(larger_results)
-                fraction_larger_mean = np.mean(comparisons)
-                res = fraction_larger_mean > .5
-            else:
-                res = None
-
-
-            preds.append(res)
+            preds.append(res_visual)
 
         useful_counts = prop.useful_path_counts
         plt.hist(useful_counts, bins=1000)
@@ -131,6 +93,59 @@ def main():
 
     results_df = pd.DataFrame(results)
     results_df.to_csv('results_visual_backoff.csv')
+
+
+def compare_visual_with_backoff(objects, prop, setting, similar_words, test_pair):
+    object1 = test_pair.e1.replace('_', ' ')
+    object2 = test_pair.e2.replace('_', ' ')
+    # TODO implement backoff mechanism
+    recognizable_objects1 = fill_objects_list(object1, setting, objects, similar_words)
+    recognizable_objects2 = fill_objects_list(object2, setting, objects, similar_words)
+    comparisons = list()
+    for o1 in recognizable_objects1:
+        for o2 in recognizable_objects2:
+            fraction_larger = prop.compare_pair(Pair(o1, o2))
+            if fraction_larger is not None:
+                comparisons.append(fraction_larger)
+            logger.debug(f'{o1} {o2} fraction larger: {fraction_larger}')
+    if len(comparisons) > 0:
+        # larger_results = [c > .5 for c in comparisons]
+        # fraction_larger_mean = np.mean(larger_results)
+        fraction_larger_mean = np.mean(comparisons)
+        res = fraction_larger_mean > .5
+    else:
+        res = None
+    return res
+
+
+def comparison_dev_set(cfg):
+    input: pd.DataFrame = pd.read_csv(cfg.path.dev)
+    input = input.astype({'object': str})
+    input.set_index(['object'], inplace=True, drop=False)
+    unseen_objects = list(input['object'])
+    logger.info(f'Unseen objects: {unseen_objects}')
+    test_pairs: List[Pair] = list()
+    row_count = len(input.index)
+    for i in range(row_count):
+        for j in range(i + 1, row_count):
+            row1 = input.iloc[i]
+            row2 = input.iloc[j]
+            pair = Pair(row1.at['object'].strip().replace(' ', '_'), row2.at['object'].strip().replace(' ', '_'))
+
+            larger1 = float(row1.at['min']) > float(row2.at['max'])
+            larger2 = float(row2.at['min']) > float(row1.at['max'])
+            if not larger1 and not larger2:
+                # ranges overlap, not evaluating
+                continue
+            if larger1:
+                gold_larger = True
+            else:
+                gold_larger = False
+            pair.larger = gold_larger
+
+            test_pairs.append(pair)
+    return test_pairs, unseen_objects
+
 
 def check_if_in_vg(word_list, vg_objects):
     res = list()
