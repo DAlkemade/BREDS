@@ -21,7 +21,7 @@ from breds.util import randomString
 
 logger = logging.getLogger(__name__)
 
-N_WORD2VEC = 100
+N_WORD2VEC = 50
 CONTAMINATION_FRAC = .3
 
 def read_weights(parameters_fname: str):
@@ -99,9 +99,10 @@ def predict_sizes(all_sizes: dict, objects: list, cfg: BackoffSettings) -> Dict[
 
         hypernym_mean = weighted_tuple_mean(hypernyms)
 
-        word2vec_mean = weighted_tuple_mean(word2vecs)
-
         outlier_detector = EllipticEnvelope(contamination=CONTAMINATION_FRAC)
+        if len(word2vecs) > 0:
+            word2vecs = word2vecs[:min(5, len(word2vecs))]
+        word2vecs = word2vecs[:]
         sizes_array = np.reshape([t.e2 for t in word2vecs], (-1, 1))
         with np.errstate(all='raise'):
             try:
@@ -110,7 +111,7 @@ def predict_sizes(all_sizes: dict, objects: list, cfg: BackoffSettings) -> Dict[
                 preds = outlier_detector.predict(sizes_array)
                 selected_word2vecs = np.extract(preds == 1, word2vecs)
             except (ValueError, RuntimeWarning, FloatingPointError):
-                selected_word2vecs = []
+                selected_word2vecs = word2vecs
 
         selected_word2vec_mean = weighted_tuple_mean(selected_word2vecs)
 
