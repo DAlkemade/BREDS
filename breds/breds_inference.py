@@ -137,6 +137,7 @@ def predict_size(all_sizes: dict, cfg: BackoffSettings, object: str):
         size = selected_word2vec_mean
     else:
         size = None
+    #TODO add mean size as backoff
     return size
 
 

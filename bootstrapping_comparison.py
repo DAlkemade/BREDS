@@ -67,6 +67,7 @@ def main():
         for test_pair in tqdm.tqdm(test_pairs):
             #TODO return confidence; use the higher one
             res = compare_linguistic_with_backoff(setting, all_sizes, test_pair)
+            logger.info(f'res: {res}')
             preds.append(res)
 
 
