@@ -1,6 +1,8 @@
 import logging
 import os
 import pickle
+from typing import List
+
 import numpy as np
 from datetime import datetime
 
@@ -69,37 +71,26 @@ def main():
     # with open(f'backoff_predictions.pkl', 'wb') as f:
     #     pickle.dump(predictions, f)
     results = list()
-    logger.info('No backoff')
-    results.append(evaluate_settings(BackoffSettings(use_direct=True), all_sizes, unseen_objects, input))
-
-    word2vecsettings = BackoffSettings(use_word2vec=True)
-    results.append(evaluate_settings(word2vecsettings, all_sizes, unseen_objects, input))
-
-    results.append(evaluate_settings(BackoffSettings(use_hypernyms=True), all_sizes, unseen_objects, input))
-
-    results.append(evaluate_settings(BackoffSettings(use_hyponyms=True), all_sizes, unseen_objects, input))
-
-    results.append(evaluate_settings(BackoffSettings(use_head_noun=True), all_sizes, unseen_objects, input))
-
-    results.append(evaluate_settings(BackoffSettings(use_direct=True, use_word2vec=True), all_sizes, unseen_objects, input))
-
-    results.append(evaluate_settings(BackoffSettings(use_direct=True, use_hypernyms=True), all_sizes, unseen_objects, input))
-
-    results.append(evaluate_settings(BackoffSettings(use_direct=True, use_hyponyms=True), all_sizes, unseen_objects, input))
-
-    results.append(evaluate_settings(BackoffSettings(use_direct=True, use_head_noun=True), all_sizes, unseen_objects, input))
-
-    results.append(evaluate_settings(BackoffSettings(use_direct=True, use_hyponyms=True, use_hypernyms=True), all_sizes, unseen_objects, input))
-    #
-    # evaluate_settings(BackoffSettings(use_word2vec=True, use_hyponyms=True), all_sizes, unseen_objects, input)
-    #
-    # evaluate_settings(BackoffSettings(use_word2vec=True, use_hyponyms=True, use_head_noun=True), all_sizes, unseen_objects, input)
-    #
-    # evaluate_settings(BackoffSettings(use_word2vec=True, use_hyponyms=True, use_head_noun=True, use_hypernyms=True), all_sizes, unseen_objects, input)
-
+    settings: List[BackoffSettings] = [
+        BackoffSettings(use_direct=True),
+        BackoffSettings(use_word2vec=True),
+        BackoffSettings(use_hypernyms=True),
+        BackoffSettings(use_hyponyms=True),
+        BackoffSettings(use_head_noun=True),
+        BackoffSettings(use_direct=True, use_word2vec=True),
+        BackoffSettings(use_direct=True, use_hypernyms=True),
+        BackoffSettings(use_direct=True, use_hyponyms=True),
+        BackoffSettings(use_direct=True, use_head_noun=True),
+        BackoffSettings(use_direct=True, use_hyponyms=True),
+        BackoffSettings(use_direct=True, use_hyponyms=True, use_hypernyms=True)
+    ]
+    for setting in settings:
+        logger.info(f'Setting: {setting.print()}')
+        results.append(evaluate_settings(setting, all_sizes, unseen_objects, input))
     results_df = pd.DataFrame(results)
     results_df.to_csv('results_backoff.csv')
 
+    word2vecsettings = BackoffSettings(use_word2vec=True)
     word2vecpreds = predict_sizes(all_sizes, unseen_objects, word2vecsettings)
     distances_hist({'word2vec fallback': get_distances(input, word2vecpreds)}, ['word2vec fallback'], save=True)
     logger.info('Finished')
