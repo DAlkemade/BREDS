@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from datetime import datetime
@@ -22,11 +23,16 @@ set_up_root_logger(f'INFERENCE_VISUAL_{datetime.now().strftime("%d%m%Y%H%M%S")}'
 logger = logging.getLogger(__name__)
 
 
-def compare_linguistic_with_backoff(setting, all_sizes, test_pair: Pair) -> bool:
+def compare_linguistic_with_backoff(setting: BackoffSettings, all_sizes, test_pair: Pair, median: float) -> bool:
     #TODO think of a proxy for confidence using the backoff level and the difference between the sizes
     res1 = predict_size(all_sizes, setting, test_pair.e1)
     res2 = predict_size(all_sizes, setting, test_pair.e1)
-    return res1 > res2
+    if res1 is not None and res2 is not None:
+        res = res1 > res2
+    else:
+        res = None
+
+    return res
 
 
 def main():
@@ -39,6 +45,11 @@ def main():
     # TODO check whether the objects aren't in the bootstrapped objects
 
     patterns = load_patterns(cfg)
+    with open(cfg.path.final_seeds_cache, 'rb') as f:
+        seeds = json.load(f)
+    seed_sizes = [np.mean(v) for v in seeds.values()]
+    median: float = np.median(seed_sizes)
+    logger.info(f'Median: {median}')
     cache_fname = 'backoff_sizes.pkl'
     input_fname = cfg.path.dev
 
@@ -66,7 +77,7 @@ def main():
 
         for test_pair in tqdm.tqdm(test_pairs):
             #TODO return confidence; use the higher one
-            res = compare_linguistic_with_backoff(setting, all_sizes, test_pair)
+            res = compare_linguistic_with_backoff(setting, all_sizes, test_pair, median)
             logger.info(f'res: {res}')
             preds.append(res)
 

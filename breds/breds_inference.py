@@ -42,7 +42,8 @@ def read_weights(parameters_fname: str):
 
 
 class BackoffSettings:
-    def __init__(self, use_direct = False, use_word2vec: bool = False, use_hypernyms: bool = False, use_hyponyms: bool = False, use_head_noun: bool = False):
+    def __init__(self, use_direct = False, use_word2vec: bool = False, use_hypernyms: bool = False, use_hyponyms: bool = False, use_head_noun: bool = False, use_median_size = False):
+        self.use_median_size = use_median_size
         self.use_direct = use_direct
         self.use_word2vec = use_word2vec
         self.use_hypernyms = use_hypernyms
@@ -61,6 +62,8 @@ class BackoffSettings:
             enabled.append('hypernyms')
         if self.use_head_noun:
             enabled.append('head noun')
+        if self.use_median_size:
+            enabled.append('median size')
 
         logger.info(f'Enabled: {enabled}')
         return str(enabled)
@@ -83,7 +86,7 @@ def predict_sizes(all_sizes: dict, objects: list, cfg: BackoffSettings) -> Dict[
     return predictions
 
 
-def predict_size(all_sizes: dict, cfg: BackoffSettings, object: str):
+def predict_size(all_sizes: dict, cfg: BackoffSettings, object: str, median_size = None):
     try:
         sims_dict = all_sizes[object]
     except KeyError:
@@ -135,6 +138,8 @@ def predict_size(all_sizes: dict, cfg: BackoffSettings, object: str):
         size = head_noun_size
     elif selected_word2vec_mean is not None and cfg.use_word2vec:
         size = selected_word2vec_mean
+    elif cfg.use_median_size and median_size is not None:
+        size = median_size
     else:
         size = None
     #TODO add mean size as backoff
