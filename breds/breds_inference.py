@@ -16,13 +16,11 @@ from sklearn.covariance import EllipticEnvelope
 from visual_size_comparison.config import VisualConfig
 from visual_size_comparison.propagation import Pair
 
-from POINT_backoff import logger
 from breds.breds import update_tuples_confidences, generate_tuples
 from breds.config import Weights, Config, load_word2vec
 from breds.similarity import similarity_all
 from breds.tuple import Tuple
 from breds.util import randomString
-from visual_propagation import logger
 
 logger = logging.getLogger(__name__)
 
