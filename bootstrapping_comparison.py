@@ -91,7 +91,7 @@ def main():
         results.append(RelationalResult(setting.print(), selectivity, coverage))
 
     results_df = pd.DataFrame(results)
-    results_df.to_csv('results_visual_backoff.csv')
+    results_df.to_csv('results_bootstrapping_comparison_backoff.csv')
 
 
 if __name__ == "__main__":
