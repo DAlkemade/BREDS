@@ -1,23 +1,18 @@
-import json
 import logging
 import os
 from datetime import datetime
 from typing import List
 
-import numpy as np
 import pandas as pd
 import tqdm
 import yaml
 from box import Box
 from learning_sizes_evaluation.evaluate import coverage_accuracy_relational, RelationalResult
 from logging_setup_dla.logging import set_up_root_logger
-from matplotlib import pyplot as plt
-from visual_size_comparison.config import VisualConfig
-from visual_size_comparison.propagation import build_cooccurrence_graph, Pair, VisualPropagation
+from visual_size_comparison.propagation import Pair
 
-from breds.breds_inference import find_similar_words, BackoffSettings, comparison_dev_set, get_all_sizes_bootstrapping, \
-    load_patterns, predict_size
-from breds.config import Config, load_word2vec
+from breds.breds_inference import BackoffSettings, comparison_dev_set, get_all_sizes_bootstrapping, \
+    load_patterns, predict_size, calc_median
 
 set_up_root_logger(f'INFERENCE_VISUAL_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.path.join(os.getcwd(), 'logs'))
 logger = logging.getLogger(__name__)
@@ -45,10 +40,7 @@ def main():
     # TODO check whether the objects aren't in the bootstrapped objects
 
     patterns = load_patterns(cfg)
-    with open(cfg.path.final_seeds_cache, 'rb') as f:
-        seeds = json.load(f)
-    seed_sizes = [np.mean(v) for v in seeds.values()]
-    median: float = np.median(seed_sizes)
+    median = calc_median(cfg)
     logger.info(f'Median: {median}')
     cache_fname = 'backoff_sizes.pkl'
     input_fname = cfg.path.dev

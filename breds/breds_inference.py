@@ -1,4 +1,5 @@
 import fileinput
+import json
 import logging
 import operator
 import os
@@ -71,7 +72,7 @@ class BackoffSettings:
 
 
 
-def predict_sizes(all_sizes: dict, objects: list, cfg: BackoffSettings) -> Dict[str, float]:
+def predict_sizes(all_sizes: dict, objects: list, cfg: BackoffSettings, median: float) -> Dict[str, float]:
     """Predict the final size for objects using provided sizes for the objects and their related objects.
 
     :param all_sizes: dictionary with as keys the objects we are predicting and the values a dict with relevant sizes
@@ -79,7 +80,7 @@ def predict_sizes(all_sizes: dict, objects: list, cfg: BackoffSettings) -> Dict[
     """
     predictions = dict()
     for object in objects:
-        size = predict_size(all_sizes, cfg, object)
+        size = predict_size(all_sizes, cfg, object, median_size=median)
 
         predictions[object] = size
 
@@ -386,3 +387,11 @@ def get_all_sizes_bootstrapping(cache_fname, cfg, input_fname, patterns, unseen_
 
         logger.info(f'Average length of word2vec list: {np.mean(word2vec_counts)}')
     return all_sizes
+
+
+def calc_median(cfg):
+    with open(cfg.path.final_seeds_cache, 'rb') as f:
+        seeds = json.load(f)
+    seed_sizes = [np.mean(v) for v in seeds.values()]
+    median: float = np.median(seed_sizes)
+    return median
