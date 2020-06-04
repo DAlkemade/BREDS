@@ -22,8 +22,18 @@ logger = logging.getLogger(__name__)
 
 def compare_linguistic_with_backoff(setting: BackoffSettings, all_sizes, test_pair: Pair, median: float, regex_predictions) -> bool:
     #TODO think of a proxy for confidence using the backoff level and the difference between the sizes
-    res1 = predict_size(all_sizes, setting, test_pair.e1, median_size=median, regex_size=regex_predictions[test_pair.e1])
-    res2 = predict_size(all_sizes, setting, test_pair.e2, median_size=median, regex_size=regex_predictions[test_pair.e2])
+    try:
+        regex1 = regex_predictions[test_pair.e1]
+    except KeyError:
+        logger.warning(f'Key {test_pair.e1} not in {regex_predictions}')
+        raise
+    try:
+        regex2 = regex_predictions[test_pair.e2]
+    except KeyError:
+        logger.warning(f'Key {test_pair.e2} not in {regex_predictions}')
+        raise
+    res1 = predict_size(all_sizes, setting, test_pair.e1, median_size=median, regex_size=regex1)
+    res2 = predict_size(all_sizes, setting, test_pair.e2, median_size=median, regex_size=regex2)
     if res1 is not None and res2 is not None:
         res = res1 > res2
     else:
