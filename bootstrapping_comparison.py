@@ -9,7 +9,6 @@ import yaml
 from box import Box
 from learning_sizes_evaluation.evaluate import coverage_accuracy_relational, RelationalResult
 from logging_setup_dla.logging import set_up_root_logger
-from matplotlib.scale import SymmetricalLogTransform
 from scipy import stats
 from visual_size_comparison.propagation import Pair
 from size_comparisons.scraping.lengths_regex import parse_documents_for_lengths, predict_size_regex
@@ -100,26 +99,24 @@ def main():
 
         results.append(RelationalResult(setting.print(), selectivity, coverage))
         assert len(diffs) == len(preds)
-        golds_not_none = list()
+        corrects_not_none = list()
         diffs_not_none = list()
         for i, diff in enumerate(diffs):
-            res = golds[i]
+            gold = golds[i]
+            res = preds[i]
             if diff is not None:
-                golds_not_none.append(res)
+                corrects_not_none.append(gold == res)
                 diffs_not_none.append(diff)
 
-        tr = SymmetricalLogTransform(base=10, linthresh=1, linscale=1)
-        ss = tr.transform([-100000, 100000 + 1])
-        bins = tr.inverted().transform(np.linspace(*ss, num=30))
-        bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, golds_not_none, 'mean', bins=bins)
+        bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean', bins=np.logspace(0, 10, 20))
         fig, ax = plt.subplots()
-        plt.plot(diffs_not_none, golds_not_none, 'b.', label='raw data')
+        plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
         plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors='g', lw=5,
                    label='binned statistic of data')
         plt.legend()
-        plt.xlabel('Difference in size')
-        plt.ylabel('Larger')
-        ax.set_xscale('symlog')
+        plt.xlabel('Absolute difference in size')
+        plt.ylabel('Fraction correct')
+        ax.set_xscale('log')
         plt.savefig('differences.png')
         plt.show()
 
