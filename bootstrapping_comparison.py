@@ -118,7 +118,7 @@ def main():
                    label='binned statistic of data')
         plt.legend()
         plt.xlabel('Absolute difference in size')
-        plt.ylabel('Fraction correct')
+        plt.ylabel('Selectivity')
         ax.set_xscale('log')
         plt.savefig('differences.png')
         plt.show()
