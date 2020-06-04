@@ -105,9 +105,12 @@ class Sentence:
 
         # determine which type of regex to use according to
         # how named-entities are tagged
-        numbers_regex = re.compile(rf'[0-9]+\.?[0-9]*')
-        objects_regex = re.compile(rf'({goal_object})s?')
-
+        try:
+            numbers_regex = re.compile(rf'[0-9]+\.?[0-9]*')
+            objects_regex = re.compile(rf'({goal_object})s?')
+        except re.error:
+            logger.warning(f'Error for goal objects {goal_object}')
+            return
         # find named-entities
         # numbers = []
         # for m in re.finditer(numbers_regex, sentence_no_tags):
