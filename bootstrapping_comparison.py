@@ -105,9 +105,10 @@ def main():
         for i, diff in enumerate(diffs):
             gold = golds[i]
             res = preds[i]
-            if diff is not None:
+            if diff is not None and diff != 0:
                 corrects_not_none.append(gold == res)
                 diffs_not_none.append(abs(diff))
+        #TODO do something special for when diff == 0
         minimum_power = floor(np.log(min(diffs_not_none)))
         maximum_power = ceil(np.log(max(diffs_not_none)))
         bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean', bins=np.logspace(minimum_power, maximum_power, 20))
