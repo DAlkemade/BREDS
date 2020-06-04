@@ -10,18 +10,20 @@ from box import Box
 from learning_sizes_evaluation.evaluate import coverage_accuracy_relational, RelationalResult
 from logging_setup_dla.logging import set_up_root_logger
 from visual_size_comparison.propagation import Pair
+from size_comparisons.scraping.lengths_regex import parse_documents_for_lengths, predict_size_regex
 
 from breds.breds_inference import BackoffSettings, comparison_dev_set, get_all_sizes_bootstrapping, \
     load_patterns, predict_size, calc_median
+from breds.htmls import scrape_htmls
 
 set_up_root_logger(f'INFERENCE_VISUAL_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.path.join(os.getcwd(), 'logs'))
 logger = logging.getLogger(__name__)
 
 
-def compare_linguistic_with_backoff(setting: BackoffSettings, all_sizes, test_pair: Pair, median: float) -> bool:
+def compare_linguistic_with_backoff(setting: BackoffSettings, all_sizes, test_pair: Pair, median: float, regex_predictions) -> bool:
     #TODO think of a proxy for confidence using the backoff level and the difference between the sizes
-    res1 = predict_size(all_sizes, setting, test_pair.e1, median_size=median)
-    res2 = predict_size(all_sizes, setting, test_pair.e2, median_size=median)
+    res1 = predict_size(all_sizes, setting, test_pair.e1, median_size=median, regex_size=regex_predictions[test_pair.e1])
+    res2 = predict_size(all_sizes, setting, test_pair.e2, median_size=median, regex_size=regex_predictions[test_pair.e2])
     if res1 is not None and res2 is not None:
         res = res1 > res2
     else:
@@ -47,6 +49,13 @@ def main():
 
     all_sizes = get_all_sizes_bootstrapping(cache_fname, cfg, input_fname, patterns, unseen_objects)
 
+    htmls_lookup = scrape_htmls(cfg.path.htmls_cache, unseen_objects)
+    sizes_regex, _ = parse_documents_for_lengths(unseen_objects, htmls_lookup)
+    regex_predictions = dict()
+    for o in unseen_objects:
+        mean = predict_size_regex(o, sizes_regex)
+        regex_predictions[o] = mean
+
     # calc coverage and precision
     results = list()
     settings: List[BackoffSettings] = [
@@ -71,7 +80,7 @@ def main():
 
         for test_pair in tqdm.tqdm(test_pairs):
             #TODO return confidence; use the higher one
-            res = compare_linguistic_with_backoff(setting, all_sizes, test_pair, median)
+            res = compare_linguistic_with_backoff(setting, all_sizes, test_pair, median, regex_predictions)
             preds.append(res)
 
 
