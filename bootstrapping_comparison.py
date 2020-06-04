@@ -79,7 +79,8 @@ def main():
         BackoffSettings(use_direct=True, use_hyponyms=True, use_hypernyms=True, use_word2vec=True, use_median_size=True),
         BackoffSettings(use_direct=True, use_hyponyms=True, use_hypernyms=True, use_word2vec=True, use_regex=True),
         BackoffSettings(use_direct=True, use_hyponyms=True, use_hypernyms=True, use_regex=True),
-        BackoffSettings(use_direct=True, use_regex=True)
+        BackoffSettings(use_direct=True, use_regex=True),
+        BackoffSettings(use_direct=True, use_regex=True, use_median_size=True)
     ]
     golds = [p.larger for p in test_pairs]
 
