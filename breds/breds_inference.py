@@ -149,7 +149,6 @@ def predict_size(all_sizes: dict, cfg: BackoffSettings, object: str, median_size
         size = median_size
     else:
         size = None
-    #TODO add mean size as backoff
     return size
 
 

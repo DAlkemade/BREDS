@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 def compare_linguistic_with_backoff(setting: BackoffSettings, all_sizes, test_pair: Pair, median: float, regex_predictions) -> bool:
     #TODO think of a proxy for confidence using the backoff level and the difference between the sizes
     o1 = test_pair.e1.replace('_', ' ')
-    o2 = test_pair.e1.replace('_', ' ')
+    o2 = test_pair.e2.replace('_', ' ')
     regex1 = regex_predictions[o1]
     regex2 = regex_predictions[o2]
     res1 = predict_size(all_sizes, setting, o1, median_size=median, regex_size=regex1)
