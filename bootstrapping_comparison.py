@@ -1,6 +1,7 @@
 import logging
 import os
 from datetime import datetime
+from math import floor, ceil
 from typing import List
 
 import pandas as pd
@@ -107,8 +108,9 @@ def main():
             if diff is not None:
                 corrects_not_none.append(gold == res)
                 diffs_not_none.append(abs(diff))
-
-        bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean', bins=np.logspace(-5, 10, 20))
+        minimum_power = floor(np.log(min(diffs_not_none)))
+        maximum_power = ceil(np.log(max(diffs_not_none)))
+        bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean', bins=np.logspace(minimum_power, maximum_power, 20))
         fig, ax = plt.subplots()
         plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
         plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors='g', lw=5,
