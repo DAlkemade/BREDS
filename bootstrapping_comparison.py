@@ -108,7 +108,7 @@ def main():
                 corrects_not_none.append(gold == res)
                 diffs_not_none.append(abs(diff))
 
-        bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean', bins=np.logspace(0, 10, 20))
+        bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean', bins=np.logspace(-5, 10, 20))
         fig, ax = plt.subplots()
         plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
         plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors='g', lw=5,
