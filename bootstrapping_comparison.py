@@ -48,6 +48,7 @@ def main():
         # cfg = Box(yaml.safe_load(ymlfile), default_box=True, default_box_attr=None)
 
     test_pairs, unseen_objects = comparison_dev_set(cfg)
+    unseen_objects = [o.replace('_', " ") for o in unseen_objects]
 
     # TODO check whether the objects aren't in the bootstrapped objects
 
