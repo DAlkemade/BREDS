@@ -240,8 +240,12 @@ def find_similar_words(word2vec_model, unseen_objects, n_word2vec=N_WORD2VEC):
         # TODO the results for cheetah and container ship are not great, should probably be a last resort
         # TODO can be sped up if necessary:
         #  https://radimrehurek.com/gensim/auto_examples/tutorials/run_annoy.html#sphx-glr-auto-examples-tutorials-run-annoy-py
-        most_similar = word2vec_model.most_similar(positive=entity.split(),
+        try:
+            most_similar = word2vec_model.most_similar(positive=entity.split(),
                                                     topn=n_word2vec)  # TODO maybe use a bigram model? Because now those can not be entered and not be given as similar words
+        except KeyError:
+            logger.warning(f'{entity} not in word2vec')
+            most_similar = list()
         most_similar_filtered = list()
         for sim in most_similar:
             # if sim[1] < .5:
