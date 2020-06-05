@@ -127,7 +127,7 @@ def main():
         correlation, _ = pearsonr(diffs_not_none, corrects_not_none)
         logger.info(f'Pearsons correlation: {correlation}')
 
-        correlation_spearman, _ = spearmanr(np.larray(diffs_not_none), b=np.array(corrects_not_none))
+        correlation_spearman, _ = spearmanr(np.array(diffs_not_none), b=np.array(corrects_not_none))
         logger.info(f'Spearman correlation: {correlation_spearman}')
 
 
