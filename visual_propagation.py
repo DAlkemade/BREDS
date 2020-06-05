@@ -178,23 +178,23 @@ def fill_objects_list(entity: str, setting: BackoffSettings, vg_objects: list, s
         if synset_string in vg_objects:
             recognizable_objects.append(synset_string)
 
-    elif len(recognizable_objects) ==0 and setting.use_hyponyms:
+    if len(recognizable_objects) ==0 and setting.use_hyponyms:
         hyponyms = similar_words['hyponyms']
         if len(hyponyms) > 0:
             recognizable_objects += check_if_in_vg(hyponyms, vg_objects)
 
-    elif len(recognizable_objects) == 0 and setting.use_hypernyms:
+    if len(recognizable_objects) == 0 and setting.use_hypernyms:
         hypernyms = similar_words['hypernyms']
         if len(hypernyms) > 0:
             recognizable_objects += check_if_in_vg(hypernyms, vg_objects)
 
-    elif len(recognizable_objects) == 0 and setting.use_head_noun:
+    if len(recognizable_objects) == 0 and setting.use_head_noun:
         head_nouns = similar_words['head_noun']
         assert type(head_nouns) is list
         if len(head_nouns) > 0:
             recognizable_objects += check_if_in_vg(head_nouns, vg_objects)
 
-    elif len(recognizable_objects) ==0 and setting.use_word2vec:
+    if len(recognizable_objects) ==0 and setting.use_word2vec:
         word2vecs = similar_words['word2vec']
         if len(word2vecs) > 0:
             all_word2vecs_in_vg = check_if_in_vg(word2vecs, vg_objects)
