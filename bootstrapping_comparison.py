@@ -71,14 +71,15 @@ def main():
     # calc coverage and precision
     results = list()
     settings: List[BackoffSettings] = [
-        # BackoffSettings(use_direct=True),
+        BackoffSettings(use_direct=True),
+        BackoffSettings(use_direct=True, use_regex=True),
+        BackoffSettings(use_direct=True, use_word2vec=True),
+        BackoffSettings(use_regex=True),
         BackoffSettings(use_direct=True, use_hyponyms=True, use_hypernyms=True, use_word2vec=True),
-        # BackoffSettings(use_direct=True, use_hyponyms=True, use_hypernyms=True, use_word2vec=True, use_median_size=True),
-        # BackoffSettings(use_direct=True, use_hyponyms=True, use_hypernyms=True, use_word2vec=True, use_regex=True),
+        BackoffSettings(use_direct=True, use_hyponyms=True, use_hypernyms=True, use_word2vec=True, use_median_size=True),
+        BackoffSettings(use_direct=True, use_hyponyms=True, use_hypernyms=True, use_word2vec=True, use_regex=True),
         BackoffSettings(use_direct=True, use_hyponyms=True, use_hypernyms=True, use_regex=True),
-        # BackoffSettings(use_direct=True, use_regex=True),
         BackoffSettings(use_direct=True, use_regex=True, use_median_size=True),
-        # BackoffSettings(use_regex=True)
     ]
     golds = [p.larger for p in test_pairs]
     for setting in settings:
