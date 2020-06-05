@@ -24,11 +24,6 @@ set_up_root_logger(f'INFERENCE_VISUAL_{datetime.now().strftime("%d%m%Y%H%M%S")}'
 logger = logging.getLogger(__name__)
 
 
-def compare_linguistic_with_backoff(setting, similar_words, test_pair):
-    #TODO
-    pass
-
-
 def main():
     with open("config.yml", "r") as ymlfile:
         cfg = Box(yaml.safe_load(ymlfile))
