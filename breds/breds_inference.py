@@ -233,42 +233,43 @@ def create_reverse_lookup(similar_words):
     return objects_lookup
 
 
-def find_similar_words(word2vec_model, unseen_objects, n_word2vec=N_WORD2VEC):
+def find_similar_words(word2vec_model, unseen_objects, n_word2vec=N_WORD2VEC, use_word2vec=True):
     similar_words = defaultdict(lambda: defaultdict(list))
     for entity in unseen_objects:
         # Word2vec
         # TODO the results for cheetah and container ship are not great, should probably be a last resort
         # TODO can be sped up if necessary:
         #  https://radimrehurek.com/gensim/auto_examples/tutorials/run_annoy.html#sphx-glr-auto-examples-tutorials-run-annoy-py
-        try:
-            most_similar = word2vec_model.most_similar(positive=entity.split(),
-                                                    topn=n_word2vec)  # TODO maybe use a bigram model? Because now those can not be entered and not be given as similar words
-        except KeyError:
-            logger.warning(f'{entity} not in word2vec')
-            most_similar = list()
-        most_similar_filtered = list()
-        for sim in most_similar:
-            # if sim[1] < .5:
-            #     continue
-            # check if noun
-            word = sim[0]
-            synsets = wn.synsets(word.replace(' ', '_'))
-            synsets_noun = wn.synsets(word.replace(' ', '_'), pos=wn.NOUN)
-            if len(synsets) > 0:
-                if len(synsets_noun) > 0:
-                    # only append a recognized word if it is a noun
+        if use_word2vec:
+            try:
+                most_similar = word2vec_model.most_similar(positive=entity.split(),
+                                                        topn=n_word2vec)  # TODO maybe use a bigram model? Because now those can not be entered and not be given as similar words
+            except KeyError:
+                logger.warning(f'{entity} not in word2vec')
+                most_similar = list()
+            most_similar_filtered = list()
+            for sim in most_similar:
+                # if sim[1] < .5:
+                #     continue
+                # check if noun
+                word = sim[0]
+                synsets = wn.synsets(word.replace(' ', '_'))
+                synsets_noun = wn.synsets(word.replace(' ', '_'), pos=wn.NOUN)
+                if len(synsets) > 0:
+                    if len(synsets_noun) > 0:
+                        # only append a recognized word if it is a noun
+                        most_similar_filtered.append(sim)
+                else:
+                    # append any unknown word of which we don't know the POS
                     most_similar_filtered.append(sim)
-            else:
-                # append any unknown word of which we don't know the POS
-                most_similar_filtered.append(sim)
 
-        most_similar = most_similar_filtered
-        # logger.info(most_similar)
-        if len(most_similar) > 0:
-            words, _ = zip(*most_similar)
-        else:
-            words = list()
-        similar_words[entity]['word2vec'] = words
+            most_similar = most_similar_filtered
+            # logger.info(most_similar)
+            if len(most_similar) > 0:
+                words, _ = zip(*most_similar)
+            else:
+                words = list()
+            similar_words[entity]['word2vec'] = words
 
         # TODO maybe use synset1.path_similarity(synset2)
         # Wordnet children / parents
@@ -369,7 +370,7 @@ def comparison_dev_set(cfg):
     return test_pairs, unseen_objects
 
 
-def get_all_sizes_bootstrapping(cache_fname, cfg, input_fname, patterns, unseen_objects):
+def get_all_sizes_bootstrapping(cache_fname, cfg, input_fname, patterns, unseen_objects, use_word2vec=True):
     if "data_numeric/VG_YOLO_intersection_dev_annotated.csv" in input_fname and os.path.exists(cache_fname):
         with open(cache_fname, 'rb') as f:
             all_sizes = pickle.load(f)
@@ -377,7 +378,7 @@ def get_all_sizes_bootstrapping(cache_fname, cfg, input_fname, patterns, unseen_
 
     else:
         word2vec_model = load_word2vec(cfg.parameters.word2vec_path)
-        similar_words = find_similar_words(word2vec_model, unseen_objects)
+        similar_words = find_similar_words(word2vec_model, unseen_objects, use_word2vec=use_word2vec)
         word2vec_counts = []
         for entity, entity_dict in similar_words.items():
             word2vec_counts.append(len(entity_dict['word2vec']))

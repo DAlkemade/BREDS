@@ -58,19 +58,6 @@ def main():
     logger.info(f'Median: {median}')
     cache_fname = 'backoff_sizes.pkl'
     input_fname = cfg.path.dev
-
-    all_sizes = get_all_sizes_bootstrapping(cache_fname, cfg, input_fname, patterns, unseen_objects)
-    logger.info(f'all_sizes: {all_sizes}')
-
-    htmls_lookup = scrape_htmls(cfg.path.htmls_cache, unseen_objects)
-    sizes_regex, _ = parse_documents_for_lengths(unseen_objects, htmls_lookup)
-    regex_predictions = dict()
-    for o in unseen_objects:
-        mean = predict_size_regex(o, sizes_regex)
-        regex_predictions[o] = mean
-
-    # calc coverage and precision
-    results = list()
     settings: List[BackoffSettings] = [
         # BackoffSettings(use_direct=True),
         # BackoffSettings(use_regex=True),
@@ -82,6 +69,23 @@ def main():
         # BackoffSettings(use_direct=True, use_hyponyms=True, use_hypernyms=True, use_regex=True),
         BackoffSettings(use_direct=True, use_regex=True, use_median_size=True),
     ]
+    word2vec_needed = False
+    for setting in settings:
+        if setting.use_word2vec:
+            word2vec_needed = True
+    all_sizes = get_all_sizes_bootstrapping(cache_fname, cfg, input_fname, patterns, unseen_objects, use_word2vec=word2vec_needed)
+    logger.info(f'all_sizes: {all_sizes}')
+
+    htmls_lookup = scrape_htmls(cfg.path.htmls_cache, unseen_objects)
+    sizes_regex, _ = parse_documents_for_lengths(unseen_objects, htmls_lookup)
+    regex_predictions = dict()
+    for o in unseen_objects:
+        mean = predict_size_regex(o, sizes_regex)
+        regex_predictions[o] = mean
+
+    # calc coverage and precision
+    results = list()
+
     golds = [p.larger for p in test_pairs]
     for setting in settings:
         preds = list()
