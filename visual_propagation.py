@@ -50,11 +50,11 @@ def main():
     # calc coverage and precision
     results = list()
     settings: List[BackoffSettings] = [
-        BackoffSettings(use_direct=True),
-        BackoffSettings(use_word2vec=True),
-        BackoffSettings(use_hypernyms=True),
-        BackoffSettings(use_hyponyms=True),
-        BackoffSettings(use_head_noun=True),
+        # BackoffSettings(use_direct=True),
+        # BackoffSettings(use_word2vec=True),
+        # BackoffSettings(use_hypernyms=True),
+        # BackoffSettings(use_hyponyms=True),
+        # BackoffSettings(use_head_noun=True),
         BackoffSettings(use_direct=True, use_word2vec=True),
         # BackoffSettings(use_direct=True, use_hypernyms=True),
         # BackoffSettings(use_direct=True, use_hyponyms=True),
@@ -99,9 +99,8 @@ def main():
         for i, fraction_larger in enumerate(fractions_larger):
             gold = golds[i]
             res = preds[i]
-            fraction_larger_centered = fraction_larger - .5
-            del fraction_larger
-            if fraction_larger_centered is not None and fraction_larger_centered != 0:
+            if fraction_larger is not None and fraction_larger != 0.5:
+                fraction_larger_centered = fraction_larger - .5
                 corrects_not_none.append(gold == res)
                 diffs_not_none.append(abs(fraction_larger_centered))
         # TODO do something special for when fraction_larger_centered == 0
