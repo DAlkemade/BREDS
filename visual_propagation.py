@@ -120,6 +120,7 @@ def main():
         plt.savefig('fraction_larger_selectivity_log.png')
         plt.show()
 
+        fig, ax = plt.subplots()
         bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean',
                                                                  bins=20)
         plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
@@ -128,6 +129,7 @@ def main():
         plt.legend()
         plt.xlabel('Absolute fraction_larger')
         plt.ylabel('Selectivity')
+        ax.set_xscale('linear')
         plt.savefig('fraction_larger_selectivity_linear.png')
         plt.show()
 
