@@ -11,7 +11,7 @@ from box import Box
 from learning_sizes_evaluation.evaluate import coverage_accuracy_relational, RelationalResult
 from logging_setup_dla.logging import set_up_root_logger
 from scipy import stats
-from scipy.stats import pearsonr
+from scipy.stats import pearsonr, spearmanr
 from visual_size_comparison.propagation import Pair
 from size_comparisons.scraping.lengths_regex import parse_documents_for_lengths, predict_size_regex
 
@@ -126,6 +126,9 @@ def main():
 
         correlation, _ = pearsonr(diffs_not_none, corrects_not_none)
         logger.info(f'Pearsons correlation: {correlation}')
+
+        correlation_spearman, _ = spearmanr(np.larray(diffs_not_none), b=np.array(corrects_not_none))
+        logger.info(f'Spearman correlation: {correlation_spearman}')
 
 
 
