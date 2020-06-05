@@ -13,7 +13,7 @@ from learning_sizes_evaluation.evaluate import coverage_accuracy_relational, Rel
 from logging_setup_dla.logging import set_up_root_logger
 from matplotlib import pyplot as plt
 from scipy import stats
-from scipy.stats import pearsonr
+from scipy.stats import pearsonr, spearmanr
 from visual_size_comparison.config import VisualConfig
 from visual_size_comparison.propagation import build_cooccurrence_graph, Pair, VisualPropagation
 
@@ -136,6 +136,9 @@ def main():
 
         correlation, _ = pearsonr(diffs_not_none, corrects_not_none)
         logger.info(f'Pearsons correlation: {correlation}')
+
+        correlation_spearman, _ = spearmanr(np.larray(diffs_not_none), b=np.array(corrects_not_none))
+        logger.info(f'Spearman correlation: {correlation_spearman}')
 
 
     results_df = pd.DataFrame(results)
