@@ -1,6 +1,7 @@
 import logging
 import os
 from datetime import datetime
+from math import floor, ceil
 from typing import List
 
 import numpy as np
@@ -11,6 +12,7 @@ from box import Box
 from learning_sizes_evaluation.evaluate import coverage_accuracy_relational, RelationalResult
 from logging_setup_dla.logging import set_up_root_logger
 from matplotlib import pyplot as plt
+from scipy import stats
 from visual_size_comparison.config import VisualConfig
 from visual_size_comparison.propagation import build_cooccurrence_graph, Pair, VisualPropagation
 
@@ -53,7 +55,7 @@ def main():
         BackoffSettings(use_hypernyms=True),
         BackoffSettings(use_hyponyms=True),
         BackoffSettings(use_head_noun=True),
-        # BackoffSettings(use_direct=True, use_word2vec=True),
+        BackoffSettings(use_direct=True, use_word2vec=True),
         # BackoffSettings(use_direct=True, use_hypernyms=True),
         # BackoffSettings(use_direct=True, use_hyponyms=True),
         # BackoffSettings(use_direct=True, use_head_noun=True),
@@ -63,6 +65,7 @@ def main():
 
     for setting in settings:
         preds = list()
+        fractions_larger = list()
         not_recognized_count = 0
 
         prop = VisualPropagation(G, config.visual_config)
@@ -70,8 +73,8 @@ def main():
 
         for test_pair in tqdm.tqdm(test_pairs):
             #TODO return confidence; use the higher one
-            res_visual = compare_visual_with_backoff(objects, prop, setting, similar_words, test_pair)
-
+            res_visual, fraction_larger = compare_visual_with_backoff(objects, prop, setting, similar_words, test_pair)
+            fractions_larger.append(fraction_larger)
             preds.append(res_visual)
 
         useful_counts = prop.useful_path_counts
@@ -90,11 +93,38 @@ def main():
 
         results.append(RelationalResult(setting.print(), selectivity, coverage))
 
+        assert len(fractions_larger) == len(preds)
+        corrects_not_none = list()
+        diffs_not_none = list()
+        for i, fraction_larger in enumerate(fractions_larger):
+            gold = golds[i]
+            res = preds[i]
+            fraction_larger_centered = fraction_larger - .5
+            del fraction_larger
+            if fraction_larger_centered is not None and fraction_larger_centered != 0:
+                corrects_not_none.append(gold == res)
+                diffs_not_none.append(abs(fraction_larger_centered))
+        # TODO do something special for when fraction_larger_centered == 0
+        minimum_power = floor(np.log(min(diffs_not_none)))
+        maximum_power = ceil(np.log(max(diffs_not_none)))
+        bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean',
+                                                                 bins=np.logspace(minimum_power, maximum_power, 20))
+        fig, ax = plt.subplots()
+        plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
+        plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors='g', lw=5,
+                   label='binned statistic of data')
+        plt.legend()
+        plt.xlabel('Absolute fraction_larger')
+        plt.ylabel('Selectivity')
+        ax.set_xscale('log')
+        plt.savefig('fraction_larger_selectivity.png')
+        plt.show()
+
     results_df = pd.DataFrame(results)
     results_df.to_csv('results_visual_backoff.csv')
 
 
-def compare_visual_with_backoff(objects, prop, setting, similar_words, test_pair):
+def compare_visual_with_backoff(objects, prop, setting, similar_words, test_pair) -> (bool, float):
     object1 = test_pair.e1.replace('_', ' ')
     object2 = test_pair.e2.replace('_', ' ')
     # TODO implement backoff mechanism
@@ -114,7 +144,8 @@ def compare_visual_with_backoff(objects, prop, setting, similar_words, test_pair
         res = fraction_larger_mean > .5
     else:
         res = None
-    return res
+        fraction_larger_mean = None
+    return res, fraction_larger_mean
 
 
 def check_if_in_vg(word_list, vg_objects):
