@@ -116,8 +116,20 @@ def main():
         plt.xlabel('Absolute fraction_larger')
         plt.ylabel('Selectivity')
         ax.set_xscale('log')
-        plt.savefig('fraction_larger_selectivity.png')
+        plt.savefig('fraction_larger_selectivity_log.png')
         plt.show()
+
+        bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean',
+                                                                 bins=20)
+        plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
+        plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors='g', lw=5,
+                   label='binned statistic of data')
+        plt.legend()
+        plt.xlabel('Absolute fraction_larger')
+        plt.ylabel('Selectivity')
+        plt.savefig('fraction_larger_selectivity_linear.png')
+        plt.show()
+
 
     results_df = pd.DataFrame(results)
     results_df.to_csv('results_visual_backoff.csv')
