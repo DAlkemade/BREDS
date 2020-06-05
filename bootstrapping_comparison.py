@@ -81,10 +81,9 @@ def main():
         # BackoffSettings(use_regex=True)
     ]
     golds = [p.larger for p in test_pairs]
-    diffs = list()
     for setting in settings:
         preds = list()
-
+        diffs = list()
 
         for test_pair in tqdm.tqdm(test_pairs):
             #TODO return confidence; use the higher one
