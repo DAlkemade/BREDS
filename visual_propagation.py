@@ -13,6 +13,7 @@ from learning_sizes_evaluation.evaluate import coverage_accuracy_relational, Rel
 from logging_setup_dla.logging import set_up_root_logger
 from matplotlib import pyplot as plt
 from scipy import stats
+from scipy.stats import pearsonr
 from visual_size_comparison.config import VisualConfig
 from visual_size_comparison.propagation import build_cooccurrence_graph, Pair, VisualPropagation
 
@@ -132,6 +133,9 @@ def main():
         ax.set_xscale('linear')
         plt.savefig('fraction_larger_selectivity_linear.png')
         plt.show()
+
+        correlation, _ = pearsonr(diffs_not_none, corrects_not_none)
+        logger.info(f'Pearsons correlation: {correlation}')
 
 
     results_df = pd.DataFrame(results)

@@ -11,6 +11,7 @@ from box import Box
 from learning_sizes_evaluation.evaluate import coverage_accuracy_relational, RelationalResult
 from logging_setup_dla.logging import set_up_root_logger
 from scipy import stats
+from scipy.stats import pearsonr
 from visual_size_comparison.propagation import Pair
 from size_comparisons.scraping.lengths_regex import parse_documents_for_lengths, predict_size_regex
 
@@ -122,6 +123,9 @@ def main():
         ax.set_xscale('log')
         plt.savefig('differences.png')
         plt.show()
+
+        correlation, _ = pearsonr(diffs_not_none, corrects_not_none)
+        logger.info(f'Pearsons correlation: {correlation}')
 
 
 
