@@ -15,6 +15,9 @@ from scipy import stats
 from scipy.stats import pearsonr, spearmanr
 from sklearn import svm
 from sklearn.linear_model import Ridge
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVR
 from visual_size_comparison.propagation import Pair
 from size_comparisons.scraping.lengths_regex import parse_documents_for_lengths, predict_size_regex
 
@@ -123,6 +126,8 @@ def main():
         #TODO do something special for when diff == 0
         regr = Ridge(alpha=1.0)
         regr.fit(np.reshape(np.log10(diffs_not_none), (-1, 1)), corrects_not_none)
+        svm = make_pipeline(StandardScaler(), SVR(C=1.0, epsilon=0.2))
+        svm.fit(np.reshape(np.log10(diffs_not_none), (-1, 1)), corrects_not_none)
         # x = np.linspace(0, 10000, 1000)
         # plt.savefig('test_svm.png')
 
@@ -131,7 +136,8 @@ def main():
         bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean', bins=np.logspace(minimum_power, maximum_power, 20))
         fig, ax = plt.subplots()
         plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
-        plt.plot(diffs_not_none, regr.predict(np.reshape(np.log10(diffs_not_none), (-1,1))), label='svm prediction')
+        plt.plot(diffs_not_none, regr.predict(np.reshape(np.log10(diffs_not_none), (-1,1))), label='ridge prediction')
+        plt.plot(diffs_not_none, svm.predict(np.reshape(np.log10(diffs_not_none), (-1, 1))), label='svm prediction')
 
         plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors='g', lw=5,
                    label='binned statistic of data')
