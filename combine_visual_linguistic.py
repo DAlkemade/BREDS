@@ -31,6 +31,7 @@ def main():
         linguistic_preds = list(pickle.load(f))
     with open("visual_comparison_predictions_['direct', 'word2vec', 'hypernyms'].pkl", 'rb') as f:
         visual_preds = list(pickle.load(f))
+        logger.info(visual_preds)
     with open("bootstrapping_confidence_model.pkl", 'rb') as f:
         linguistic_conf_model = pickle.load(f)
     with open("visual_confidence_model.pkl", 'rb') as f:
@@ -58,7 +59,7 @@ def main():
             elif pred_visual is None:
                 pred = pred_linguistic
             else:
-                fraction_larger = abs(fraction_larger)
+                fraction_larger = abs(fraction_larger-.5)
                 difference = abs(difference)
                 if difference == 0.:
                     difference = 0.000000000001
