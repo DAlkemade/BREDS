@@ -65,6 +65,8 @@ def main():
 
                 conf_visual = visual_conf_model.predict(np.reshape([fraction_larger], (-1, 1)))[0]
                 conf_linguistic = linguistic_conf_model.predict(np.log10(np.reshape([difference], (-1,1))))[0]
+                if difference > 100:
+                    conf_visual = .93 #TODO get exact value
                 if conf_visual > conf_linguistic:
                     pred = visual_preds[i][0]
                     visual += 1
