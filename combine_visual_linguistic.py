@@ -76,13 +76,13 @@ def main():
 
     results = list()
     results.append(get_result(golds, preds_combine, 'combine'))
-    results.append(get_result(golds, linguistic_preds, 'linguistic'))
-    results.append(get_result(golds, visual_preds, 'visual'))
+    results.append(get_result(golds, [x[0] for x in linguistic_preds], 'linguistic'))
+    results.append(get_result(golds, [x[0] for x in visual_preds], 'visual'))
     logger.info(f'Visual usages: {visual}')
     logger.info(f'Linguistic usages: {linguistic}')
 
     results_df = pd.DataFrame(results)
-    results_df.to_csv('results_bootstrapping_comparison_backoff.csv')
+    results_df.to_csv('combine_results.csv')
 
 
 
