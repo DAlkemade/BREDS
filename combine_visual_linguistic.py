@@ -26,6 +26,7 @@ def main():
     with open("config.yml", "r") as ymlfile:
         cfg = Box(yaml.safe_load(ymlfile))
 
+    # TODO use config for this
     with open("bootstrapping_comparison_predictions_['direct', 'regex', 'median size'].pkl", 'rb') as f:
         linguistic_preds = pickle.load(f)
     with open("visual_comparison_predictions_['direct', 'word2vec', 'hypernyms'].pkl", 'rb') as f:
@@ -35,8 +36,8 @@ def main():
     with open("visual_confidence_model.pkl", 'rb') as f:
         visual_conf_model = pickle.load(f)
 
-    confidences_linguistic = linguistic_conf_model.predict(np.log10(np.reshape([p[1] for p in linguistic_preds], (-1,1))))
-    confidences_visual = visual_conf_model.predict(np.reshape([p[1] for p in linguistic_preds], (-1, 1)))
+    # confidences_linguistic = linguistic_conf_model.predict(np.log10(np.reshape([p[1] for p in linguistic_preds], (-1,1))))
+    # confidences_visual = visual_conf_model.predict(np.reshape([p[1] for p in linguistic_preds], (-1, 1)))
 
     test_pairs, _ = comparison_dev_set(cfg)
     golds = [p.larger for p in test_pairs]
@@ -45,14 +46,24 @@ def main():
     linguistic = 0
     visual = 0
     for i, pair in enumerate(test_pairs):
-        conf_visual = confidences_visual[i]
-        conf_linguistic = confidences_linguistic[i]
-        if conf_visual > conf_linguistic:
-            pred = visual_preds[i][0]
-            visual += 1
+        pred_linguistic, difference = linguistic_preds[i]
+        pred_visual, fraction_larger = visual_preds[i]
+        if pred_linguistic is None and pred_visual is None:
+            pred = None
         else:
-            pred = linguistic_preds[i][0]
-            linguistic += 1
+            if pred_linguistic is None:
+                pred = pred_visual
+            elif pred_visual is None:
+                pred = pred_linguistic
+            else:
+                conf_visual = visual_conf_model.predict(np.reshape([fraction_larger], (-1, 1)))[0]
+                conf_linguistic = linguistic_conf_model.predict(np.log10(np.reshape([difference], (-1,1))))[0]
+                if conf_visual > conf_linguistic:
+                    pred = visual_preds[i][0]
+                    visual += 1
+                else:
+                    pred = linguistic_preds[i][0]
+                    linguistic += 1
         preds_combine.append(pred)
 
 
