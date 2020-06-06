@@ -131,7 +131,7 @@ def main():
         bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean', bins=np.logspace(minimum_power, maximum_power, 20))
         fig, ax = plt.subplots()
         plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
-        plt.plot(diffs_not_none, np.reshape(np.log10(diffs_not_none), (-1,1)), label='svm prediction')
+        plt.plot(diffs_not_none, regr.predict(np.reshape(np.log10(diffs_not_none), (-1,1))), label='svm prediction')
 
         plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors='g', lw=5,
                    label='binned statistic of data')
