@@ -8,6 +8,7 @@ import pandas as pd
 import yaml
 from box import Box
 from learning_sizes_evaluation.evaluate import coverage_accuracy_relational, RelationalResult
+from learning_sizes_evaluation.monte_carlo_permutation_test import permutation_test
 from logging_setup_dla.logging import set_up_root_logger
 
 from breds.breds_inference import comparison_dev_set
@@ -86,6 +87,10 @@ def main():
 
     results_df = pd.DataFrame(results)
     results_df.to_csv('combine_results.csv')
+
+
+    p = permutation_test([x[0] for x in linguistic_preds], preds_combine)
+    logger.info(f'p-value {p} between combine and linguistic')
 
 
 
