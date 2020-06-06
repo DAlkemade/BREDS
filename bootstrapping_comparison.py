@@ -14,6 +14,7 @@ from logging_setup_dla.logging import set_up_root_logger
 from scipy import stats
 from scipy.stats import pearsonr, spearmanr
 from sklearn import svm
+from sklearn.linear_model import Ridge
 from visual_size_comparison.propagation import Pair
 from size_comparisons.scraping.lengths_regex import parse_documents_for_lengths, predict_size_regex
 
@@ -120,7 +121,7 @@ def main():
                 corrects_not_none.append(gold == res)
                 diffs_not_none.append(abs(diff))
         #TODO do something special for when diff == 0
-        regr = svm.SVR(kernel='poly')
+        regr = Ridge(alpha=1.0)
         regr.fit(np.reshape(np.log10(diffs_not_none), (-1, 1)), corrects_not_none)
         # x = np.linspace(0, 10000, 1000)
         # plt.savefig('test_svm.png')
