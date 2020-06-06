@@ -106,10 +106,10 @@ def main():
                 corrects_not_none.append(gold == res)
                 diffs_not_none.append(abs(fraction_larger_centered))
         # TODO do something special for when fraction_larger_centered == 0
-        minimum_power = floor(np.log(min(diffs_not_none)))
-        maximum_power = ceil(np.log(max(diffs_not_none)))
-        bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean',
-                                                                 bins=np.logspace(minimum_power, maximum_power, 20))
+        # minimum_power = floor(np.log(min(diffs_not_none)))
+        # maximum_power = ceil(np.log(max(diffs_not_none)))
+        # bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean',
+        #                                                          bins=np.logspace(minimum_power, maximum_power, 20))
         # fig, ax = plt.subplots()
         # plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
         # plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors='g', lw=5,
@@ -125,13 +125,14 @@ def main():
         with open('visual_confidence_model.pkl', 'wb') as f:
             pickle.dump(regr_linear, f)
 
-        plt.plot(diffs_not_none, regr_linear.predict(np.reshape(diffs_not_none, (-1, 1))), '.',
-                 label='linear ridge regression')
+
 
         fig, ax = plt.subplots()
         bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean',
                                                                  bins=20)
         plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
+        plt.plot(diffs_not_none, regr_linear.predict(np.reshape(diffs_not_none, (-1, 1))), '.',
+                 label='linear ridge regression')
         plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors='g', lw=5,
                    label='binned statistic of data')
         plt.legend()
