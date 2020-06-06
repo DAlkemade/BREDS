@@ -161,7 +161,7 @@ def main():
         logger.info(f'Spearman correlation: {correlation_spearman}')
 
         with open('bootstrapping_confidence_model.pkl', 'wb') as f:
-            pickle.dump(regr_linear, f)
+            pickle.dump(poly_ridge_2, f)
 
 
     results_df = pd.DataFrame(results)

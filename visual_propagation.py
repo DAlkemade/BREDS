@@ -15,6 +15,7 @@ from logging_setup_dla.logging import set_up_root_logger
 from matplotlib import pyplot as plt
 from scipy import stats
 from scipy.stats import pearsonr, spearmanr
+from sklearn.linear_model import Ridge
 from visual_size_comparison.config import VisualConfig
 from visual_size_comparison.propagation import build_cooccurrence_graph, Pair, VisualPropagation
 
@@ -109,16 +110,23 @@ def main():
         maximum_power = ceil(np.log(max(diffs_not_none)))
         bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean',
                                                                  bins=np.logspace(minimum_power, maximum_power, 20))
-        fig, ax = plt.subplots()
-        plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
-        plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors='g', lw=5,
-                   label='binned statistic of data')
-        plt.legend()
-        plt.xlabel('Absolute fraction_larger')
-        plt.ylabel('Selectivity')
-        ax.set_xscale('log')
-        plt.savefig('fraction_larger_selectivity_log.png')
-        plt.show()
+        # fig, ax = plt.subplots()
+        # plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
+        # plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors='g', lw=5,
+        #            label='binned statistic of data')
+        # plt.legend()
+        # plt.xlabel('Absolute fraction_larger')
+        # plt.ylabel('Selectivity')
+        # ax.set_xscale('log')
+        # plt.savefig('fraction_larger_selectivity_log.png')
+        # plt.show()
+        regr_linear = Ridge(alpha=1.0)
+        regr_linear.fit(np.reshape(diffs_not_none, (-1, 1)), corrects_not_none)
+        with open('visual_confidence_model.pkl', 'wb') as f:
+            pickle.dump(regr_linear, f)
+
+        plt.plot(diffs_not_none, regr_linear.predict(np.reshape(diffs_not_none, (-1, 1))), '.',
+                 label='linear ridge regression')
 
         fig, ax = plt.subplots()
         bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean',
