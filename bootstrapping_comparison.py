@@ -130,6 +130,8 @@ def main():
         poly_ridge.fit(np.reshape(np.log10(diffs_not_none), (-1, 1)), corrects_not_none)
         svm = make_pipeline(StandardScaler(), SVR(kernel='poly'))
         svm.fit(np.reshape(np.log10(diffs_not_none), (-1, 1)), corrects_not_none)
+        svm2 = make_pipeline(StandardScaler(), SVR(kernel='poly', C=10))
+        svm2.fit(np.reshape(np.log10(diffs_not_none), (-1, 1)), corrects_not_none)
         # x = np.linspace(0, 10000, 1000)
         # plt.savefig('test_svm.png')
 
@@ -142,6 +144,7 @@ def main():
         plt.plot(diffs_not_none, poly_ridge.predict(np.reshape(np.log10(diffs_not_none), (-1, 1))),
                  label='poly ridge prediction')
         plt.plot(diffs_not_none, svm.predict(np.reshape(np.log10(diffs_not_none), (-1, 1))), label='svm prediction')
+        plt.plot(diffs_not_none, svm2.predict(np.reshape(np.log10(diffs_not_none), (-1, 1))), label='svm 2 prediction')
 
         plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors='g', lw=5,
                    label='binned statistic of data')
