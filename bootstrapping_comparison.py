@@ -143,7 +143,7 @@ def main():
         regr.fit(np.reshape(np.log10(diffs_not_none), (-1,1)), corrects_not_none)
         plt.subplots()
         x = np.linspace(0,10000,1000)
-        plt.plot(x, np.log(regr.predict(x.reshape(-1,1))))
+        plt.plot(x, np.log10(regr.predict(x.reshape(-1,1))))
         plt.savefig('test_svm.png')
 
     results_df = pd.DataFrame(results)
