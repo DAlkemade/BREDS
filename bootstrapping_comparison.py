@@ -124,12 +124,12 @@ def main():
                 corrects_not_none.append(gold == res)
                 diffs_not_none.append(abs(diff))
         #TODO do something special for when diff == 0
-        regr = Ridge(alpha=1.0)
-        regr.fit(np.reshape(np.log10(diffs_not_none), (-1, 1)), corrects_not_none)
-        poly_ridge = make_pipeline(PolynomialFeatures(2), Ridge())
-        poly_ridge.fit(np.reshape(np.log10(diffs_not_none), (-1, 1)), corrects_not_none)
-        poly_high_ridge = make_pipeline(PolynomialFeatures(5), Ridge())
-        poly_high_ridge.fit(np.reshape(np.log10(diffs_not_none), (-1, 1)), corrects_not_none)
+        regr_linear = Ridge(alpha=1.0)
+        regr_linear.fit(np.reshape(np.log10(diffs_not_none), (-1, 1)), corrects_not_none)
+        poly_ridge_2 = make_pipeline(PolynomialFeatures(2), Ridge())
+        poly_ridge_2.fit(np.reshape(np.log10(diffs_not_none), (-1, 1)), corrects_not_none)
+        poly_ridge_3 = make_pipeline(PolynomialFeatures(5), Ridge())
+        poly_ridge_3.fit(np.reshape(np.log10(diffs_not_none), (-1, 1)), corrects_not_none)
 
         # x = np.linspace(0, 10000, 1000)
         # plt.savefig('test_svm.png')
@@ -139,11 +139,11 @@ def main():
         bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean', bins=np.logspace(minimum_power, maximum_power, 20))
         fig, ax = plt.subplots()
         plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
-        plt.plot(diffs_not_none, regr.predict(np.reshape(np.log10(diffs_not_none), (-1,1))), '.', label='linear ridge prediction')
-        plt.plot(diffs_not_none, poly_ridge.predict(np.reshape(np.log10(diffs_not_none), (-1, 1))), '.',
-                 label='poly ridge prediction')
-        plt.plot(diffs_not_none, poly_high_ridge.predict(np.reshape(np.log10(diffs_not_none), (-1, 1))), '.',
-                 label='poly high ridge prediction')
+        plt.plot(diffs_not_none, regr_linear.predict(np.reshape(np.log10(diffs_not_none), (-1,1))), '.', label='ridge regression (degree=1)')
+        plt.plot(diffs_not_none, poly_ridge_2.predict(np.reshape(np.log10(diffs_not_none), (-1, 1))), '.',
+                 label='ridge regression (degree=2)')
+        plt.plot(diffs_not_none, poly_ridge_3.predict(np.reshape(np.log10(diffs_not_none), (-1, 1))), '.',
+                 label='ridge regression (degree=3)')
 
         plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors='g', lw=5,
                    label='binned statistic of data')
@@ -160,7 +160,8 @@ def main():
         correlation_spearman, _ = spearmanr(np.array(diffs_not_none), b=np.array(corrects_not_none))
         logger.info(f'Spearman correlation: {correlation_spearman}')
 
-
+        with open('bootstrapping_confidence_model.pkl', 'wb') as f:
+            pickle.dump(regr_linear, f)
 
 
     results_df = pd.DataFrame(results)
