@@ -48,13 +48,6 @@ def main():
     for i, pair in enumerate(test_pairs):
         pred_linguistic, difference = linguistic_preds[i]
         pred_visual, fraction_larger = visual_preds[i]
-
-        if fraction_larger is None:  # if was exactly 0, it will be None
-            logger.warning(f'fraction larger is None for {pair.e1}')
-            fraction_larger = .000000001
-        if difference is None:
-            logger.warning(f'difference is None for {pair.e1}')
-            difference = 0.0000000000001
         fraction_larger = abs(fraction_larger)
         difference = abs(difference)
 
@@ -66,6 +59,9 @@ def main():
             elif pred_visual is None:
                 pred = pred_linguistic
             else:
+                if difference == 0.:
+                    difference = 0.000000000001
+
                 conf_visual = visual_conf_model.predict(np.reshape([fraction_larger], (-1, 1)))[0]
                 conf_linguistic = linguistic_conf_model.predict(np.log10(np.reshape([difference], (-1,1))))[0]
                 if conf_visual > conf_linguistic:
