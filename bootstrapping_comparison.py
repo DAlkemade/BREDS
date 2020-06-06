@@ -1,5 +1,6 @@
 import logging
 import os
+import pickle
 from datetime import datetime
 from math import floor, ceil
 from typing import List
@@ -12,6 +13,7 @@ from learning_sizes_evaluation.evaluate import coverage_accuracy_relational, Rel
 from logging_setup_dla.logging import set_up_root_logger
 from scipy import stats
 from scipy.stats import pearsonr, spearmanr
+from sklearn import svm
 from visual_size_comparison.propagation import Pair
 from size_comparisons.scraping.lengths_regex import parse_documents_for_lengths, predict_size_regex
 
@@ -97,6 +99,8 @@ def main():
             diffs.append(diff)
             preds.append(res)
 
+        with open(f'bootstrapping_comparison_predictions_{setting.print()}.pkl', 'wb') as f:
+            pickle.dump(zip(preds, diffs), f)
 
         logger.info(f'Total number of test cases: {len(golds)}')
         coverage, selectivity = coverage_accuracy_relational(golds, preds)
@@ -135,6 +139,12 @@ def main():
         logger.info(f'Spearman correlation: {correlation_spearman}')
 
 
+        regr = svm.SVR()
+        regr.fit(diffs_not_none, corrects_not_none)
+        plt.subplots()
+        x = np.linspace(0,10000,1000)
+        plt.plot(x, regr.predict(x))
+        plt.savefig('test_svm.png')
 
     results_df = pd.DataFrame(results)
     results_df.to_csv('results_bootstrapping_comparison_backoff.csv')

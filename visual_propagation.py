@@ -1,5 +1,6 @@
 import logging
 import os
+import pickle
 from datetime import datetime
 from math import floor, ceil
 from typing import List
@@ -46,12 +47,12 @@ def main():
     # calc coverage and precision
     results = list()
     settings: List[BackoffSettings] = [
-        BackoffSettings(use_direct=True),
-        BackoffSettings(use_word2vec=True),
-        BackoffSettings(use_hypernyms=True),
-        BackoffSettings(use_hyponyms=True),
-        BackoffSettings(use_head_noun=True),
-        BackoffSettings(use_direct=True, use_word2vec=True),
+        # BackoffSettings(use_direct=True),
+        # BackoffSettings(use_word2vec=True),
+        # BackoffSettings(use_hypernyms=True),
+        # BackoffSettings(use_hyponyms=True),
+        # BackoffSettings(use_head_noun=True),
+        # BackoffSettings(use_direct=True, use_word2vec=True),
         BackoffSettings(use_direct=True, use_word2vec=True, use_hypernyms=True),
         # BackoffSettings(use_direct=True, use_hypernyms=True),
         # BackoffSettings(use_direct=True, use_hyponyms=True),
@@ -73,6 +74,9 @@ def main():
             res_visual, fraction_larger = compare_visual_with_backoff(objects, prop, setting, similar_words, test_pair)
             fractions_larger.append(fraction_larger)
             preds.append(res_visual)
+
+        with open(f'visual_comparison_predictions_{setting.print()}.pkl', 'wb') as f:
+            pickle.dump(zip(preds, fractions_larger), f)
 
         useful_counts = prop.useful_path_counts
         plt.hist(useful_counts, bins=1000)
