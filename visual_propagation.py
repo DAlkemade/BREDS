@@ -77,7 +77,7 @@ def main():
             preds.append(res_visual)
 
         with open(f'visual_comparison_predictions_{setting.print()}.pkl', 'wb') as f:
-            pickle.dump(zip(preds, fractions_larger), f)
+            pickle.dump(list(zip(preds, fractions_larger)), f)
 
         useful_counts = prop.useful_path_counts
         plt.hist(useful_counts, bins=1000)

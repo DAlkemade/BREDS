@@ -104,7 +104,7 @@ def main():
             preds.append(res)
 
         with open(f'bootstrapping_comparison_predictions_{setting.print()}.pkl', 'wb') as f:
-            pickle.dump(zip(preds, diffs), f)
+            pickle.dump(list(zip(preds, diffs)), f)
 
         logger.info(f'Total number of test cases: {len(golds)}')
         coverage, selectivity = coverage_accuracy_relational(golds, preds)
