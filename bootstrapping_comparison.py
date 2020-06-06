@@ -126,9 +126,9 @@ def main():
         #TODO do something special for when diff == 0
         regr = Ridge(alpha=1.0)
         regr.fit(np.reshape(np.log10(diffs_not_none), (-1, 1)), corrects_not_none)
-        poly_ridge = make_pipeline(PolynomialFeatures(5), Ridge())
+        poly_ridge = make_pipeline(PolynomialFeatures(2), Ridge())
         poly_ridge.fit(np.reshape(np.log10(diffs_not_none), (-1, 1)), corrects_not_none)
-        svm = make_pipeline(StandardScaler(), SVR(C=1.0, epsilon=0.2, kernel='poly'))
+        svm = make_pipeline(StandardScaler(), SVR(kernel='poly'))
         svm.fit(np.reshape(np.log10(diffs_not_none), (-1, 1)), corrects_not_none)
         # x = np.linspace(0, 10000, 1000)
         # plt.savefig('test_svm.png')
