@@ -108,6 +108,8 @@ def main():
         logger.info(f'selectivity: {selectivity}')
 
         results.append(RelationalResult(setting.print(), selectivity, coverage))
+
+
         assert len(diffs) == len(preds)
         corrects_not_none = list()
         diffs_not_none = list()
@@ -118,11 +120,18 @@ def main():
                 corrects_not_none.append(gold == res)
                 diffs_not_none.append(abs(diff))
         #TODO do something special for when diff == 0
+        regr = svm.SVR(kernel='poly')
+        regr.fit(np.reshape(np.log10(diffs_not_none), (-1, 1)), corrects_not_none)
+        # x = np.linspace(0, 10000, 1000)
+        # plt.savefig('test_svm.png')
+
         minimum_power = floor(np.log(min(diffs_not_none)))
         maximum_power = ceil(np.log(max(diffs_not_none)))
         bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean', bins=np.logspace(minimum_power, maximum_power, 20))
         fig, ax = plt.subplots()
         plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
+        plt.plot(diffs_not_none, np.reshape(np.log10(diffs_not_none), (-1,1)), label='svm prediction')
+
         plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors='g', lw=5,
                    label='binned statistic of data')
         plt.legend()
@@ -139,12 +148,7 @@ def main():
         logger.info(f'Spearman correlation: {correlation_spearman}')
 
 
-        regr = svm.SVR(kernel='poly')
-        regr.fit(np.reshape(np.log10(diffs_not_none), (-1,1)), corrects_not_none)
-        plt.subplots()
-        x = np.linspace(0,10000,1000)
-        plt.plot(x, np.log10(regr.predict(x.reshape(-1,1))))
-        plt.savefig('test_svm.png')
+
 
     results_df = pd.DataFrame(results)
     results_df.to_csv('results_bootstrapping_comparison_backoff.csv')
