@@ -80,8 +80,8 @@ def main():
         if setting.use_word2vec:
             word2vec_needed = True
     all_sizes = get_all_sizes_bootstrapping(cache_fname, cfg, input_fname, patterns, unseen_objects, use_word2vec=word2vec_needed)
-    logger.info(f'all_sizes: {all_sizes}')
 
+    logger.info('Start regex')
     htmls_lookup = scrape_htmls(cfg.path.htmls_cache, unseen_objects)
     sizes_regex, _ = parse_documents_for_lengths(unseen_objects, htmls_lookup)
     regex_predictions = dict()
