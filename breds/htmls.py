@@ -17,4 +17,5 @@ def scrape_htmls(html_fname: str, names: list):
 
     loop = asyncio.get_event_loop()
     htmls_lookup = html_scraper.create_or_update_urls_html(html_fname, names, urls, loop)
+    loop.close()
     return htmls_lookup
