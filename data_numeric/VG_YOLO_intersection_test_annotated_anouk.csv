@@ -1,0 +1,112 @@
+object,min,max
+rotor blade,0.1,170
+life preserver,0.4,0.6
+cathedral,75,160
+brickwork,0.3,4
+gear,0.01,25
+denim,0.5,1
+surge suppressor,0.1,0.5
+pants suit,1.4,1.8
+villager,1.5,2
+rabbi,1.5,1.9
+base,60,200
+grandfather,1.5,1.8
+baguet,0.25,0.5
+clock tower,2,43
+singer,1.5,2
+timepiece,0.03,0.06
+lapel,0.06,0.12
+pea jacket,0.75,0.9
+cuckoo clock,0.2,0.8
+vanilla,0.06,0.09
+towel rail,0.2,0.8
+combatant,1.5,1.9
+tea urn,0.3,0.6
+crab,0.03,0.3
+architecture,3,800
+guava,0.04,0.12
+mosquito net,1.2,3
+four-wheeler,2,2.3
+theodolite,0.3,1.7
+vacuum,0.4,1.4
+tom,0.2,0.5
+moth,0.005,0.05
+crutch,0.8,1
+potato,0.02,0.1
+shepherd dog,0.5,0.7
+candelabrum,0.1,0.7
+cornice,2,6
+snowmobile,2,3.2
+pickup,4,6
+paintbrush,0.08,0.15
+catsup,0.1,0.2
+ski binding,0.07,0.15
+rudder,0.3,5
+container,2,13
+camera lens,0.02,0.3
+wiring,0.002,0.1
+cruise ship,50,361
+petunia,0.08,0.2
+batting cage,11,22
+piano,1.3,2.9
+cashew,0.01,0.02
+necklace,0.2,0.4
+dinner bell,0.04,0.07
+manta,5,7
+vertical stabilizer,2,11
+hen,0.2,0.5
+boater,0.65,0.9
+toga,3.7,6.1
+nest,0.1,1
+covering,0.1,5
+shark,0.3,18
+hovel,2,8
+telephone,0.08,0.21
+bell,0.03,0.08
+motel,3.4,12
+sister,1.5,1.9
+soap dish,0.02,0.1
+dogwood,2.5,8
+segway,1.1,1.6
+anchor chain,0.05,10
+plastic bag,0.2,0.9
+branchlet,0.03,1
+wagon wheel,0.7,1.5
+corgi,0.2,0.35
+pine,0.04,0.12
+whiskey,0.1,0.3
+hot plate,0.15,0.3
+dormer window,1,6
+oil lamp,0.1,0.4
+piggy bank,0.05,0.15
+honeypot,0.08,0.12
+carport,3.5,18
+lady,1.5,1.8
+ice-cream sundae,0.9,0.15
+chip,0.003,0.03
+highway,1000,48000000
+slingback,0.18,0.3
+greens,0.05,0.4
+barge,50,100
+matador,5,6
+mask,0.08,0.2
+parrot,0.1,0.4
+snow,0.001,0.01
+orchid,0.08,0.5
+hillside,27,305
+wand,0.2,0.4
+eraser,0.03,0.07
+brassiere,0.6,0.9
+blacktop,2,48000000
+thread,0.01,100
+backboard,1.6,2
+earmuff,0.15,0.6
+porcelain,0.02,1.5
+toilet water,2,10
+portuguese man-of-war,1.5,1.8
+carrot juice,0.1,0.25
+champagne,0.15,0.6
+jello,0.05,0.11
+spice,0.08,0.13
+arranger,1.5,1.8
+airdock,,360
