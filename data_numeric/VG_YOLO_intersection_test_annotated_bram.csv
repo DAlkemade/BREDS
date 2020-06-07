@@ -38,7 +38,7 @@ candelabrum,0.3,1.5
 cornice,0.05,0.20
 snowmobile,2,4
 pickup,3,7
-paintbrush,10,25
+paintbrush,0.1,0.2
 catsup,0.15,0.35
 ski binding,0.20,0.40
 rudder,0.4,1.5
@@ -92,7 +92,7 @@ matador,1.6,2.2
 mask,0.15,0.35
 parrot,0.15,0.5
 snow,0.1,1000000
-orchid,3,7
+orchid,0.2,0.5
 hillside,15,100
 wand,2,5
 eraser,0.03,0.10
