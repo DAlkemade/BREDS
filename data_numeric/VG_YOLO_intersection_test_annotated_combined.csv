@@ -1,0 +1,109 @@
+object,min,max
+rotor blade,0.1,170.0
+life preserver,0.4,1.5
+cathedral,25.0,200.0
+brickwork,0.15,4.0
+gear,0.01,25.0
+denim,0.1,3.0
+surge suppressor,0.1,0.5
+pants suit,0.5,1.8
+villager,1.0,2.4
+rabbi,1.4,2.4
+base,2.0,500.0
+grandfather,1.3,2.0
+baguet,0.25,0.7
+clock tower,2.0,50.0
+singer,1.5,2.3
+timepiece,0.03,0.1
+lapel,0.06,0.8
+pea jacket,0.75,1.5
+cuckoo clock,0.15,1.0
+vanilla,0.01,2.0
+towel rail,0.2,2.0
+combatant,1.5,2.3
+tea urn,0.3,0.8
+crab,0.03,0.8
+guava,0.03,0.15
+mosquito net,1.2,10.0
+four-wheeler,1.5,7.0
+theodolite,0.3,1.7
+vacuum,0.4,1.4
+tom,0.2,2.3
+moth,0.005,0.1
+crutch,0.8,1.5
+potato,0.02,0.2
+shepherd dog,0.5,1.5
+candelabrum,0.1,1.5
+cornice,0.05,6.0
+snowmobile,2.0,4.0
+pickup,3.0,7.0
+paintbrush,0.08,0.2
+catsup,0.1,0.35
+ski binding,0.07,0.4
+rudder,0.3,5.0
+container,2.0,13.0
+camera lens,0.01,0.3
+wiring,0.002,15.0
+cruise ship,50.0,400.0
+petunia,0.08,0.35
+batting cage,3.0,22.0
+piano,1.3,2.9
+cashew,0.01,0.05
+necklace,0.2,0.6
+dinner bell,0.04,0.3
+manta,1.5,7.0
+vertical stabilizer,2.0,11.0
+hen,0.2,0.8
+boater,0.25,0.9
+toga,1.5,6.1
+nest,0.1,1.0
+covering,0.1,5.0
+shark,0.3,18.0
+hovel,2.0,25.0
+telephone,0.08,0.25
+bell,0.03,0.15
+motel,3.4,200.0
+sister,1.5,2.0
+soap dish,0.02,0.2
+dogwood,0.15,8.0
+segway,1.1,1.6
+anchor chain,0.05,200.0
+plastic bag,0.2,0.9
+branchlet,0.03,1.0
+wagon wheel,0.5,1.5
+corgi,0.2,0.5
+pine,0.04,10.0
+whiskey,0.1,0.5
+hot plate,0.15,0.45
+dormer window,0.5,6.0
+oil lamp,0.1,0.5
+piggy bank,0.05,0.3
+honeypot,0.08,0.2
+carport,3.0,18.0
+lady,1.5,2.0
+ice-cream sundae,0.08,0.15
+chip,0.003,0.1
+highway,1000.0,48000000.0
+slingback,0.18,3.0
+greens,0.05,2.0
+barge,2.0,100.0
+matador,1.6,6.0
+mask,0.08,0.35
+parrot,0.1,0.5
+orchid,0.08,0.5
+hillside,15.0,305.0
+wand,0.2,5.0
+eraser,0.03,0.1
+brassiere,0.2,0.9
+blacktop,1.0,48000000.0
+thread,0.01,100.0
+backboard,1.5,6.0
+earmuff,0.15,0.6
+porcelain,0.02,1.5
+portuguese man-of-war,1.5,70.0
+carrot juice,0.1,0.3
+champagne,0.15,0.7
+jello,0.05,0.2
+spice,0.05,0.5
+arranger,0.15,1.8
+airdock,,360.0
