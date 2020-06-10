@@ -142,15 +142,15 @@ def main():
         fig, ax = plt.subplots()
         # plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
         X = np.reshape(np.log10(diffs_not_none), (-1,1))
-        plt.plot(diffs_not_none, regr_linear.predict(X), '.', label='ridge regression (degree=1)')
-        plt.plot(diffs_not_none, poly_ridge_2.predict(X), '.',
+        plt.plot(diffs_not_none, regr_linear.predict(X), '-', label='ridge regression (degree=1)')
+        plt.plot(diffs_not_none, poly_ridge_2.predict(X), '-',
                  label='ridge regression (degree=2)')
-        plt.plot(diffs_not_none, poly_ridge_3.predict(X), '.',
+        plt.plot(diffs_not_none, poly_ridge_3.predict(X), '-',
                  label='ridge regression (degree=3)')
 
-        norm = colors.Normalize(vmin=0., vmax=max(bin_counts))
+        norm = colors.LogNorm(min(bin_counts), vmax=max(bin_counts))
         bin_counts_normalized = [norm(c) for c in bin_counts]
-        viridis = cm.get_cmap('viridis', 20)
+        viridis = cm.get_cmap('greys', 20)
         cls = [viridis(c) for c in bin_counts_normalized]
         plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors=cls, lw=5,
                    label='binned statistic of data')
@@ -158,6 +158,7 @@ def main():
         plt.xlabel('Absolute difference in size')
         plt.ylabel('Selectivity')
         ax.set_xscale('log')
+        plt.colorbar()
         plt.savefig('differences.png')
         plt.show()
 
