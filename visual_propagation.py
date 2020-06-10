@@ -139,6 +139,7 @@ def main():
         sm = plt.cm.ScalarMappable(cmap=viridis, norm=norm)
         colorbar = plt.colorbar(sm)
         colorbar.set_label('bin count')
+        plt.ylim(-0.05, 1.05)
         plt.legend()
         plt.xlabel('Absolute fraction_larger')
         plt.ylabel('Selectivity')
