@@ -11,7 +11,7 @@ import yaml
 from box import Box
 from learning_sizes_evaluation.evaluate import coverage_accuracy_relational, RelationalResult
 from logging_setup_dla.logging import set_up_root_logger
-from matplotlib import pyplot as plt, colors, cm
+from matplotlib import pyplot as plt, colors, cm, ticker
 from matplotlib.scale import SymmetricalLogTransform
 from scipy import stats
 from scipy.stats import pearsonr, spearmanr
@@ -140,6 +140,9 @@ def main():
                    label='binned statistic of data')
         sm = plt.cm.ScalarMappable(cmap=viridis, norm=norm)
         colorbar = plt.colorbar(sm)
+        tick_locator = ticker.MaxNLocator(nbins=3)
+        colorbar.locator = tick_locator
+        colorbar.update_ticks()
         colorbar.set_label('bin count')
         plt.ylim(-0.05, 1.05)
         plt.legend()
