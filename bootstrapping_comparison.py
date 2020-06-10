@@ -169,10 +169,10 @@ def main():
         logger.info(f'bin means ({len(bin_means)}); {bin_means}')
         logger.info(f'bin counts ({len(bin_counts)}); {bin_counts}')
         logger.info(f'bin_counts_normalized ({len(bin_counts_normalized)}); {bin_counts_normalized}')
-        mask = np.array(bin_means) != np.nan
+        mask = ~np.isnan(bin_means)
         logger.info(f'type: {type(bin_means[0])}')
         logger.info(f'filtered: {np.extract(mask, bin_means)}')
-        plt.hlines(np.extract(mask, bin_means), np.extract(mask, mins), np.extract(mask, maxs), colors=np.extract(mask, viridis(bin_counts_normalized)), lw=5,
+        plt.hlines(np.extract(mask, bin_means), np.extract(mask, mins), np.extract(mask, maxs), colors=viridis(np.extract(mask, bin_counts_normalized)), lw=5,
                    label='binned statistic of data')
         # plt.legend()
         plt.xlabel('Absolute difference in size')
