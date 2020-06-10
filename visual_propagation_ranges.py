@@ -128,7 +128,7 @@ def main():
         for numeric_seed in tqdm.tqdm(numeric_seeds.keys()):
             pair = Pair(unseen_object, numeric_seed)
             if pair.both_in_list(objects):
-                fraction_larger = prop.compare_pair(pair)
+                fraction_larger, _ = prop.compare_pair(pair)
                 if fraction_larger is None:
                     none_count += 1
                     continue

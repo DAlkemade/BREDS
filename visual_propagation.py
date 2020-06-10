@@ -48,7 +48,7 @@ def main():
     # calc coverage and precision
     results = list()
     settings: List[BackoffSettings] = [
-        # BackoffSettings(use_direct=True),
+        BackoffSettings(use_direct=True),
         # BackoffSettings(use_word2vec=True),
         # BackoffSettings(use_hypernyms=True),
         # BackoffSettings(use_hyponyms=True),
@@ -65,28 +65,27 @@ def main():
     for setting in settings:
         preds = list()
         fractions_larger = list()
-        not_recognized_count = 0
 
         prop = VisualPropagation(G, config.visual_config)
         logger.info(f'\nRunning for setting {setting.print()}')
-
+        comparer = Comparer(prop, setting, similar_words, objects)
         for test_pair in tqdm.tqdm(test_pairs):
             #TODO return confidence; use the higher one
-            res_visual, fraction_larger = compare_visual_with_backoff(objects, prop, setting, similar_words, test_pair)
+            res_visual, fraction_larger = comparer.compare_visual_with_backoff(test_pair)
             fractions_larger.append(fraction_larger)
             preds.append(res_visual)
 
         with open(f'visual_comparison_predictions_{setting.print()}.pkl', 'wb') as f:
             pickle.dump(list(zip(preds, fractions_larger)), f)
 
-        useful_counts = prop.useful_path_counts
+        useful_counts = comparer.useful_paths_count
         plt.hist(useful_counts, bins=1000)
         plt.xlabel('Number of useful paths')
-        plt.savefig('useful_paths.png')
+        plt.savefig(f'useful_paths{setting}.png')
 
         useful_counts = np.array(useful_counts)
         logger.info(f'Number of objects with no useful path: {len(np.extract(useful_counts == 0, useful_counts))}')
-        logger.info(f'Not recog count: {not_recognized_count}')
+        logger.info(f'Not recog count: {comparer.not_recognized_count}')
 
         logger.info(f'Total number of test cases: {len(golds)}')
         coverage, selectivity = coverage_accuracy_relational(golds, preds)
@@ -152,29 +151,43 @@ def main():
     results_df = pd.DataFrame(results)
     results_df.to_csv('results_visual_backoff.csv')
 
+class Comparer:
+    def __init__(self, prop: VisualPropagation, setting: BackoffSettings, similar_words: dict, objects):
 
-def compare_visual_with_backoff(objects, prop, setting, similar_words, test_pair) -> (bool, float):
-    object1 = test_pair.e1.replace('_', ' ')
-    object2 = test_pair.e2.replace('_', ' ')
-    # TODO implement backoff mechanism
-    recognizable_objects1 = fill_objects_list(object1, setting, objects, similar_words)
-    recognizable_objects2 = fill_objects_list(object2, setting, objects, similar_words)
-    comparisons = list()
-    for o1 in recognizable_objects1:
-        for o2 in recognizable_objects2:
-            fraction_larger = prop.compare_pair(Pair(o1, o2))
-            if fraction_larger is not None:
-                comparisons.append(fraction_larger)
-            logger.debug(f'{o1} {o2} fraction larger: {fraction_larger}')
-    if len(comparisons) > 0:
-        # larger_results = [c > .5 for c in comparisons]
-        # fraction_larger_mean = np.mean(larger_results)
-        fraction_larger_mean = np.mean(comparisons)
-        res = fraction_larger_mean > .5
-    else:
-        res = None
-        fraction_larger_mean = None
-    return res, fraction_larger_mean
+        self.objects = objects
+        self.similar_words = similar_words
+        self.setting = setting
+        self.prop = prop
+        self.useful_paths_count = []
+        self.not_recognized_count = []
+
+    def compare_visual_with_backoff(self, test_pair) -> (bool, float):
+        object1 = test_pair.e1.replace('_', ' ')
+        object2 = test_pair.e2.replace('_', ' ')
+        # TODO implement backoff mechanism
+        recognizable_objects1 = fill_objects_list(object1, self.setting, self.objects, self.similar_words)
+        recognizable_objects2 = fill_objects_list(object2, self.setting, self.objects, self.similar_words)
+        comparisons = list()
+        path_count_total = 0
+        if len(recognizable_objects1) == 0 or len(recognizable_objects2) == 0:
+            self.not_recognized_count += 1
+        for o1 in recognizable_objects1:
+            for o2 in recognizable_objects2:
+                fraction_larger, path_count = self.prop.compare_pair(Pair(o1, o2))
+                path_count_total += path_count
+                if fraction_larger is not None:
+                    comparisons.append(fraction_larger)
+                logger.debug(f'{o1} {o2} fraction larger: {fraction_larger}')
+        self.useful_paths_count.append(path_count_total)
+        if len(comparisons) > 0:
+            # larger_results = [c > .5 for c in comparisons]
+            # fraction_larger_mean = np.mean(larger_results)
+            fraction_larger_mean = np.mean(comparisons)
+            res = fraction_larger_mean > .5
+        else:
+            res = None
+            fraction_larger_mean = None
+        return res, fraction_larger_mean
 
 
 def check_if_in_vg(word_list, vg_objects):
