@@ -13,6 +13,7 @@ from box import Box
 from learning_sizes_evaluation.evaluate import coverage_accuracy_relational, RelationalResult
 from logging_setup_dla.logging import set_up_root_logger
 from matplotlib import pyplot as plt
+from matplotlib.scale import SymmetricalLogTransform
 from scipy import stats
 from scipy.stats import pearsonr, spearmanr
 from sklearn.linear_model import Ridge
@@ -79,8 +80,13 @@ def main():
             pickle.dump(list(zip(preds, fractions_larger)), f)
 
         useful_counts = comparer.useful_paths_count
-        plt.hist(useful_counts, bins=1000)
+        tr = SymmetricalLogTransform(base=10, linthresh=1, linscale=1)
+        ss = tr.transform([0., max(useful_counts) + 1])
+        bins = tr.inverted().transform(np.linspace(*ss, num=100))
+        fig, ax = plt.subplots()
+        plt.hist(useful_counts, bins=bins)
         plt.xlabel('Number of useful paths')
+        ax.set_xscale('symlog')
         plt.savefig(f'useful_paths{setting.print()}.png')
 
         useful_counts = np.array(useful_counts)
