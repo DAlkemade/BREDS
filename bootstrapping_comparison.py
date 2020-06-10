@@ -177,6 +177,7 @@ def main():
         # plt.legend()
         plt.xlabel('Absolute difference in size')
         plt.ylabel('Selectivity')
+        plt.ylim(0,1)
         ax.set_xscale('log')
         sm = plt.cm.ScalarMappable(cmap=viridis, norm=norm)
         plt.colorbar(sm)
