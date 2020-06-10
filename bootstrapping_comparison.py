@@ -25,7 +25,7 @@ from breds.breds_inference import BackoffSettings, comparison_dev_set, get_all_s
     load_patterns, predict_size, calc_median
 from breds.htmls import scrape_htmls
 import numpy as np
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt, cm, colors
 
 set_up_root_logger(f'INFERENCE_VISUAL_{datetime.now().strftime("%d%m%Y%H%M%S")}', os.path.join(os.getcwd(), 'logs'))
 logger = logging.getLogger(__name__)
@@ -136,18 +136,25 @@ def main():
 
         minimum_power = floor(np.log(min(diffs_not_none)))
         maximum_power = ceil(np.log(max(diffs_not_none)))
-        bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean', bins=np.logspace(minimum_power, maximum_power, 20))
+        bins = np.logspace(minimum_power, maximum_power, 20)
+        bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean', bins=bins)
+        bin_counts, _, _ = stats.binned_statistic(diffs_not_none, corrects_not_none, 'count', bins=bins)
         fig, ax = plt.subplots()
-        plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
-        plt.plot(diffs_not_none, regr_linear.predict(np.reshape(np.log10(diffs_not_none), (-1,1))), '.', label='ridge regression (degree=1)')
-        plt.plot(diffs_not_none, poly_ridge_2.predict(np.reshape(np.log10(diffs_not_none), (-1, 1))), '.',
+        # plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
+        X = np.reshape(np.log10(diffs_not_none), (-1,1))
+        plt.plot(diffs_not_none, regr_linear.predict(X), '.', label='ridge regression (degree=1)')
+        plt.plot(diffs_not_none, poly_ridge_2.predict(X), '.',
                  label='ridge regression (degree=2)')
-        plt.plot(diffs_not_none, poly_ridge_3.predict(np.reshape(np.log10(diffs_not_none), (-1, 1))), '.',
+        plt.plot(diffs_not_none, poly_ridge_3.predict(X), '.',
                  label='ridge regression (degree=3)')
 
-        plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors='g', lw=5,
+        norm = colors.Normalize(vmin=0., vmax=max(bin_counts))
+        bin_counts_normalized = [norm(c) for c in bin_counts]
+        viridis = cm.get_cmap('viridis', 20)
+        cls = [viridis(c) for c in bin_counts_normalized]
+        plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors=cls, lw=5,
                    label='binned statistic of data')
-        plt.legend()
+        # plt.legend()
         plt.xlabel('Absolute difference in size')
         plt.ylabel('Selectivity')
         ax.set_xscale('log')
