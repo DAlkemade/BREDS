@@ -124,10 +124,12 @@ def main():
         x = np.linspace(min(diffs_not_none), max(diffs_not_none), 500)
         X = np.reshape(x, (-1, 1))
         plt.plot(x, regr_linear.predict(X), '-', label='linear ridge regression')
+
         minc = min(bin_counts)
         maxc = max(bin_counts)
-        norm = colors.Normalize(vmin=minc, vmax=maxc)
+        norm = colors.SymLogNorm(vmin=minc, vmax=maxc, linthresh=1)
         bin_counts_normalized = [norm(c) for c in bin_counts]
+        logger.info(f'counts, norm: {list(zip(bin_counts, bin_counts_normalized))}')
         viridis = cm.get_cmap('viridis', 20)
 
         mins = bin_edges[:-1]
