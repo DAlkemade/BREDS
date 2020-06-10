@@ -148,7 +148,10 @@ def main():
         plt.plot(diffs_not_none, poly_ridge_3.predict(X), '-',
                  label='ridge regression (degree=3)')
 
-        norm = colors.LogNorm(min(bin_counts), vmax=max(bin_counts))
+        minc = min(bin_counts)
+        maxc = max(bin_counts)
+        logger.info(f'min: {minc} {maxc}')
+        norm = colors.SymLogNorm(vmin=minc, vmax=maxc, linthresh=1)
         bin_counts_normalized = [norm(c) for c in bin_counts]
         viridis = cm.get_cmap('greys', 20)
         cls = [viridis(c) for c in bin_counts_normalized]
