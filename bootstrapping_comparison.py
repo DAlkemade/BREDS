@@ -153,7 +153,7 @@ def main():
         logger.info(f'min: {minc} {maxc}')
         norm = colors.SymLogNorm(vmin=minc, vmax=maxc, linthresh=1)
         bin_counts_normalized = [norm(c) for c in bin_counts]
-        viridis = cm.get_cmap('greys', 20)
+        viridis = cm.get_cmap('viridis', 20)
         cls = [viridis(c) for c in bin_counts_normalized]
         plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors=cls, lw=5,
                    label='binned statistic of data')
