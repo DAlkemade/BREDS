@@ -125,7 +125,6 @@ def main():
                 diffs_not_none.append(abs(diff))
         #TODO do something special for when diff == 0
 
-        corrects_not_none, diffs_not_none = zip(*sorted(zip(corrects_not_none, diffs_not_none)))
         regr_linear = Ridge(alpha=1.0)
         regr_linear.fit(np.reshape(np.log10(diffs_not_none), (-1, 1)), corrects_not_none)
         poly_ridge_2 = make_pipeline(PolynomialFeatures(2), Ridge())
@@ -144,11 +143,11 @@ def main():
         logger.info(list(zip(bin_means, bin_counts)))
         fig, ax = plt.subplots()
         # plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
-        X = np.reshape(np.log10(diffs_not_none), (-1,1))
-        plt.plot(diffs_not_none, regr_linear.predict(X), '-', label='ridge regression (degree=1)')
-        plt.plot(diffs_not_none, poly_ridge_2.predict(X), '-',
+        X = np.reshape(np.log10(np.linspace(min(diffs_not_none), max(diffs_not_none))), (-1,1))
+        plt.plot(X, regr_linear.predict(X), '-', label='ridge regression (degree=1)')
+        plt.plot(X, poly_ridge_2.predict(X), '-',
                  label='ridge regression (degree=2)')
-        plt.plot(diffs_not_none, poly_ridge_3.predict(X), '-',
+        plt.plot(X, poly_ridge_3.predict(X), '-',
                  label='ridge regression (degree=3)')
 
         minc = min(bin_counts)
