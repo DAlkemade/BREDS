@@ -140,9 +140,6 @@ def main():
         bins = np.logspace(minimum_power, maximum_power, 20, base=10)
         bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean', bins=bins)
         bin_counts, _, _ = stats.binned_statistic(diffs_not_none, corrects_not_none, 'count', bins=bins)
-        logger.info(f'bin means n={len(bin_means)}')
-        logger.info(f'bin counts n={len(bin_counts)}')
-        logger.info(list(zip(bin_means, bin_counts)))
         fig, ax = plt.subplots()
         # plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
         x = np.logspace(minimum_power, maximum_power, 500, base=10)
@@ -155,23 +152,13 @@ def main():
 
         minc = min(bin_counts)
         maxc = max(bin_counts)
-        logger.info(f'min: {minc} {maxc}')
         norm = colors.SymLogNorm(vmin=minc, vmax=maxc, linthresh=1)
         bin_counts_normalized = [norm(c) for c in bin_counts]
         viridis = cm.get_cmap('viridis', 20)
-        logger.info(list(zip(bin_counts_normalized, viridis(bin_counts_normalized))))
-        # cls = [viridis(c) for c in bin_counts_normalized]
 
         mins = bin_edges[:-1]
         maxs = bin_edges[1:]
-        logger.info(f'mins ({len(mins)}): {mins} ')
-        logger.info(f'maxs ({len(maxs)}): {maxs}')
-        logger.info(f'bin means ({len(bin_means)}); {bin_means}')
-        logger.info(f'bin counts ({len(bin_counts)}); {bin_counts}')
-        logger.info(f'bin_counts_normalized ({len(bin_counts_normalized)}); {bin_counts_normalized}')
         mask = ~np.isnan(bin_means)
-        logger.info(f'type: {type(bin_means[0])}')
-        logger.info(f'filtered: {np.extract(mask, bin_means)}')
         plt.hlines(np.extract(mask, bin_means), np.extract(mask, mins), np.extract(mask, maxs), colors=viridis(np.extract(mask, bin_counts_normalized)), lw=5,
                    label='binned statistic of data')
         # plt.legend()
