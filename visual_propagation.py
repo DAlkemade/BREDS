@@ -11,7 +11,7 @@ import yaml
 from box import Box
 from learning_sizes_evaluation.evaluate import coverage_accuracy_relational, RelationalResult
 from logging_setup_dla.logging import set_up_root_logger
-from matplotlib import pyplot as plt, colors, cm, ticker
+from matplotlib import pyplot as plt, colors, cm
 from matplotlib.scale import SymmetricalLogTransform
 from scipy import stats
 from scipy.stats import pearsonr, spearmanr
@@ -120,7 +120,7 @@ def main():
         bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean',
                                                                  bins=20)
         bin_counts, _, _ = stats.binned_statistic(diffs_not_none, corrects_not_none, 'count',
-                                                                 bins=20)
+                                                  bins=20)
         x = np.linspace(min(diffs_not_none), max(diffs_not_none), 500)
         X = np.reshape(x, (-1, 1))
         plt.plot(x, regr_linear.predict(X), '-', label='linear ridge regression')
@@ -139,10 +139,7 @@ def main():
                    colors=viridis(np.extract(mask, bin_counts_normalized)), lw=5,
                    label='binned statistic of data')
         sm = plt.cm.ScalarMappable(cmap=viridis, norm=norm)
-        colorbar = plt.colorbar(sm)
-        tick_locator = ticker.MaxNLocator(nbins=3)
-        colorbar.locator = tick_locator
-        colorbar.update_ticks()
+        colorbar = plt.colorbar(sm, ticks=[1, 10, 100, 1000])
         colorbar.set_label('bin count')
         plt.ylim(-0.05, 1.05)
         plt.legend()
