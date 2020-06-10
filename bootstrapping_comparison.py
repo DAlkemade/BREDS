@@ -137,9 +137,11 @@ def main():
 
         minimum_power = floor(np.log10(min(diffs_not_none)))
         maximum_power = ceil(np.log10(max(diffs_not_none)))
-        bins = np.logspace(minimum_power, maximum_power, 20)
+        bins = np.logspace(minimum_power, maximum_power, 20, base=10)
         bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean', bins=bins)
         bin_counts, _, _ = stats.binned_statistic(diffs_not_none, corrects_not_none, 'count', bins=bins)
+        logger.info(f'bin means n={len(bin_means)}')
+        logger.info(f'bin counts n={len(bin_counts)}')
         logger.info(list(zip(bin_means, bin_counts)))
         fig, ax = plt.subplots()
         # plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
@@ -165,6 +167,8 @@ def main():
         logger.info(f'mins ({len(mins)}): {mins} ')
         logger.info(f'maxs ({len(maxs)}): {maxs}')
         logger.info(f'bin means ({len(bin_means)}); {bin_means}')
+        logger.info(f'bin counts ({len(bin_counts)}); {bin_counts}')
+        logger.info(f'bin_counts_normalized ({len(bin_counts_normalized)}); {bin_counts_normalized}')
         plt.hlines(bin_means, mins, maxs, colors=viridis(bin_counts_normalized), lw=5,
                    label='binned statistic of data')
         # plt.legend()
