@@ -161,7 +161,8 @@ def main():
         plt.xlabel('Absolute difference in size')
         plt.ylabel('Selectivity')
         ax.set_xscale('log')
-        plt.colorbar()
+        sm = plt.cm.ScalarMappable(cmap=viridis, norm=norm)
+        plt.colorbar(sm)
         plt.savefig('differences.png')
         plt.show()
 
