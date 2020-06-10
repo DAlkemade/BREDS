@@ -139,7 +139,7 @@ def main():
                    colors=viridis(np.extract(mask, bin_counts_normalized)), lw=5,
                    label='binned statistic of data')
         sm = plt.cm.ScalarMappable(cmap=viridis, norm=norm)
-        colorbar = plt.colorbar(sm, ticks=[1, 10, 100, 1000])
+        colorbar = plt.colorbar(sm, ticks=[10**1.5, 10**2, 10**2.5])
         colorbar.set_label('bin count')
         plt.ylim(-0.05, 1.05)
         plt.legend()
