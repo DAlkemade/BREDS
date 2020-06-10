@@ -159,7 +159,7 @@ class Comparer:
         self.setting = setting
         self.prop = prop
         self.useful_paths_count = []
-        self.not_recognized_count = []
+        self.not_recognized_count = 0
 
     def compare_visual_with_backoff(self, test_pair) -> (bool, float):
         object1 = test_pair.e1.replace('_', ' ')
