@@ -167,6 +167,7 @@ def main():
         plt.ylim(0,1)
         ax.set_xscale('log')
         sm = plt.cm.ScalarMappable(cmap=viridis, norm=norm)
+        plt.legend()
         plt.colorbar(sm)
         plt.savefig('differences.png')
         plt.show()
