@@ -143,11 +143,12 @@ def main():
         logger.info(list(zip(bin_means, bin_counts)))
         fig, ax = plt.subplots()
         # plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
-        X = np.reshape(np.log10(np.linspace(min(diffs_not_none), max(diffs_not_none))), (-1,1))
-        plt.plot(X, regr_linear.predict(X), '-', label='ridge regression (degree=1)')
-        plt.plot(X, poly_ridge_2.predict(X), '-',
+        x = np.linspace(min(diffs_not_none), max(diffs_not_none), 500)
+        X = np.reshape(np.log10(x), (-1,1))
+        plt.plot(x, regr_linear.predict(X), '-', label='ridge regression (degree=1)')
+        plt.plot(x, poly_ridge_2.predict(X), '-',
                  label='ridge regression (degree=2)')
-        plt.plot(X, poly_ridge_3.predict(X), '-',
+        plt.plot(x, poly_ridge_3.predict(X), '-',
                  label='ridge regression (degree=3)')
 
         minc = min(bin_counts)
@@ -155,6 +156,7 @@ def main():
         logger.info(f'min: {minc} {maxc}')
         norm = colors.SymLogNorm(vmin=minc, vmax=maxc, linthresh=1)
         bin_counts_normalized = [norm(c) for c in bin_counts]
+        logger.info(list(zip(bin_counts, bin_counts_normalized)))
         viridis = cm.get_cmap('viridis', 20)
         cls = [viridis(c) for c in bin_counts_normalized]
         plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors=cls, lw=5,
