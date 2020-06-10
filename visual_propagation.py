@@ -81,7 +81,7 @@ def main():
         useful_counts = comparer.useful_paths_count
         plt.hist(useful_counts, bins=1000)
         plt.xlabel('Number of useful paths')
-        plt.savefig(f'useful_paths{setting}.png')
+        plt.savefig(f'useful_paths{setting.print()}.png')
 
         useful_counts = np.array(useful_counts)
         logger.info(f'Number of objects with no useful path: {len(np.extract(useful_counts == 0, useful_counts))}')
