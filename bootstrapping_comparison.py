@@ -137,7 +137,7 @@ def main():
 
         minimum_power = floor(np.log10(min(diffs_not_none)))
         maximum_power = ceil(np.log10(max(diffs_not_none)))
-        bins = np.logspace(minimum_power, maximum_power, 20, base=10)
+        bins = np.logspace(minimum_power, maximum_power, 15, base=10)
         bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean', bins=bins)
         bin_counts, _, _ = stats.binned_statistic(diffs_not_none, corrects_not_none, 'count', bins=bins)
         logger.info(f'bin means n={len(bin_means)}')
@@ -145,7 +145,7 @@ def main():
         logger.info(list(zip(bin_means, bin_counts)))
         fig, ax = plt.subplots()
         # plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
-        x = np.linspace(min(diffs_not_none), max(diffs_not_none), 500)
+        x = np.logspace(min(diffs_not_none), max(diffs_not_none), 500)
         X = np.reshape(np.log10(x), (-1,1))
         plt.plot(x, regr_linear.predict(X), '-', label='ridge regression (degree=1)')
         plt.plot(x, poly_ridge_2.predict(X), '-',
