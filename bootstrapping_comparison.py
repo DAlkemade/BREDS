@@ -160,7 +160,12 @@ def main():
         logger.info(list(zip(bin_counts_normalized, viridis(bin_counts_normalized))))
         # cls = [viridis(c) for c in bin_counts_normalized]
 
-        plt.hlines(bin_means, bin_edges[1:], bin_edges[:-1], colors=viridis(bin_counts_normalized), lw=5,
+        mins = bin_edges[:-1]
+        maxs = bin_edges[1:]
+        logger.info(f'mins ({len(mins)}): {mins} ')
+        logger.info(f'maxs ({len(maxs)}): {maxs}')
+        logger.info(f'bin means ({len(bin_means)}); {bin_means}')
+        plt.hlines(bin_means, mins, maxs, colors=viridis(bin_counts_normalized), lw=5,
                    label='binned statistic of data')
         # plt.legend()
         plt.xlabel('Absolute difference in size')
