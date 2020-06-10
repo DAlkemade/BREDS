@@ -168,7 +168,8 @@ def main():
         ax.set_xscale('log')
         sm = plt.cm.ScalarMappable(cmap=viridis, norm=norm)
         plt.legend()
-        plt.colorbar(sm)
+        colorbar = plt.colorbar(sm)
+        colorbar.set_label('bin count')
         plt.savefig('differences.png')
         plt.show()
 

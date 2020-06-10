@@ -137,7 +137,8 @@ def main():
                    colors=viridis(np.extract(mask, bin_counts_normalized)), lw=5,
                    label='binned statistic of data')
         sm = plt.cm.ScalarMappable(cmap=viridis, norm=norm)
-        plt.colorbar(sm)
+        colorbar = plt.colorbar(sm)
+        colorbar.set_label('bin count')
         plt.legend()
         plt.xlabel('Absolute fraction_larger')
         plt.ylabel('Selectivity')
