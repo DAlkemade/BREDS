@@ -2,7 +2,6 @@ import logging
 import os
 import pickle
 from datetime import datetime
-from math import floor, ceil
 from typing import List
 
 import numpy as np
@@ -12,7 +11,7 @@ import yaml
 from box import Box
 from learning_sizes_evaluation.evaluate import coverage_accuracy_relational, RelationalResult
 from logging_setup_dla.logging import set_up_root_logger
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt, colors, cm
 from matplotlib.scale import SymmetricalLogTransform
 from scipy import stats
 from scipy.stats import pearsonr, spearmanr
@@ -71,7 +70,7 @@ def main():
         logger.info(f'\nRunning for setting {setting.print()}')
         comparer = Comparer(prop, setting, similar_words, objects)
         for test_pair in tqdm.tqdm(test_pairs):
-            #TODO return confidence; use the higher one
+            # TODO return confidence; use the higher one
             res_visual, fraction_larger = comparer.compare_visual_with_backoff(test_pair)
             fractions_larger.append(fraction_larger)
             preds.append(res_visual)
@@ -111,35 +110,34 @@ def main():
                 corrects_not_none.append(gold == res)
                 diffs_not_none.append(abs(fraction_larger_centered))
         # TODO do something special for when fraction_larger_centered == 0
-        # minimum_power = floor(np.log(min(diffs_not_none)))
-        # maximum_power = ceil(np.log(max(diffs_not_none)))
-        # bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean',
-        #                                                          bins=np.logspace(minimum_power, maximum_power, 20))
-        # fig, ax = plt.subplots()
-        # plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
-        # plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors='g', lw=5,
-        #            label='binned statistic of data')
-        # plt.legend()
-        # plt.xlabel('Absolute fraction_larger')
-        # plt.ylabel('Selectivity')
-        # ax.set_xscale('log')
-        # plt.savefig('fraction_larger_selectivity_log.png')
-        # plt.show()
+
         regr_linear = Ridge(alpha=1.0)
         regr_linear.fit(np.reshape(diffs_not_none, (-1, 1)), corrects_not_none)
         with open('visual_confidence_model.pkl', 'wb') as f:
             pickle.dump(regr_linear, f)
 
-
-
         fig, ax = plt.subplots()
         bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean',
                                                                  bins=20)
-        plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
-        plt.plot(diffs_not_none, regr_linear.predict(np.reshape(diffs_not_none, (-1, 1))), '.',
-                 label='linear ridge regression')
-        plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors='g', lw=5,
+        bin_counts, _, _ = stats.binned_statistic(diffs_not_none, corrects_not_none, 'count',
+                                                                 bins=20)
+        x = np.linspace(min(diffs_not_none), max(diffs_not_none), 500)
+        X = np.reshape(x, (-1, 1))
+        plt.plot(x, regr_linear.predict(X), '-', label='linear ridge regression')
+        minc = min(bin_counts)
+        maxc = max(bin_counts)
+        norm = colors.Normalize(vmin=minc, vmax=maxc)
+        bin_counts_normalized = [norm(c) for c in bin_counts]
+        viridis = cm.get_cmap('viridis', 20)
+
+        mins = bin_edges[:-1]
+        maxs = bin_edges[1:]
+        mask = ~np.isnan(bin_means)
+        plt.hlines(np.extract(mask, bin_means), np.extract(mask, mins), np.extract(mask, maxs),
+                   colors=viridis(np.extract(mask, bin_counts_normalized)), lw=5,
                    label='binned statistic of data')
+        sm = plt.cm.ScalarMappable(cmap=viridis, norm=norm)
+        plt.colorbar(sm)
         plt.legend()
         plt.xlabel('Absolute fraction_larger')
         plt.ylabel('Selectivity')
@@ -153,9 +151,9 @@ def main():
         correlation_spearman, _ = spearmanr(np.array(diffs_not_none), b=np.array(corrects_not_none))
         logger.info(f'Spearman correlation: {correlation_spearman}')
 
-
     results_df = pd.DataFrame(results)
     results_df.to_csv('results_visual_backoff.csv')
+
 
 class Comparer:
     def __init__(self, prop: VisualPropagation, setting: BackoffSettings, similar_words: dict, objects):
@@ -206,16 +204,16 @@ def check_if_in_vg(word_list, vg_objects):
 
 
 def fill_objects_list(entity: str, setting: BackoffSettings, vg_objects: list, similar_words_lookup):
-    synset_string = entity.replace(' ','_')
+    synset_string = entity.replace(' ', '_')
     entity_string = entity.replace('_', " ")
     recognizable_objects = list()
     similar_words = similar_words_lookup[entity_string]
-    #TODO check if this gets two-word objects!!
+    # TODO check if this gets two-word objects!!
     if setting.use_direct:
         if synset_string in vg_objects:
             recognizable_objects.append(synset_string)
 
-    if len(recognizable_objects) ==0 and setting.use_hyponyms:
+    if len(recognizable_objects) == 0 and setting.use_hyponyms:
         hyponyms = similar_words['hyponyms']
         if len(hyponyms) > 0:
             recognizable_objects += check_if_in_vg(hyponyms, vg_objects)
@@ -231,17 +229,18 @@ def fill_objects_list(entity: str, setting: BackoffSettings, vg_objects: list, s
         if len(head_nouns) > 0:
             recognizable_objects += check_if_in_vg(head_nouns, vg_objects)
 
-    if len(recognizable_objects) ==0 and setting.use_word2vec:
+    if len(recognizable_objects) == 0 and setting.use_word2vec:
         word2vecs = similar_words['word2vec']
         if len(word2vecs) > 0:
             all_word2vecs_in_vg = check_if_in_vg(word2vecs, vg_objects)
             if len(all_word2vecs_in_vg) > 0:
-                best_three = all_word2vecs_in_vg[:min(3,len(all_word2vecs_in_vg))]
+                best_three = all_word2vecs_in_vg[:min(3, len(all_word2vecs_in_vg))]
                 recognizable_objects += best_three
 
     else:
         logger.debug(f'{synset_string} and fallback objects not in VG.')
     return recognizable_objects
+
 
 if __name__ == "__main__":
     try:
