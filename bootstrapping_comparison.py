@@ -135,8 +135,8 @@ def main():
         # x = np.linspace(0, 10000, 1000)
         # plt.savefig('test_svm.png')
 
-        minimum_power = floor(np.log(min(diffs_not_none)))
-        maximum_power = ceil(np.log(max(diffs_not_none)))
+        minimum_power = floor(np.log10(min(diffs_not_none)))
+        maximum_power = ceil(np.log10(max(diffs_not_none)))
         bins = np.logspace(minimum_power, maximum_power, 20)
         bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean', bins=bins)
         bin_counts, _, _ = stats.binned_statistic(diffs_not_none, corrects_not_none, 'count', bins=bins)
