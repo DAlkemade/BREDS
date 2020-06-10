@@ -54,7 +54,7 @@ def main():
         # BackoffSettings(use_hyponyms=True),
         # BackoffSettings(use_head_noun=True),
         # BackoffSettings(use_direct=True, use_word2vec=True),
-        BackoffSettings(use_direct=True, use_word2vec=True, use_hypernyms=True),
+        # BackoffSettings(use_direct=True, use_word2vec=True, use_hypernyms=True),
         # BackoffSettings(use_direct=True, use_hypernyms=True),
         # BackoffSettings(use_direct=True, use_hyponyms=True),
         # BackoffSettings(use_direct=True, use_head_noun=True),
