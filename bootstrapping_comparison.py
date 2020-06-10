@@ -124,11 +124,13 @@ def main():
                 corrects_not_none.append(gold == res)
                 diffs_not_none.append(abs(diff))
         #TODO do something special for when diff == 0
+
+        corrects_not_none, diffs_not_none = zip(*sorted(zip(corrects_not_none, diffs_not_none)))
         regr_linear = Ridge(alpha=1.0)
         regr_linear.fit(np.reshape(np.log10(diffs_not_none), (-1, 1)), corrects_not_none)
         poly_ridge_2 = make_pipeline(PolynomialFeatures(2), Ridge())
         poly_ridge_2.fit(np.reshape(np.log10(diffs_not_none), (-1, 1)), corrects_not_none)
-        poly_ridge_3 = make_pipeline(PolynomialFeatures(5), Ridge())
+        poly_ridge_3 = make_pipeline(PolynomialFeatures(3), Ridge())
         poly_ridge_3.fit(np.reshape(np.log10(diffs_not_none), (-1, 1)), corrects_not_none)
 
         # x = np.linspace(0, 10000, 1000)
@@ -139,6 +141,7 @@ def main():
         bins = np.logspace(minimum_power, maximum_power, 20)
         bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean', bins=bins)
         bin_counts, _, _ = stats.binned_statistic(diffs_not_none, corrects_not_none, 'count', bins=bins)
+        logger.info(list(zip(bin_means, bin_counts)))
         fig, ax = plt.subplots()
         # plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
         X = np.reshape(np.log10(diffs_not_none), (-1,1))
