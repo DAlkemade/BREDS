@@ -156,10 +156,11 @@ def main():
         logger.info(f'min: {minc} {maxc}')
         norm = colors.SymLogNorm(vmin=minc, vmax=maxc, linthresh=1)
         bin_counts_normalized = [norm(c) for c in bin_counts]
-        logger.info(list(zip(bin_counts, bin_counts_normalized)))
         viridis = cm.get_cmap('viridis', 20)
-        cls = [viridis(c) for c in bin_counts_normalized]
-        plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors=cls, lw=5,
+        logger.info(list(zip(bin_counts_normalized, viridis(bin_counts_normalized))))
+        # cls = [viridis(c) for c in bin_counts_normalized]
+
+        plt.hlines(bin_means, bin_edges[:-1], bin_edges[1:], colors=viridis(bin_counts_normalized), lw=5,
                    label='binned statistic of data')
         # plt.legend()
         plt.xlabel('Absolute difference in size')
