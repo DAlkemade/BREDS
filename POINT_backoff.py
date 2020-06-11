@@ -44,17 +44,17 @@ def main():
     results = list()
     settings: List[BackoffSettings] = [
         BackoffSettings(use_direct=True),
-        BackoffSettings(use_word2vec=True),
-        BackoffSettings(use_hypernyms=True),
-        BackoffSettings(use_hyponyms=True),
-        BackoffSettings(use_head_noun=True),
-        BackoffSettings(use_median_size=True),
-        BackoffSettings(use_direct=True, use_word2vec=True),
-        BackoffSettings(use_direct=True, use_hypernyms=True),
-        BackoffSettings(use_direct=True, use_hyponyms=True),
-        BackoffSettings(use_direct=True, use_head_noun=True),
-        BackoffSettings(use_direct=True, use_hyponyms=True),
-        BackoffSettings(use_direct=True, use_hyponyms=True, use_hypernyms=True),
+        # BackoffSettings(use_word2vec=True),
+        # BackoffSettings(use_hypernyms=True),
+        # BackoffSettings(use_hyponyms=True),
+        # BackoffSettings(use_head_noun=True),
+        # BackoffSettings(use_median_size=True),
+        # BackoffSettings(use_direct=True, use_word2vec=True),
+        # BackoffSettings(use_direct=True, use_hypernyms=True),
+        # BackoffSettings(use_direct=True, use_hyponyms=True),
+        # BackoffSettings(use_direct=True, use_head_noun=True),
+        # BackoffSettings(use_direct=True, use_hyponyms=True),
+        # BackoffSettings(use_direct=True, use_hyponyms=True, use_hypernyms=True),
         BackoffSettings(use_direct=True, use_hyponyms=True, use_hypernyms=True, use_word2vec=True)
     ]
     for setting in settings:
