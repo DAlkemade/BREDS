@@ -30,6 +30,7 @@ def main():
     # TODO use config for this
     with open("bootstrapping_comparison_predictions_['direct', 'regex', 'median size'].pkl", 'rb') as f:
         linguistic_preds = list(pickle.load(f))
+        logger.info(f'linguistics preds: {linguistic_preds}')
     with open("visual_comparison_predictions_['direct', 'word2vec', 'hypernyms'].pkl", 'rb') as f:
         visual_preds = list(pickle.load(f))
     with open("bootstrapping_confidence_model.pkl", 'rb') as f:

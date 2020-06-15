@@ -78,7 +78,7 @@ def main():
             notes.append(note)
 
         with open(f'visual_comparison_predictions_{setting.print()}.pkl', 'wb') as f:
-            pickle.dump(list(zip(preds, fractions_larger)), f)
+            pickle.dump(list(zip(preds, fractions_larger, notes)), f)
 
         useful_counts = comparer.useful_paths_count
         tr = SymmetricalLogTransform(base=10, linthresh=1, linscale=1)
