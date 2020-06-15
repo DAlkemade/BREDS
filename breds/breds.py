@@ -390,7 +390,7 @@ def process_objects(names: set, htmls_lookup: dict, config: Config):
                 htmls_split = [html]
             for h in htmls_split:
                 sentences = tokenize.sent_tokenize(h)
-                logger.info(f'tokenized')
+                logger.info(f'tokenized part of html of length {len(html)}')
 
                 # TODO split sentences from docs
                 for line in sentences:
