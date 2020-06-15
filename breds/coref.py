@@ -19,10 +19,10 @@ def parse_coref(htmls, nlp, name):
         logger.info(f'html length: {len(html)}')
         try:
             if len(html) > LIMIT:
-                htmls = wrap(html, width=LIMIT)
+                htmls_split = wrap(html, width=LIMIT)
             else:
-                htmls = [html]
-            for h in htmls:
+                htmls_split = [html]
+            for h in htmls_split:
                 html_coref = parse_doc(h, name, nlp)
                 name_coref_htmls.append(html_coref)
         except MemoryError:

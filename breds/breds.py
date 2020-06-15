@@ -3,6 +3,7 @@ import logging
 import operator
 import os
 import pickle
+from textwrap import wrap
 
 import neuralcoref
 import spacy
@@ -34,6 +35,7 @@ logger = logging.getLogger(__name__)
 PRINT_TUPLES = True
 PRINT_PATTERNS = True
 PRINT_SEED_MATCHES = False
+LIMIT = 100000
 
 
 def print_tuple_props(t: Tuple):
@@ -382,27 +384,32 @@ def process_objects(names: set, htmls_lookup: dict, config: Config):
         logger.info(f'object {object}')
         for html in htmls:
             logger.info(f'html length: {len(html)}')
-            sentences = tokenize.sent_tokenize(html)
-            logger.info(f'tokenized')
+            if len(html) > LIMIT:
+                htmls_split = wrap(html, width=LIMIT)
+            else:
+                htmls_split = [html]
+            for h in htmls_split:
+                sentences = tokenize.sent_tokenize(h)
+                logger.info(f'tokenized')
 
-            # TODO split sentences from docs
-            for line in sentences:
-                line = line.lower()  # TODO should I do this?
+                # TODO split sentences from docs
+                for line in sentences:
+                    line = line.lower()  # TODO should I do this?
 
-                # TODO here I should change how tuples are found (i.e. all combinations of anchor objects)
-                sentence = Sentence(line.strip(),
-                                    config.e1_type,
-                                    config.e2_type,
-                                    config.max_tokens_away,
-                                    config.min_tokens_away,
-                                    config.context_window_size, object, tagger,
-                                    config)
+                    # TODO here I should change how tuples are found (i.e. all combinations of anchor objects)
+                    sentence = Sentence(line.strip(),
+                                        config.e1_type,
+                                        config.e2_type,
+                                        config.max_tokens_away,
+                                        config.min_tokens_away,
+                                        config.context_window_size, object, tagger,
+                                        config)
 
-                for rel in sentence.relationships:
-                    t = Tuple(rel.e1, rel.e2,
-                              rel.sentence, rel.before, rel.between, rel.after,
-                              config)
-                    tuples.append(t)
+                    for rel in sentence.relationships:
+                        t = Tuple(rel.e1, rel.e2,
+                                  rel.sentence, rel.before, rel.between, rel.after,
+                                  config)
+                        tuples.append(t)
     return tuples
 
 
