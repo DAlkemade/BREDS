@@ -32,6 +32,7 @@ def main():
         # cfg = Box(yaml.safe_load(ymlfile), default_box=True, default_box_attr=None)
 
     test_pairs, unseen_objects = comparison_dev_set(cfg)
+    unseen_objects = [o.replace('_', " ") for o in unseen_objects]
 
     # TODO check whether the objects aren't in the bootstrapped objects
     visual_config = VisualConfig(cfg.path.vg_objects, cfg.path.vg_objects_anchors)
