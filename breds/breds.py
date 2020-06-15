@@ -371,6 +371,9 @@ def process_objects(names: set, htmls_lookup: dict, config: Config):
     tagger = load('taggers/maxent_treebank_pos_tagger/english.pickle')
 
     for object in tqdm.tqdm(names):
+        if object == "gudinchin":
+            # EXTREMELY DIRTY fix, as the process somehow hangs on this object
+            continue
         # TODO think about units. could something automatic be done? it should in theory be possible to learn the meaning of each unit
         # otherwise reuse the scraper pattern to only find numbers with a length unit for now
         # TODO I might have to do recognition of 'they' etc. e.g. for lion: With a typical head-to-body length of 184–208 cm (72–82 in) they are larger than females at 160–184 cm (63–72 in).
