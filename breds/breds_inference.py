@@ -350,7 +350,33 @@ def load_unseen_objects(cfg):
     return unseen_objects
 
 
-def comparison_dev_set(cfg):
+def read_test_pairs(cfg: Box):
+    input: pd.DataFrame = pd.read_csv(cfg.path.dev)
+    test_pairs: List[Pair] = list()
+    row_count = len(input.index)
+    all_objects = set()
+    for i in range(row_count):
+        row = input.iloc[i]
+        object1 = row.at['object1'].strip().replace(' ', '_')
+        object2 = row.at['object2'].strip().replace(' ', '_')
+        pair = Pair(object1, object2)
+        pair.larger = bool(row.at['larger'])
+        test_pairs.append(pair)
+        all_objects.add(object1)
+        all_objects.add(object2)
+    all_objects = list(all_objects)
+    return test_pairs, all_objects
+
+
+def comparison_dev_set(cfg: Box):
+    if 'pairs' in cfg.path.dev:
+        test_pairs, unseen_objects = read_test_pairs(cfg)
+    else:
+        test_pairs, unseen_objects = generate_set_from_sizes(cfg)
+    return test_pairs, unseen_objects
+
+
+def generate_set_from_sizes(cfg):
     input: pd.DataFrame = pd.read_csv(cfg.path.dev)
     input = input.astype({'object': str})
     input.set_index(['object'], inplace=True, drop=False)

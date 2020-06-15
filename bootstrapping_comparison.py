@@ -22,7 +22,7 @@ from visual_size_comparison.propagation import Pair
 from size_comparisons.scraping.lengths_regex import parse_documents_for_lengths, predict_size_regex
 
 from breds.breds_inference import BackoffSettings, comparison_dev_set, get_all_sizes_bootstrapping, \
-    load_patterns, predict_size, calc_median
+    load_patterns, predict_size, calc_median, read_test_pairs
 from breds.htmls import scrape_htmls
 import numpy as np
 from matplotlib import pyplot as plt, cm, colors
@@ -61,6 +61,10 @@ def main():
 
     # TODO check whether the objects aren't in the bootstrapped objects
 
+    run_bootstrapping_comparison_experiment(cfg, test_pairs, unseen_objects)
+
+
+def run_bootstrapping_comparison_experiment(cfg, test_pairs, unseen_objects):
     patterns = load_patterns(cfg)
     median = calc_median(cfg)
     logger.info(f'Median: {median}')
@@ -81,8 +85,8 @@ def main():
     for setting in settings:
         if setting.use_word2vec:
             word2vec_needed = True
-    all_sizes = get_all_sizes_bootstrapping(cache_fname, cfg, input_fname, patterns, unseen_objects, use_word2vec=word2vec_needed)
-
+    all_sizes = get_all_sizes_bootstrapping(cache_fname, cfg, input_fname, patterns, unseen_objects,
+                                            use_word2vec=word2vec_needed)
     logger.info('Start regex')
     htmls_lookup = scrape_htmls(cfg.path.htmls_cache, unseen_objects)
     sizes_regex, _ = parse_documents_for_lengths(unseen_objects, htmls_lookup)
@@ -90,10 +94,8 @@ def main():
     for o in unseen_objects:
         mean = predict_size_regex(o, sizes_regex)
         regex_predictions[o] = mean
-
     # calc coverage and precision
     results = list()
-
     golds = [p.larger for p in test_pairs]
     for setting in settings:
         preds = list()
@@ -101,7 +103,7 @@ def main():
         notes = list()
 
         for test_pair in tqdm.tqdm(test_pairs):
-            #TODO return confidence; use the higher one
+            # TODO return confidence; use the higher one
             res, diff, note = compare_linguistic_with_backoff(setting, all_sizes, test_pair, median, regex_predictions)
             diffs.append(diff)
             preds.append(res)
@@ -117,7 +119,6 @@ def main():
 
         results.append(RelationalResult(setting.print(), selectivity, coverage))
 
-
         assert len(diffs) == len(preds)
         corrects_not_none = list()
         diffs_not_none = list()
@@ -127,7 +128,7 @@ def main():
             if diff is not None and diff != 0:
                 corrects_not_none.append(gold == res)
                 diffs_not_none.append(abs(diff))
-        #TODO do something special for when diff == 0
+        # TODO do something special for when diff == 0
 
         regr_linear = Ridge(alpha=1.0)
         regr_linear.fit(np.reshape(np.log10(diffs_not_none), (-1, 1)), corrects_not_none)
@@ -147,7 +148,7 @@ def main():
         fig, ax = plt.subplots()
         # plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
         x = np.logspace(minimum_power, maximum_power, 500, base=10)
-        X = np.reshape(np.log10(x), (-1,1))
+        X = np.reshape(np.log10(x), (-1, 1))
         plt.plot(x, regr_linear.predict(X), '-', label='ridge regression (degree=1)')
         plt.plot(x, poly_ridge_2.predict(X), '-',
                  label='ridge regression (degree=2)')
@@ -163,7 +164,8 @@ def main():
         mins = bin_edges[:-1]
         maxs = bin_edges[1:]
         mask = ~np.isnan(bin_means)
-        plt.hlines(np.extract(mask, bin_means), np.extract(mask, mins), np.extract(mask, maxs), colors=viridis(np.extract(mask, bin_counts_normalized)), lw=5,
+        plt.hlines(np.extract(mask, bin_means), np.extract(mask, mins), np.extract(mask, maxs),
+                   colors=viridis(np.extract(mask, bin_counts_normalized)), lw=5,
                    label='binned statistic of data')
         # plt.legend()
         plt.xlabel('Absolute difference in size')
@@ -185,8 +187,6 @@ def main():
 
         with open('bootstrapping_confidence_model.pkl', 'wb') as f:
             pickle.dump(poly_ridge_2, f)
-
-
     results_df = pd.DataFrame(results)
     results_df.to_csv('results_bootstrapping_comparison_backoff.csv')
 
