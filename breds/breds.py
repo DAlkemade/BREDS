@@ -381,6 +381,7 @@ def process_objects(names: set, htmls_lookup: dict, config: Config):
             continue
 
         for html in htmls:
+            logger.info(f'html length: {len(html)}')
             sentences = tokenize.sent_tokenize(html)
 
             # TODO split sentences from docs
