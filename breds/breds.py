@@ -371,8 +371,8 @@ def process_objects(names: set, htmls_lookup: dict, config: Config):
     tagger = load('taggers/maxent_treebank_pos_tagger/english.pickle')
 
     for object in tqdm.tqdm(names):
-        if object == "gudinchin":
-            # EXTREMELY DIRTY fix, as the process somehow hangs on this object
+        if object in ["gudinchin", "longines"]:
+            # EXTREMELY DIRTY fix, as the process somehow hangs on these objects
             continue
         # TODO think about units. could something automatic be done? it should in theory be possible to learn the meaning of each unit
         # otherwise reuse the scraper pattern to only find numbers with a length unit for now
