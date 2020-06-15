@@ -37,7 +37,9 @@ def compare_linguistic_with_backoff(setting: BackoffSettings, all_sizes, test_pa
     o2 = test_pair.e2.replace('_', ' ')
     regex1 = regex_predictions[o1]
     regex2 = regex_predictions[o2]
+    logger.debug(f'\nObject 1: {o1}')
     res1 = predict_size(all_sizes, setting, o1, median_size=median, regex_size=regex1)
+    logger.debug(f'\nObject 2: {o2}')
     res2 = predict_size(all_sizes, setting, o2, median_size=median, regex_size=regex2)
     if res1 is not None and res2 is not None:
         diff = res1 - res2
