@@ -199,7 +199,7 @@ class Comparer:
         else:
             res = None
             fraction_larger_mean = None
-        note = f'Object 1: {note1} --- Object 2: {note2}'
+        note = f'Object 1: {object1} {note1} --- Object 2: {object2} {note2}'
         return res, fraction_larger_mean, note
 
 

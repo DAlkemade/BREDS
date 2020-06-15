@@ -47,7 +47,7 @@ def compare_linguistic_with_backoff(setting: BackoffSettings, all_sizes, test_pa
     else:
         diff = None
         res = None
-    note = f'Object 1 note: {note1} --- Object 2 note: {note2}'
+    note = f'Object 1 {o1} note: {note1} --- Object 2 {o2} note: {note2}'
     return res, diff, note
 
 

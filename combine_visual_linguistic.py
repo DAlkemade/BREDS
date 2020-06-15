@@ -17,7 +17,7 @@ set_up_root_logger(f'COMBINE', os.path.join(os.getcwd(), 'logs'))
 logger = logging.getLogger(__name__)
 
 def get_result(golds, preds, tag, notes):
-    coverage, selectivity = coverage_accuracy_relational(golds, preds, notes)
+    coverage, selectivity = coverage_accuracy_relational(golds, preds, notes=notes)
     logger.info(f'Coverage: {coverage}')
     logger.info(f'selectivity: {selectivity}')
 
@@ -51,7 +51,7 @@ def main():
     for i, pair in enumerate(test_pairs):
         pred_visual, fraction_larger, note_visual = visual_preds[i]
         pred_linguistic, difference, note_linguistic = linguistic_preds[i]
-        note = f'pair: {pair.e1} {pair.e2}'
+        note = f'pair: {pair.e1} {pair.e2} '
 
         if pred_linguistic is None and pred_visual is None:
             pred = None
