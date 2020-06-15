@@ -49,8 +49,8 @@ def main():
     visual = 0
     notes_combined = list()
     for i, pair in enumerate(test_pairs):
-        pred_linguistic, difference, note_linguistic = linguistic_preds[i]
         pred_visual, fraction_larger, note_visual = visual_preds[i]
+        pred_linguistic, difference, note_linguistic = linguistic_preds[i]
         note = f'pair: {pair.e1} {pair.e2}'
 
         if pred_linguistic is None and pred_visual is None:
