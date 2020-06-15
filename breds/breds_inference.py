@@ -413,6 +413,7 @@ def get_all_sizes_bootstrapping(cache_fname, cfg, input_fname, patterns, unseen_
 
     else:
         word2vec_model = load_word2vec(cfg.parameters.word2vec_path)
+        logger.info(f'Word2vec needed: {use_word2vec}')
         similar_words = find_similar_words(word2vec_model, unseen_objects, use_word2vec=use_word2vec)
         word2vec_counts = []
         for entity, entity_dict in similar_words.items():

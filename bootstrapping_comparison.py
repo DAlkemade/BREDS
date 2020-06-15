@@ -85,6 +85,7 @@ def run_bootstrapping_comparison_experiment(cfg, test_pairs, unseen_objects):
     for setting in settings:
         if setting.use_word2vec:
             word2vec_needed = True
+    logger.info(f'Word2vec needed: {word2vec_needed}')
     all_sizes = get_all_sizes_bootstrapping(cache_fname, cfg, input_fname, patterns, unseen_objects,
                                             use_word2vec=word2vec_needed)
     logger.info('Start regex')
