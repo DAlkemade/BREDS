@@ -84,14 +84,14 @@ def predict_sizes(all_sizes: dict, objects: list, cfg: BackoffSettings, median: 
     """
     predictions = dict()
     for object in objects:
-        size = predict_size(all_sizes, cfg, object, median_size=median)
+        size, _ = predict_size(all_sizes, cfg, object, median_size=median)
 
         predictions[object] = size
 
     return predictions
 
 
-def predict_size(all_sizes: dict, cfg: BackoffSettings, object: str, median_size = None, regex_size = None):
+def predict_size(all_sizes: dict, cfg: BackoffSettings, object: str, median_size = None, regex_size = None) -> (float, str):
     try:
         sims_dict = all_sizes[object]
     except KeyError:
@@ -135,29 +135,30 @@ def predict_size(all_sizes: dict, cfg: BackoffSettings, object: str, median_size
     # TODO return for each object a size and a confidence
     if size_direct is not None and cfg.use_direct:
         size = size_direct
-        logger.debug(f'used direct: {size}')
+        note = f'used direct: {size}'
     elif hyponym_mean is not None and cfg.use_hyponyms:
         size = hyponym_mean
-        logger.debug(f'used hyponyms: {size} -- {[(t.e1, t.e2) for t in hyponyms]}')
+        note = f'used hyponyms: {size} -- {[(t.e1, t.e2) for t in hyponyms]}'
     elif hypernym_mean is not None and cfg.use_hypernyms:
         size = hypernym_mean
-        logger.debug(f'used hypernyms: {size} -- {[(t.e1, t.e2) for t in hypernyms]}')
+        note = f'used hypernyms: {size} -- {[(t.e1, t.e2) for t in hypernyms]}'
     elif head_noun_size is not None and cfg.use_head_noun:
         size = head_noun_size
-        logger.debug(f'used head noun: {size} -- {[(t.e1, t.e2) for t in head_nouns]}')
+        note = f'used head noun: {size} -- {[(t.e1, t.e2) for t in head_nouns]}'
     elif selected_word2vec_mean is not None and cfg.use_word2vec:
         size = selected_word2vec_mean
-        logger.debug(f'used word2vecs: size: {size} -- {[(t.e1, t.e2) for t in word2vecs]}')
+        note = f'used word2vecs: size: {size} -- {[(t.e1, t.e2) for t in word2vecs]}'
     elif cfg.use_regex and regex_size is not None:
         size = regex_size
-        logger.debug(f'used regex: {regex_size}')
+        note = f'used regex: {regex_size}'
     elif cfg.use_median_size and median_size is not None:
         size = median_size
-        logger.debug(f'used median: {median_size}')
+        note = f'used median: {median_size}'
     else:
         size = None
-        logger.debug(f'no size, using none')
-    return size
+        note = f'no size, using none'
+    logger.debug(note)
+    return size, note
 
 
 def filter_tuples(candidate_tuples, dev_threshold):

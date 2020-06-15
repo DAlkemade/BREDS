@@ -16,8 +16,8 @@ from breds.breds_inference import comparison_dev_set
 set_up_root_logger(f'COMBINE', os.path.join(os.getcwd(), 'logs'))
 logger = logging.getLogger(__name__)
 
-def get_result(golds, preds, tag):
-    coverage, selectivity = coverage_accuracy_relational(golds, preds)
+def get_result(golds, preds, tag, notes):
+    coverage, selectivity = coverage_accuracy_relational(golds, preds, notes)
     logger.info(f'Coverage: {coverage}')
     logger.info(f'selectivity: {selectivity}')
 
@@ -46,18 +46,21 @@ def main():
     preds_combine = list()
     linguistic = 0
     visual = 0
+    notes_combined = list()
     for i, pair in enumerate(test_pairs):
-        pred_linguistic, difference = linguistic_preds[i]
-        pred_visual, fraction_larger = visual_preds[i]
-
+        pred_linguistic, difference, note_linguistic = linguistic_preds[i]
+        pred_visual, fraction_larger, note_visual = visual_preds[i]
+        note = f'pair: {pair.e1} {pair.e2}'
 
         if pred_linguistic is None and pred_visual is None:
             pred = None
         else:
             if pred_linguistic is None:
                 pred = pred_visual
+                note += f'no linguistic, using visual: {note_visual}'
             elif pred_visual is None:
                 pred = pred_linguistic
+                note += f'no visual, using linguistic: {note_linguistic}'
             else:
                 fraction_larger = abs(fraction_larger-.5)
                 difference = abs(difference)
@@ -71,16 +74,19 @@ def main():
                 if conf_visual > conf_linguistic:
                     pred = visual_preds[i][0]
                     visual += 1
+                    note += f'visual conf ({conf_visual}) is higher than linguistic conf ({conf_linguistic}): {note_visual}'
                 else:
                     pred = linguistic_preds[i][0]
                     linguistic += 1
+                    note += f'linguistic conf ({conf_linguistic}) is higher than visual conf ({conf_visual}) : {note_linguistic}'
         preds_combine.append(pred)
+        notes_combined.append(note)
 
 
     results = list()
-    results.append(get_result(golds, preds_combine, 'combine'))
-    results.append(get_result(golds, [x[0] for x in linguistic_preds], 'linguistic'))
-    results.append(get_result(golds, [x[0] for x in visual_preds], 'visual'))
+    results.append(get_result(golds, preds_combine, 'combine', notes_combined))
+    results.append(get_result(golds, [x[0] for x in linguistic_preds], 'linguistic', [x[2] for x in linguistic_preds]))
+    results.append(get_result(golds, [x[0] for x in visual_preds], 'visual', [x[2] for x in visual_preds]))
     logger.info(f'Visual usages: {visual}')
     logger.info(f'Linguistic usages: {linguistic}')
 

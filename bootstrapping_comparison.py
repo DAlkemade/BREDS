@@ -38,17 +38,17 @@ def compare_linguistic_with_backoff(setting: BackoffSettings, all_sizes, test_pa
     regex1 = regex_predictions[o1]
     regex2 = regex_predictions[o2]
     logger.debug(f'\nObject 1: {o1}')
-    res1 = predict_size(all_sizes, setting, o1, median_size=median, regex_size=regex1)
+    res1, note1 = predict_size(all_sizes, setting, o1, median_size=median, regex_size=regex1)
     logger.debug(f'\nObject 2: {o2}')
-    res2 = predict_size(all_sizes, setting, o2, median_size=median, regex_size=regex2)
+    res2, note2 = predict_size(all_sizes, setting, o2, median_size=median, regex_size=regex2)
     if res1 is not None and res2 is not None:
         diff = res1 - res2
         res = diff > 0
     else:
         diff = None
         res = None
-
-    return res, diff
+    note = f'Object 1 note: {note1} --- Object 2 note: {note2}'
+    return res, diff, note
 
 
 def main():
@@ -98,15 +98,17 @@ def main():
     for setting in settings:
         preds = list()
         diffs = list()
+        notes = list()
 
         for test_pair in tqdm.tqdm(test_pairs):
             #TODO return confidence; use the higher one
-            res, diff = compare_linguistic_with_backoff(setting, all_sizes, test_pair, median, regex_predictions)
+            res, diff, note = compare_linguistic_with_backoff(setting, all_sizes, test_pair, median, regex_predictions)
             diffs.append(diff)
             preds.append(res)
+            notes.append(note)
 
         with open(f'bootstrapping_comparison_predictions_{setting.print()}.pkl', 'wb') as f:
-            pickle.dump(list(zip(preds, diffs)), f)
+            pickle.dump(list(zip(preds, diffs, notes)), f)
 
         logger.info(f'Total number of test cases: {len(golds)}')
         coverage, selectivity = coverage_accuracy_relational(golds, preds)

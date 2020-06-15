@@ -65,15 +65,17 @@ def main():
     for setting in settings:
         preds = list()
         fractions_larger = list()
+        notes = list()
 
         prop = VisualPropagation(G, config.visual_config)
         logger.info(f'\nRunning for setting {setting.print()}')
         comparer = Comparer(prop, setting, similar_words, objects)
         for test_pair in tqdm.tqdm(test_pairs):
             # TODO return confidence; use the higher one
-            res_visual, fraction_larger = comparer.compare_visual_with_backoff(test_pair)
+            res_visual, fraction_larger, note = comparer.compare_visual_with_backoff(test_pair)
             fractions_larger.append(fraction_larger)
             preds.append(res_visual)
+            notes.append(note)
 
         with open(f'visual_comparison_predictions_{setting.print()}.pkl', 'wb') as f:
             pickle.dump(list(zip(preds, fractions_larger)), f)
@@ -175,8 +177,8 @@ class Comparer:
         object1 = test_pair.e1.replace('_', ' ')
         object2 = test_pair.e2.replace('_', ' ')
         # TODO implement backoff mechanism
-        recognizable_objects1 = fill_objects_list(object1, self.setting, self.objects, self.similar_words)
-        recognizable_objects2 = fill_objects_list(object2, self.setting, self.objects, self.similar_words)
+        recognizable_objects1, note1 = fill_objects_list(object1, self.setting, self.objects, self.similar_words)
+        recognizable_objects2, note2 = fill_objects_list(object2, self.setting, self.objects, self.similar_words)
         comparisons = list()
         path_count_total = 0
         if len(recognizable_objects1) == 0 or len(recognizable_objects2) == 0:
@@ -197,7 +199,8 @@ class Comparer:
         else:
             res = None
             fraction_larger_mean = None
-        return res, fraction_larger_mean
+        note = f'Object 1: {note1} --- Object 2: {note2}'
+        return res, fraction_larger_mean, note
 
 
 def check_if_in_vg(word_list, vg_objects):
@@ -215,25 +218,30 @@ def fill_objects_list(entity: str, setting: BackoffSettings, vg_objects: list, s
     recognizable_objects = list()
     similar_words = similar_words_lookup[entity_string]
     # TODO check if this gets two-word objects!!
+    note = ''
     if setting.use_direct:
         if synset_string in vg_objects:
             recognizable_objects.append(synset_string)
+            note += f'used direct'
 
     if len(recognizable_objects) == 0 and setting.use_hyponyms:
         hyponyms = similar_words['hyponyms']
         if len(hyponyms) > 0:
             recognizable_objects += check_if_in_vg(hyponyms, vg_objects)
+            note += f'used hyponyms: {hyponyms}'
 
     if len(recognizable_objects) == 0 and setting.use_hypernyms:
         hypernyms = similar_words['hypernyms']
         if len(hypernyms) > 0:
             recognizable_objects += check_if_in_vg(hypernyms, vg_objects)
+            note += f'used hypernyms: {hypernyms}'
 
     if len(recognizable_objects) == 0 and setting.use_head_noun:
         head_nouns = similar_words['head_noun']
         assert type(head_nouns) is list
         if len(head_nouns) > 0:
             recognizable_objects += check_if_in_vg(head_nouns, vg_objects)
+            note += f'used head nouns: {head_nouns}'
 
     if len(recognizable_objects) == 0 and setting.use_word2vec:
         word2vecs = similar_words['word2vec']
@@ -242,10 +250,11 @@ def fill_objects_list(entity: str, setting: BackoffSettings, vg_objects: list, s
             if len(all_word2vecs_in_vg) > 0:
                 best_three = all_word2vecs_in_vg[:min(3, len(all_word2vecs_in_vg))]
                 recognizable_objects += best_three
+                note += f'used word2vecs: {best_three}'
 
     else:
         logger.debug(f'{synset_string} and fallback objects not in VG.')
-    return recognizable_objects
+    return recognizable_objects, note
 
 
 if __name__ == "__main__":
