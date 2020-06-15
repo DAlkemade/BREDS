@@ -379,10 +379,11 @@ def process_objects(names: set, htmls_lookup: dict, config: Config):
         except KeyError:
             logger.warning(f'No htmls for {object}')
             continue
-
+        logger.info(f'object {object}')
         for html in htmls:
             logger.info(f'html length: {len(html)}')
             sentences = tokenize.sent_tokenize(html)
+            logger.info(f'tokenized')
 
             # TODO split sentences from docs
             for line in sentences:
