@@ -119,9 +119,9 @@ def main():
         # p = permutation_test(preds_random_combination, preds_combine)
         res = get_result(golds, preds_random_combination, 'test', ['']*len(preds_random_combination))
         if res.selectivity > highest:
-            highest = res
+            highest = res.selectivity
         if res.selectivity < lowest:
-            lowest = res
+            lowest = res.selectivity
         sig_better.append(res.selectivity < combined_result.selectivity)
 
     logger.info(f'Percentage of random choice combination it is better than: {np.mean(sig_better)}')
