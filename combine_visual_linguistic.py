@@ -107,8 +107,8 @@ def main():
 
     for i in range(5):
         preds_random_combination = random_combination([x[0] for x in linguistic_preds], [x[0] for x in visual_preds])
-        p = permutation_test(preds_random_combination, preds_combine)
-        res = get_result(golds, preds_random_combination, 'test', ['']*len(preds_random_combination))
+        p = permutation_test([x[0] for x in preds_random_combination], preds_combine)
+        res = get_result(golds, [x[0] for x in preds_random_combination], 'test', ['']*len(preds_random_combination))
         logger.info(f'res: {res}')
         logger.info(f'p: {p}')
 
