@@ -116,7 +116,7 @@ def main():
     highest = 0.
     for i in range(10000):
         preds_random_combination = random_combination([x[0] for x in linguistic_preds], [x[0] for x in visual_preds])
-        p = permutation_test(preds_random_combination, preds_combine)
+        # p = permutation_test(preds_random_combination, preds_combine)
         res = get_result(golds, preds_random_combination, 'test', ['']*len(preds_random_combination))
         if res.selectivity > highest:
             highest = res
