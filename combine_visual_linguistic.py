@@ -33,9 +33,9 @@ def main():
         logger.info(f'linguistics preds: {linguistic_preds}')
     with open("visual_comparison_predictions_['direct', 'word2vec', 'hypernyms'].pkl", 'rb') as f:
         visual_preds = list(pickle.load(f))
-    with open("bootstrapping_confidence_model.pkl", 'rb') as f:
+    with open("bootstrapping_confidence_model_dev.pkl", 'rb') as f:
         linguistic_conf_model = pickle.load(f)
-    with open("visual_confidence_model.pkl", 'rb') as f:
+    with open("visual_confidence_model_dev.pkl", 'rb') as f:
         visual_conf_model = pickle.load(f)
 
     # confidences_linguistic = linguistic_conf_model.predict(np.log10(np.reshape([p[1] for p in linguistic_preds], (-1,1))))
