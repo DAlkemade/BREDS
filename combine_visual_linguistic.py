@@ -101,7 +101,8 @@ def main():
 
 
     results = list()
-    results.append(get_result(golds, preds_combine, 'combine', notes_combined))
+    combined_result = get_result(golds, preds_combine, 'combine', notes_combined)
+    results.append(combined_result)
     results.append(get_result(golds, [x[0] for x in linguistic_preds], 'linguistic', [x[2] for x in linguistic_preds]))
     results.append(get_result(golds, [x[0] for x in visual_preds], 'visual', [x[2] for x in visual_preds]))
     logger.info(f'Visual usages: {visual}')
@@ -111,15 +112,21 @@ def main():
     results_df.to_csv('combine_results.csv')
 
     sig_better = list()
-    for i in range(50):
+    lowest = 1.
+    highest = 0.
+    for i in range(100):
         preds_random_combination = random_combination([x[0] for x in linguistic_preds], [x[0] for x in visual_preds])
         p = permutation_test(preds_random_combination, preds_combine)
         res = get_result(golds, preds_random_combination, 'test', ['']*len(preds_random_combination))
+        if res > highest:
+            highest = res
+        if res < lowest:
+            lowest = res
         logger.info(f'res: {res}')
-        logger.info(f'p: {p}')
-        sig_better.append(p <= .05)
+        sig_better.append(res < combined_result.selectivity)
 
-    logger.info(f'Percentage of random choice it is better than: {np.mean(sig_better)}')
+    logger.info(f'Percentage of random choice combination it is better than: {np.mean(sig_better)}')
+    logger.info(f'Lowest: {lowest} highest: {highest}')
 
     p = permutation_test([x[0] for x in linguistic_preds], preds_combine)
     logger.info(f'p-value {p} between combine and linguistic')
