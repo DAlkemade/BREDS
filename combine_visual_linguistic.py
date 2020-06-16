@@ -1,6 +1,7 @@
 import logging
 import os
 import pickle
+import random
 
 import numpy as np
 import pandas as pd
@@ -22,6 +23,15 @@ def get_result(golds, preds, tag, notes):
     logger.info(f'selectivity: {selectivity}')
 
     return RelationalResult(tag, selectivity, coverage)
+
+
+def random_combination(list1, list2):
+    assert len(list1) == len(list2)
+    res = list()
+    for i, v1 in enumerate(list1):
+        v2 = list2[i]
+        res.append(v1 if random.random() > .5 else v2)
+    return res
 
 def main():
     with open("config.yml", "r") as ymlfile:
@@ -84,6 +94,7 @@ def main():
         notes_combined.append(note)
 
 
+
     results = list()
     results.append(get_result(golds, preds_combine, 'combine', notes_combined))
     results.append(get_result(golds, [x[0] for x in linguistic_preds], 'linguistic', [x[2] for x in linguistic_preds]))
@@ -94,6 +105,10 @@ def main():
     results_df = pd.DataFrame(results)
     results_df.to_csv('combine_results.csv')
 
+    for i in range(5):
+        preds_random_combination = random_combination([x[0] for x in linguistic_preds], [x[0] for x in visual_preds])
+        p = permutation_test(preds_random_combination, preds_combine)
+        logger.info(p)
 
     p = permutation_test([x[0] for x in linguistic_preds], preds_combine)
     logger.info(f'p-value {p} between combine and linguistic')
