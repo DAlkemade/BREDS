@@ -43,6 +43,7 @@ def main():
     #     pickle.dump(predictions, f)
     results = list()
     settings: List[BackoffSettings] = [
+        BackoffSettings(use_direct=True, use_regex=True, use_median_size=True),
         BackoffSettings(use_direct=True),
         # BackoffSettings(use_word2vec=True),
         # BackoffSettings(use_hypernyms=True),
