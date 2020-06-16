@@ -122,7 +122,7 @@ def main():
             highest = res
         if res.selectivity < lowest:
             lowest = res
-        sig_better.append(res < combined_result.selectivity)
+        sig_better.append(res.selectivity < combined_result.selectivity)
 
     logger.info(f'Percentage of random choice combination it is better than: {np.mean(sig_better)}')
     logger.info(f'Lowest: {lowest} highest: {highest}')
