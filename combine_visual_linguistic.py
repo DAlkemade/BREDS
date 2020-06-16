@@ -25,12 +25,17 @@ def get_result(golds, preds, tag, notes):
     return RelationalResult(tag, selectivity, coverage)
 
 
-def random_combination(list1, list2):
-    assert len(list1) == len(list2)
+def random_combination(visual, linguistic):
+    assert len(visual) == len(linguistic)
     res = list()
-    for i, v1 in enumerate(list1):
-        v2 = list2[i]
-        res.append(v1 if random.random() > .5 else v2)
+    for i, v1 in enumerate(visual):
+        v2 = linguistic[i]
+        if v1 is None:
+            res.append(v2)
+        elif v2 is None:
+            res.append(v1)
+        else:
+            res.append(v1 if random.random() > .5 else v2)
     return res
 
 def main():
@@ -107,8 +112,8 @@ def main():
 
     for i in range(5):
         preds_random_combination = random_combination([x[0] for x in linguistic_preds], [x[0] for x in visual_preds])
-        p = permutation_test([x[0] for x in preds_random_combination], preds_combine)
-        res = get_result(golds, [x[0] for x in preds_random_combination], 'test', ['']*len(preds_random_combination))
+        p = permutation_test(preds_random_combination, preds_combine)
+        res = get_result(golds, preds_random_combination, 'test', ['']*len(preds_random_combination))
         logger.info(f'res: {res}')
         logger.info(f'p: {p}')
 
