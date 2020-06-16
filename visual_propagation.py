@@ -229,20 +229,20 @@ def fill_objects_list(entity: str, setting: BackoffSettings, vg_objects: list, s
         hyponyms = similar_words['hyponyms']
         if len(hyponyms) > 0:
             recognizable_objects += check_if_in_vg(hyponyms, vg_objects)
-            note += f'used hyponyms: {hyponyms}'
+            note += f'used hyponyms: {recognizable_objects}'
 
     if len(recognizable_objects) == 0 and setting.use_hypernyms:
         hypernyms = similar_words['hypernyms']
         if len(hypernyms) > 0:
             recognizable_objects += check_if_in_vg(hypernyms, vg_objects)
-            note += f'used hypernyms: {hypernyms}'
+            note += f'used hypernyms: {recognizable_objects}'
 
     if len(recognizable_objects) == 0 and setting.use_head_noun:
         head_nouns = similar_words['head_noun']
         assert type(head_nouns) is list
         if len(head_nouns) > 0:
             recognizable_objects += check_if_in_vg(head_nouns, vg_objects)
-            note += f'used head nouns: {head_nouns}'
+            note += f'used head nouns: {recognizable_objects}'
 
     if len(recognizable_objects) == 0 and setting.use_word2vec:
         word2vecs = similar_words['word2vec']
@@ -251,7 +251,7 @@ def fill_objects_list(entity: str, setting: BackoffSettings, vg_objects: list, s
             if len(all_word2vecs_in_vg) > 0:
                 best_three = all_word2vecs_in_vg[:min(3, len(all_word2vecs_in_vg))]
                 recognizable_objects += best_three
-                note += f'used word2vecs: {best_three}'
+                note += f'used word2vecs: {recognizable_objects}'
 
     else:
         logger.debug(f'{synset_string} and fallback objects not in VG.')
