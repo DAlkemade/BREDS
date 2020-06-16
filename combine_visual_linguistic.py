@@ -110,12 +110,16 @@ def main():
     results_df = pd.DataFrame(results)
     results_df.to_csv('combine_results.csv')
 
-    for i in range(5):
+    sig_better = list()
+    for i in range(50):
         preds_random_combination = random_combination([x[0] for x in linguistic_preds], [x[0] for x in visual_preds])
         p = permutation_test(preds_random_combination, preds_combine)
         res = get_result(golds, preds_random_combination, 'test', ['']*len(preds_random_combination))
         logger.info(f'res: {res}')
         logger.info(f'p: {p}')
+        sig_better.append(p <= .05)
+
+    logger.info(f'Percentage of random choice it is better than: {np.mean(sig_better)}')
 
     p = permutation_test([x[0] for x in linguistic_preds], preds_combine)
     logger.info(f'p-value {p} between combine and linguistic')
