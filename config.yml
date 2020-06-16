@@ -21,7 +21,7 @@ path:
     tuples: "tuples_VG_YOLO_coref.pkl"
   no_coref:
     tuples: "tuples_VG_YOLO.pkl"
-  dev: "data_numeric/VG_YOLO_intersection_test_annotated_combined.csv"
+  dev: "data_numeric/simone_test_pairs.csv"
 
 
 parameters:
