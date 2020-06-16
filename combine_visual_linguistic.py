@@ -118,11 +118,10 @@ def main():
         preds_random_combination = random_combination([x[0] for x in linguistic_preds], [x[0] for x in visual_preds])
         p = permutation_test(preds_random_combination, preds_combine)
         res = get_result(golds, preds_random_combination, 'test', ['']*len(preds_random_combination))
-        if res > highest:
+        if res.selectivity > highest:
             highest = res
-        if res < lowest:
+        if res.selectivity < lowest:
             lowest = res
-        logger.info(f'res: {res}')
         sig_better.append(res < combined_result.selectivity)
 
     logger.info(f'Percentage of random choice combination it is better than: {np.mean(sig_better)}')
