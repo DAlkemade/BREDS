@@ -1,5 +1,6 @@
 Bootstrapping Relationship Extraction with Distributional Semantics
 ===================================================================
+THIS REPOSITORY IS A FORK OF THE REPOSITORY BELONGING TO THE FIRST OF THE BELOW PAPERS
 
 BREDS is a bootstrapping system for relationship extraction relying on word vector representations (i.e., word embeddings). For more details please refer to:
 
