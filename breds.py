@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def main():
-
+    """Train the BREDS bootstrapping system on the numeric size extraction task."""
     logger.info("Starting BREDS")
     with open("config.yml", "r") as ymlfile:
         cfg = Box(yaml.safe_load(ymlfile))

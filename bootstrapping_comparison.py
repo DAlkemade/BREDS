@@ -32,7 +32,15 @@ logger = logging.getLogger(__name__)
 
 
 def compare_linguistic_with_backoff(setting: BackoffSettings, all_sizes, test_pair: Pair, median: float, regex_predictions) -> (bool, float):
-    #TODO think of a proxy for confidence using the backoff level and the difference between the sizes
+    """Compare a pair of objects by predicting their numeric sizes, using fallback mechanisms.
+
+    :param setting: settings for fallback
+    :param all_sizes: a lookup for sizes for each object
+    :param test_pair: the pair to be compared
+    :param median: median size as final fallback
+    :param regex_predictions: regex predictions to be used as fallback
+    :return: whether the first object is larger than the second, the difference in size, a note for analysis
+    """
     o1 = test_pair.e1.replace('_', ' ')
     o2 = test_pair.e2.replace('_', ' ')
     regex1 = regex_predictions[o1]
@@ -52,6 +60,7 @@ def compare_linguistic_with_backoff(setting: BackoffSettings, all_sizes, test_pa
 
 
 def main():
+    """Start bootstrapping experiment."""
     with open("config.yml", "r") as ymlfile:
         cfg = Box(yaml.safe_load(ymlfile))
         # cfg = Box(yaml.safe_load(ymlfile), default_box=True, default_box_attr=None)
@@ -65,6 +74,11 @@ def main():
 
 
 def run_bootstrapping_comparison_experiment(cfg, test_pairs, unseen_objects):
+    """Use learned bootstrapping patterns to predict numeric sizes for each object pair and then compare.
+
+    The system also makes use of fallback mechanisms.
+
+    """
     patterns = load_patterns(cfg)
     median = calc_median(cfg)
     logger.info(f'Median: {median}')
@@ -141,44 +155,10 @@ def run_bootstrapping_comparison_experiment(cfg, test_pairs, unseen_objects):
         # x = np.linspace(0, 10000, 1000)
         # plt.savefig('test_svm.png')
 
-        minimum_power = floor(np.log10(min(diffs_not_none)))
-        maximum_power = ceil(np.log10(max(diffs_not_none)))
-        bins = np.logspace(minimum_power, maximum_power, 20, base=10)
-        bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean', bins=bins)
-        bin_counts, _, _ = stats.binned_statistic(diffs_not_none, corrects_not_none, 'count', bins=bins)
-        fig, ax = plt.subplots()
-        # plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
-        x = np.logspace(minimum_power, maximum_power, 500, base=10)
-        X = np.reshape(np.log10(x), (-1, 1))
-        plt.plot(x, regr_linear.predict(X), '-', label='ridge regression (degree=1)')
-        plt.plot(x, poly_ridge_2.predict(X), '-',
-                 label='ridge regression (degree=2)')
-        plt.plot(x, poly_ridge_3.predict(X), '-',
-                 label='ridge regression (degree=3)')
+        ax, bin_counts, bin_edges, bin_means = plot_difference(corrects_not_none, diffs_not_none, poly_ridge_2,
+                                                               poly_ridge_3, regr_linear)
 
-        minc = min(bin_counts)
-        maxc = max(bin_counts)
-        norm = colors.SymLogNorm(vmin=minc, vmax=maxc, linthresh=1)
-        bin_counts_normalized = [norm(c) for c in bin_counts]
-        viridis = cm.get_cmap('viridis', 20)
-
-        mins = bin_edges[:-1]
-        maxs = bin_edges[1:]
-        mask = ~np.isnan(bin_means)
-        plt.hlines(np.extract(mask, bin_means), np.extract(mask, mins), np.extract(mask, maxs),
-                   colors=viridis(np.extract(mask, bin_counts_normalized)), lw=5,
-                   label='binned statistic of data')
-        # plt.legend()
-        plt.xlabel('Absolute difference in size')
-        plt.ylabel('Selectivity')
-        plt.ylim(-0.05, 1.05)
-        ax.set_xscale('log')
-        sm = plt.cm.ScalarMappable(cmap=viridis, norm=norm)
-        plt.legend(loc=7)
-        colorbar = plt.colorbar(sm)
-        colorbar.set_label('bin count')
-        plt.savefig('differences.png')
-        plt.show()
+        plot_difference_symlog(ax, bin_counts, bin_edges, bin_means)
 
         correlation, _ = pearsonr(diffs_not_none, corrects_not_none)
         logger.info(f'Pearsons correlation: {correlation}')
@@ -190,6 +170,51 @@ def run_bootstrapping_comparison_experiment(cfg, test_pairs, unseen_objects):
             pickle.dump(poly_ridge_2, f)
     results_df = pd.DataFrame(results)
     results_df.to_csv('results_bootstrapping_comparison_backoff.csv')
+
+
+def plot_difference_symlog(ax, bin_counts, bin_edges, bin_means):
+    """Plot the differences wrt selectivity on a symlog scale"""
+    minc = min(bin_counts)
+    maxc = max(bin_counts)
+    norm = colors.SymLogNorm(vmin=minc, vmax=maxc, linthresh=1)
+    bin_counts_normalized = [norm(c) for c in bin_counts]
+    viridis = cm.get_cmap('viridis', 20)
+    mins = bin_edges[:-1]
+    maxs = bin_edges[1:]
+    mask = ~np.isnan(bin_means)
+    plt.hlines(np.extract(mask, bin_means), np.extract(mask, mins), np.extract(mask, maxs),
+               colors=viridis(np.extract(mask, bin_counts_normalized)), lw=5,
+               label='binned statistic of data')
+    # plt.legend()
+    plt.xlabel('Absolute difference in size')
+    plt.ylabel('Selectivity')
+    plt.ylim(-0.05, 1.05)
+    ax.set_xscale('log')
+    sm = plt.cm.ScalarMappable(cmap=viridis, norm=norm)
+    plt.legend(loc=7)
+    colorbar = plt.colorbar(sm)
+    colorbar.set_label('bin count')
+    plt.savefig('differences.png')
+    plt.show()
+
+
+def plot_difference(corrects_not_none, diffs_not_none, poly_ridge_2, poly_ridge_3, regr_linear):
+    """Plot the differences wrt selectivity on a log scale"""
+    minimum_power = floor(np.log10(min(diffs_not_none)))
+    maximum_power = ceil(np.log10(max(diffs_not_none)))
+    bins = np.logspace(minimum_power, maximum_power, 20, base=10)
+    bin_means, bin_edges, binnumber = stats.binned_statistic(diffs_not_none, corrects_not_none, 'mean', bins=bins)
+    bin_counts, _, _ = stats.binned_statistic(diffs_not_none, corrects_not_none, 'count', bins=bins)
+    fig, ax = plt.subplots()
+    # plt.plot(diffs_not_none, corrects_not_none, 'b.', label='raw data')
+    x = np.logspace(minimum_power, maximum_power, 500, base=10)
+    X = np.reshape(np.log10(x), (-1, 1))
+    plt.plot(x, regr_linear.predict(X), '-', label='ridge regression (degree=1)')
+    plt.plot(x, poly_ridge_2.predict(X), '-',
+             label='ridge regression (degree=2)')
+    plt.plot(x, poly_ridge_3.predict(X), '-',
+             label='ridge regression (degree=3)')
+    return ax, bin_counts, bin_edges, bin_means
 
 
 if __name__ == "__main__":

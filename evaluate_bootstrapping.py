@@ -11,6 +11,7 @@ pp = pprint.PrettyPrinter()
 
 
 def main():
+    """Evaluate the output of a bootstrapping run."""
     parser = ArgumentParser()
     parser.add_argument('--relationships', required=True, type=str)
 

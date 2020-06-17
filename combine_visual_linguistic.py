@@ -26,6 +26,7 @@ def get_result(golds, preds, tag, notes):
 
 
 def random_combination(visual, linguistic):
+    """Use a random combination of the linguistic and visual system."""
     assert len(visual) == len(linguistic)
     res = list()
     for i, v1 in enumerate(visual):
@@ -39,6 +40,7 @@ def random_combination(visual, linguistic):
     return res
 
 def main():
+    """Use the outputs of the linguistic and visual system to create a combined system that predicts confidences."""
     with open("config.yml", "r") as ymlfile:
         cfg = Box(yaml.safe_load(ymlfile))
 

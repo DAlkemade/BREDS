@@ -29,6 +29,7 @@ N_WORD2VEC = 100
 CONTAMINATION_FRAC = .3
 
 def read_weights(parameters_fname: str):
+    """Read the weights for context vectors during clustering."""
     weights = Weights()
     for line in fileinput.input(parameters_fname):
         if line.startswith("alpha"):
@@ -92,6 +93,7 @@ def predict_sizes(all_sizes: dict, objects: list, cfg: BackoffSettings, median: 
 
 
 def predict_size(all_sizes: dict, cfg: BackoffSettings, object: str, median_size = None, regex_size = None) -> (float, str):
+    """Predict a size for an object using a combination of fallback mechanisms."""
     try:
         sims_dict = all_sizes[object]
     except KeyError:
@@ -162,6 +164,7 @@ def predict_size(all_sizes: dict, cfg: BackoffSettings, object: str, median_size
 
 
 def filter_tuples(candidate_tuples, dev_threshold):
+    """Filter tuples that have a confidence higher than dev_threshold"""
     filtered: DefaultDict[Tuple, list] = defaultdict(list)
     for t, v in candidate_tuples.items():
         if t.confidence > dev_threshold:
@@ -171,6 +174,7 @@ def filter_tuples(candidate_tuples, dev_threshold):
 
 
 def gather_sizes_with_bootstrapping_patterns(cfg: Box, patterns, all_new_objects) -> DefaultDict[Tuple, list]:
+    """Gather text, parse tuples and check if tuples include valid sizes."""
     visual_config = VisualConfig(cfg.path.vg_objects, cfg.path.vg_objects_anchors)
     config = Config(cfg, visual_config)
     tuples = generate_tuples(randomString(), config, names=all_new_objects)
@@ -243,6 +247,7 @@ def create_reverse_lookup(similar_words):
 
 
 def find_similar_words(word2vec_model, unseen_objects, n_word2vec=N_WORD2VEC, use_word2vec=True):
+    """Compile a dictionary which has similar words for each object using different linguistic techniques."""
     similar_words = defaultdict(lambda: defaultdict(list))
     for entity in unseen_objects:
         # Word2vec
@@ -406,6 +411,7 @@ def generate_set_from_sizes(cfg):
 
 
 def get_all_sizes_bootstrapping(cache_fname, cfg, input_fname, patterns, unseen_objects, use_word2vec=True):
+    """Extracts all candidate tuples from text it scrapes for the objects."""
     if "data_numeric/VG_YOLO_intersection_dev_annotated.csv" in input_fname and os.path.exists(cache_fname):
         with open(cache_fname, 'rb') as f:
             all_sizes = pickle.load(f)

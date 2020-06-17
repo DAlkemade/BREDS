@@ -92,7 +92,8 @@ class BREDS(object):
 
 
     def match_seeds_tuples(self):
-        # checks if an extracted tuple matches seeds tuples
+        """check if an extracted tuple matches seeds tuples.
+        """
         if self.config.e1_type != 'OBJECT' or self.config.e2_type != 'NUMBER':
             raise RuntimeError("This function is only suitable for object-numer combinations")
         matched_tuples = list()
@@ -138,9 +139,10 @@ class BREDS(object):
         f_output.close()
 
     def init_bootstrap(self, tuples):
+        """Start a bootstrapping run.
 
-        # starts a bootstrap iteration
-
+        :param tuples: candidate tuples
+        """
         if tuples is not None:
             f = open(tuples, "r")
             logger.info("\nLoading processed tuples from disk...")
@@ -321,6 +323,7 @@ class BREDS(object):
         self.write_patterns_to_disk()
 
     def cluster_tuples(self, matched_tuples):
+        """Cluster candidate tuples on their context vectors."""
         # this is a single-pass clustering
         # Initialize: if no patterns exist, first tuple goes to first cluster
         if len(self.patterns) == 0:
@@ -366,6 +369,7 @@ class BREDS(object):
 
 
 def process_objects(names: set, htmls_lookup: dict, config: Config):
+    """Parse candidate tuples for all objects in 'names'."""
     tuples = list()
     logger.info("Start parsing tuples")
     tagger = load('taggers/maxent_treebank_pos_tagger/english.pickle')
