@@ -1,9 +1,9 @@
-from breds.config import Config, Weights
+from gensim import matutils
+from numpy import dot
+
+from breds.config import Weights
 from breds.pattern import Pattern
 from breds.tuple import Tuple
-from numpy import dot
-from gensim import matutils
-
 
 
 def similarity_3_contexts(p: Tuple, t: Tuple, weights: Weights):

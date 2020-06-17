@@ -7,21 +7,23 @@ from box import Box
 from gensim.models import KeyedVectors
 from nltk import WordNetLemmatizer
 from nltk.corpus import stopwords
+from visual_size_comparison.config import VisualConfig
 
 from breds.reverb import Reverb
 from breds.seed import Seed
-from visual_size_comparison.config import VisualConfig
 
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
 
 logger = logging.getLogger(__name__)
 
+
 class Weights():
     def __init__(self):
         self.alpha = None
         self.beta = None
         self.gamma = None
+
 
 class Config(object):
 
@@ -61,7 +63,6 @@ class Config(object):
         self.objects = read_objects_of_interest(cfg.path.objects)
         logger.info(f'Number of objects: {len(self.objects)}')
 
-
         self.wUpdt = float(cfg.parameters.wUpdt)
         self.wUnk = float(cfg.parameters.wUnk)
         self.wNeg = float(cfg.parameters.wNeg)
@@ -83,18 +84,15 @@ class Config(object):
 
         self.relative_difference_cutoff = float(cfg.parameters.relative_difference_cutoff)
 
-
         self.coreference: bool = cfg.parameters.coreference
         assert type(self.coreference) is bool
-
 
         self.visual: bool = cfg.parameters.visual_confidence
         assert type(self.visual) is bool
 
         self.visual_cutoff: float = float(cfg.parameters.visual_cutoff)
 
-
-        assert self.weights.alpha+self.weights.beta+self.weights.gamma == 1
+        assert self.weights.alpha + self.weights.beta + self.weights.gamma == 1
 
         self.read_seeds(cfg.path.seeds_file, self.positive_seed_tuples)
         self.read_seeds(cfg.path.negative_seeds, self.negative_seed_tuples)
@@ -105,30 +103,30 @@ class Config(object):
 
         logger.info("Relationship/Sentence Representation")
         logger.info(f"e1 type              : {self.e1_type}")
-        logger.info(f"e2 type              : { self.e2_type}")
-        logger.info(f"tags type             { self.tag_type}")
-        logger.info(f"context window        { self.context_window_size}")
-        logger.info(f"max tokens away       { self.max_tokens_away}")
-        logger.info(f"min tokens away       { self.min_tokens_away}")
-        logger.info(f"Word2Vec Model        { self.word2vecmodelpath}")
+        logger.info(f"e2 type              : {self.e2_type}")
+        logger.info(f"tags type             {self.tag_type}")
+        logger.info(f"context window        {self.context_window_size}")
+        logger.info(f"max tokens away       {self.max_tokens_away}")
+        logger.info(f"min tokens away       {self.min_tokens_away}")
+        logger.info(f"Word2Vec Model        {self.word2vecmodelpath}")
 
         logger.info("\nContext Weighting")
-        logger.info(f"alpha                 { self.weights.alpha}")
-        logger.info(f"beta                  { self.weights.beta}")
-        logger.info(f"gamma                 { self.weights.gamma}")
+        logger.info(f"alpha                 {self.weights.alpha}")
+        logger.info(f"beta                  {self.weights.beta}")
+        logger.info(f"gamma                 {self.weights.gamma}")
 
         logger.info("\nSeeds")
-        logger.info(f"positive seeds        { len(self.positive_seed_tuples)}")
-        logger.info(f"negative seeds        { len(self.negative_seed_tuples)}")
-        logger.info(f"negative seeds wNeg   { self.wNeg}")
-        logger.info(f"unknown seeds wUnk    { self.wUnk}")
+        logger.info(f"positive seeds        {len(self.positive_seed_tuples)}")
+        logger.info(f"negative seeds        {len(self.negative_seed_tuples)}")
+        logger.info(f"negative seeds wNeg   {self.wNeg}")
+        logger.info(f"unknown seeds wUnk    {self.wUnk}")
 
         logger.info("\nParameters and Thresholds")
-        logger.info(f"threshold_similarity  { self.threshold_similarity}")
-        logger.info(f"instance confidence   { self.instance_confidence}")
-        logger.info(f"min_pattern_support   { self.min_pattern_support}")
-        logger.info(f"iterations            { self.number_iterations}")
-        logger.info(f"iteration wUpdt       { self.wUpdt}")
+        logger.info(f"threshold_similarity  {self.threshold_similarity}")
+        logger.info(f"instance confidence   {self.instance_confidence}")
+        logger.info(f"min_pattern_support   {self.min_pattern_support}")
+        logger.info(f"iterations            {self.number_iterations}")
+        logger.info(f"iteration wUpdt       {self.wUpdt}")
         logger.info(f"Coreference:          {self.coreference}")
         logger.info(f"Visual:               {self.visual}")
         logger.info(f"Visual cutoff:        {self.visual_cutoff}")

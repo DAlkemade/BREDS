@@ -9,6 +9,7 @@ __email__ = "dsbatista@inesc-id.pt"
 
 logger = logging.getLogger(__name__)
 
+
 class Tuple(object):
     # http://www.ling.upenn.edu/courses/Fall_2007/ling001/penn_treebank_pos.html
     # filter_pos = ['JJ', 'JJR', 'JJS', 'RB', 'RBR', 'RBS', 'WRB']

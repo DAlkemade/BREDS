@@ -1,10 +1,11 @@
 import logging
-from typing import List, Set
+from typing import Set
 
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
 
 logger = logging.getLogger(__name__)
+
 
 class Seed(object):
     def __init__(self, _e1, _e2: float):

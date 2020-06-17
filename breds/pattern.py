@@ -2,10 +2,10 @@ import logging
 import uuid
 from typing import List
 
+import numpy as np
+
 from breds.config import Config
 from breds.visual import check_tuple_with_visuals
-
-import numpy as np
 
 __author__ = "David S. Batista"
 __email__ = "dsbatista@inesc-id.pt"
@@ -48,10 +48,10 @@ class Pattern(object):
     def update_confidence(self, config):
         if self.positive > 0:
             self.confidence = (
-                float(self.positive) / float(self.positive +
-                                             self.unknown * config.wUnk +
-                                             self.negative * config.wNeg
-                                             )
+                    float(self.positive) / float(self.positive +
+                                                 self.unknown * config.wUnk +
+                                                 self.negative * config.wNeg
+                                                 )
             )
         elif self.positive == 0:
             self.confidence = 0
@@ -71,7 +71,6 @@ class Pattern(object):
             self.bet_uniques_vectors.add(tuple(t.bet_vector))
             self.bet_uniques_words.add(t.bet_words)
 
-
     def update_selectivity(self, t, config: Config):
         matched_both = False
         matched_e1 = False
@@ -79,7 +78,7 @@ class Pattern(object):
         tuple_e1 = t.e1.strip()
         tuple_number = t.e2
 
-        #TODO think about whether it's fair that EVERY value for a seed counts equally. maybe it should use a mean from all the sizes in seed.sizes?
+        # TODO think about whether it's fair that EVERY value for a seed counts equally. maybe it should use a mean from all the sizes in seed.sizes?
         for s in config.positive_seed_tuples.values():
             if s.e1.strip() == tuple_e1:
                 matched_e1 = True
@@ -124,16 +123,14 @@ class PatternVisual(Pattern):
 
         # TODO might be a bit distorted, because getting a negative is harder, because for all synsets enough comparisons need to be available
 
-
     def update_confidence(self, config):
         super().update_confidence(config)
         total_hits = len(self.visual_results)
-        if total_hits > 100: # only use visual if enough comparisons were used
+        if total_hits > 100:  # only use visual if enough comparisons were used
             visual_confidence = np.mean(self.visual_results)
-            logger.info(f'Used visual: {total_hits} hits; visual confidence {visual_confidence}; normal confidence: {self.confidence}')
-            if visual_confidence < config.visual_cutoff: # TODO think about visual cutoff
+            logger.info(
+                f'Used visual: {total_hits} hits; visual confidence {visual_confidence}; normal confidence: {self.confidence}')
+            if visual_confidence < config.visual_cutoff:  # TODO think about visual cutoff
                 self.confidence = 0.
         else:
             logger.info(f'Did NOT use visual for the confidence of pattern')
-
-

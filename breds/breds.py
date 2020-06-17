@@ -3,32 +3,29 @@ import logging
 import operator
 import os
 import pickle
-from textwrap import wrap
-
-import neuralcoref
-import spacy
 import sys
 import time
 from collections import defaultdict
+from textwrap import wrap
 from typing import List
 
+import neuralcoref
 import numpy as np
+import spacy
 import tqdm
 from box import Box
 from matplotlib import pyplot as plt
 from nltk import load, tokenize
+from visual_size_comparison.config import VisualConfig
 
-from breds.util import randomString
 from breds.config import Config
+from breds.coref import find_corefs
 from breds.htmls import scrape_htmls
 from breds.pattern import Pattern, pattern_factory
 from breds.sentence import Sentence
 from breds.similarity import similarity_all
 from breds.tuple import Tuple
 from breds.visual import check_tuple_with_visuals
-from visual_size_comparison.config import VisualConfig
-
-from breds.coref import find_corefs
 from parse_coref import load_cache
 
 logger = logging.getLogger(__name__)
@@ -90,7 +87,6 @@ class BREDS(object):
 
         self.processed_tuples += generate_tuples(tuples_fname, self.config)
 
-
     def match_seeds_tuples(self):
         """check if an extracted tuple matches seeds tuples.
         """
@@ -149,8 +145,6 @@ class BREDS(object):
             self.processed_tuples = pickle.load(f)
             f.close()
         logger.info(f"{len(self.processed_tuples)} tuples loaded")
-
-
 
         self.curr_iteration = 0
         try:
@@ -339,7 +333,8 @@ class BREDS(object):
             # with the highest similarity score
             for i in range(0, len(self.patterns), 1):
                 extraction_pattern = self.patterns[i]
-                accept, score = similarity_all(t, extraction_pattern, self.config.weights, self.config.threshold_similarity)
+                accept, score = similarity_all(t, extraction_pattern, self.config.weights,
+                                               self.config.threshold_similarity)
                 if accept is True and score > max_similarity:
                     max_similarity = score
                     max_similarity_cluster_index = i
@@ -358,7 +353,7 @@ class BREDS(object):
     def write_seeds_to_disk(self):
         logger.info('Saving seeds to disk')
         timestr = time.strftime("%Y%m%d-%H%M%S")
-        printable_seed_dict = dict((k, list(v.sizes)) for k,v in self.config.positive_seed_tuples.items())
+        printable_seed_dict = dict((k, list(v.sizes)) for k, v in self.config.positive_seed_tuples.items())
         with open(f'final_seeds_{timestr}.json', 'w') as outfile:
             json.dump(printable_seed_dict, outfile)
 
@@ -420,7 +415,7 @@ def process_objects(names: set, htmls_lookup: dict, config: Config):
     return tuples
 
 
-def generate_tuples(tuples_fname: str, config: Config, names = None) -> List[Tuple]:
+def generate_tuples(tuples_fname: str, config: Config, names=None) -> List[Tuple]:
     """
     Generate tuples instances from a text file with sentences where named entities are
     already tagged
@@ -441,8 +436,6 @@ def generate_tuples(tuples_fname: str, config: Config, names = None) -> List[Tup
         # load needed stuff, word2vec model and a pos-tagger
 
         logger.info("\nGenerating relationship instances from sentences")
-
-
 
         logger.info("Retrieving htmls")
         htmls_lookup = scrape_htmls(config.htmls_cache, list(names))
@@ -477,7 +470,7 @@ def generate_tuples(tuples_fname: str, config: Config, names = None) -> List[Tup
             logger.warning(f'{t.e1} not in objects')
     occurrences = list(object_occurrence.values())
     max_value = 100
-    bins = np.linspace(0, max_value, max_value+1)
+    bins = np.linspace(0, max_value, max_value + 1)
     clipped_values = np.clip(occurrences, bins[0], bins[-1])
     hist, _, _ = plt.hist(clipped_values, bins=bins)
     logger.info(f'Number of objects with no tuple: {hist[0]}')

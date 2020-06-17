@@ -1,10 +1,10 @@
 from collections import namedtuple
 from unittest import TestCase
 from unittest.mock import MagicMock
-import pandas as pd
 
+import pandas as pd
 from scipy.stats import norm
-from size_comparisons.inference.baseline_numeric_gaussians import load_and_update_baseline, BaselineNumericGaussians
+from size_comparisons.inference.baseline_numeric_gaussians import BaselineNumericGaussians
 
 from breds.pattern import Pattern
 from breds.seed import Seed
@@ -39,7 +39,6 @@ class TestPattern(TestCase):
         self.config.positive_seed_tuples = seed_set
 
     def test_update_selectivity(self):
-
         bef_words = ['dummy']
         bet_words = ['dummy']
         aft_words = ['dummy']
@@ -50,7 +49,6 @@ class TestPattern(TestCase):
         pattern.update_selectivity(t, self.config, self.baseline)
         self.assertEqual(len(pattern.p_values), 1)
         self.assertEqual(pattern.p_values[0], self.baseline.shortest_path(self.e1, self.e2))
-
 
     def test_update_confidence(self):
         bef_words = ['dummy']

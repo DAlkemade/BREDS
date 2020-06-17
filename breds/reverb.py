@@ -58,7 +58,7 @@ class Reverb(object):
         patterns = []
         patterns_tags = []
         i = 0
-        limit = len(tags)-1
+        limit = len(tags) - 1
 
         while i <= limit:
             tmp = io.StringIO()
@@ -66,14 +66,14 @@ class Reverb(object):
 
             # a ReVerb pattern always starts with a verb
             if tags[i][1] == 'VERB':
-                tmp.write(tags[i][0]+' ')
+                tmp.write(tags[i][0] + ' ')
                 t = (tags[i][0], tags[i][1])
                 tmp_tags.append(t)
                 i += 1
 
                 # V = verb particle? adv? (also capture auxiliary verbs)
                 while i <= limit and tags[i][1] in ['VERB', 'PRT', 'ADV']:
-                    tmp.write(tags[i][0]+' ')
+                    tmp.write(tags[i][0] + ' ')
                     t = (tags[i][0], tags[i][1])
                     tmp_tags.append(t)
                     i += 1
@@ -81,14 +81,14 @@ class Reverb(object):
                 # W = (noun | adj | adv | pron | det)
                 while i <= limit and tags[i][1] in ['NOUN', 'ADJ', 'ADV',
                                                     'PRON', 'DET']:
-                    tmp.write(tags[i][0]+' ')
+                    tmp.write(tags[i][0] + ' ')
                     t = (tags[i][0], tags[i][1])
                     tmp_tags.append(t)
                     i += 1
 
                 # P = (prep | particle | inf. marker)
                 while i <= limit and tags[i][1] in ['ADP', 'PRT']:
-                    tmp.write(tags[i][0]+' ')
+                    tmp.write(tags[i][0] + ' ')
                     t = (tags[i][0], tags[i][1])
                     tmp_tags.append(t)
                     i += 1
@@ -119,7 +119,7 @@ class Reverb(object):
         patterns = []
         patterns_tags = []
         i = 0
-        limit = len(tagged_text)-1
+        limit = len(tagged_text) - 1
         tags = tagged_text
 
         verb = ['VB', 'VBD', 'VBD|VBN', 'VBG', 'VBG|NN', 'VBN', 'VBP',
@@ -142,14 +142,14 @@ class Reverb(object):
             # a ReVerb pattern always starts with a verb
             if tags[i][1] in verb:
 
-                tmp.write(tags[i][0]+' ')
+                tmp.write(tags[i][0] + ' ')
                 t = (tags[i][0], tags[i][1])
                 tmp_tags.append(t)
                 i += 1
 
                 # V = verb particle? adv? (also capture auxiliary verbs)
                 while i <= limit and (tags[i][1] in verb or tags[i][1] in adverb or tags[i][1] in particule):
-                    tmp.write(tags[i][0]+' ')
+                    tmp.write(tags[i][0] + ' ')
                     t = (tags[i][0], tags[i][1])
                     tmp_tags.append(t)
                     i += 1
@@ -157,14 +157,14 @@ class Reverb(object):
                 # W = (noun | adj | adv | pron | det)
                 while i <= limit and (tags[i][1] in noun or tags[i][1] in adjectiv or tags[i][1] in adverb or
                                       tags[i][1] in pronoun or tags[i][1] in determiner):
-                    tmp.write(tags[i][0]+' ')
+                    tmp.write(tags[i][0] + ' ')
                     t = (tags[i][0], tags[i][1])
                     tmp_tags.append(t)
                     i += 1
 
                 # P = (prep | particle | inf. marker)
                 while i <= limit and (tags[i][1] in adp or tags[i][1] in particule):
-                    tmp.write(tags[i][0]+' ')
+                    tmp.write(tags[i][0] + ' ')
                     t = (tags[i][0], tags[i][1])
                     tmp_tags.append(t)
                     i += 1
@@ -182,7 +182,7 @@ class Reverb(object):
 
         merged_patterns_tags = [
             item for sublist in patterns_tags for item in sublist
-            ]
+        ]
         return merged_patterns_tags
 
     @staticmethod
@@ -211,7 +211,7 @@ class Reverb(object):
         patterns = []
         patterns_tags = []
         i = 0
-        limit = len(tags_ptb)-1
+        limit = len(tags_ptb) - 1
         tags = tags_ptb
 
         verb = ['VB', 'VBD', 'VBD|VBN', 'VBG', 'VBG|NN', 'VBN', 'VBP',
@@ -232,14 +232,14 @@ class Reverb(object):
 
             # a ReVerb pattern always starts with a verb
             if tags[i][1] in verb:
-                tmp.write(tags[i][0]+' ')
+                tmp.write(tags[i][0] + ' ')
                 t = (tags[i][0], tags[i][1])
                 tmp_tags.append(t)
                 i += 1
 
                 # V = verb particle? adv? (also capture auxiliary verbs)
                 while i <= limit and (tags[i][1] in verb or tags[i][1] in adverb or tags[i][1] in particule):
-                    tmp.write(tags[i][0]+' ')
+                    tmp.write(tags[i][0] + ' ')
                     t = (tags[i][0], tags[i][1])
                     tmp_tags.append(t)
                     i += 1
@@ -247,14 +247,14 @@ class Reverb(object):
                 # W = (noun | adj | adv | pron | det)
                 while i <= limit and (tags[i][1] in noun or tags[i][1] in adjectiv or tags[i][1] in adverb or
                                       tags[i][1] in pronoun or tags[i][1] in determiner):
-                    tmp.write(tags[i][0]+' ')
+                    tmp.write(tags[i][0] + ' ')
                     t = (tags[i][0], tags[i][1])
                     tmp_tags.append(t)
                     i += 1
 
                 # P = (prep | particle | inf. marker)
                 while i <= limit and (tags[i][1] in adp or tags[i][1] in particule):
-                    tmp.write(tags[i][0]+' ')
+                    tmp.write(tags[i][0] + ' ')
                     t = (tags[i][0], tags[i][1])
                     tmp_tags.append(t)
                     i += 1
@@ -271,7 +271,7 @@ class Reverb(object):
 
         merged_patterns_tags = [
             item for sublist in patterns_tags for item in sublist
-            ]
+        ]
         return merged_patterns_tags
 
     def detect_passive_voice(self, pattern):
@@ -297,7 +297,7 @@ class Reverb(object):
                 # past verb + by
                 elif (pattern[-2][1] == 'VBN' or pattern[-2][1] == 'VBD') \
                         and pattern[-1][0] == 'by':
-                        passive_voice = True
+                    passive_voice = True
 
         # past verb + by
         elif len(pattern) >= 2:
@@ -322,6 +322,7 @@ def main():
             print("Passive Voice: False")
         print("\n")
     fileinput.close()
+
 
 if __name__ == "__main__":
     main()

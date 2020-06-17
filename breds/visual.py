@@ -22,5 +22,4 @@ def check_tuple_with_visuals(config: VisualConfig, entity, candidate_size) -> Li
                 correct: bool = (candidate_size > visual_anchor.size) == (res > 1.)
                 corresponds_to_visual_anchors.append(correct)
 
-
     return corresponds_to_visual_anchors

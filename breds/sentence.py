@@ -1,7 +1,7 @@
 import logging
 import re
+
 from nltk import word_tokenize
-from nltk.corpus import stopwords
 from size_comparisons.scraping.lengths_regex import LengthsFinderRegex
 
 from breds.config import Config
@@ -12,7 +12,7 @@ __email__ = "dsbatista@inesc-id.pt"
 logger = logging.getLogger(__name__)
 
 # tokens between entities which do not represent relationships
-bad_tokens = [",", "(", ")", ";", "''",  "``", "'s", "-", "vs.", "v", "'", ":", ".", "--"]
+bad_tokens = [",", "(", ")", ";", "''", "``", "'s", "-", "vs.", "v", "'", ":", ".", "--"]
 # stopwords = stopwords.words('english')
 # TODO check wehther this was a good idea. but e.g. 'is' is in there, which is bad
 stopwords = []
@@ -82,7 +82,7 @@ class Relationship:
 
     def __eq__(self, other):
         if self.e1 == other.e1 and self.before == other.before and \
-                        self.between == other.between \
+                self.between == other.between \
                 and self.after == other.after:
             return True
         else:
@@ -129,7 +129,6 @@ class Sentence:
         for m in re.finditer(objects_regex, sentence_no_tags):
             objects.append(m)
 
-
         if len(numbers) >= 1 and len(objects) >= 1:
             text_tokens = word_tokenize(sentence_no_tags)
 
@@ -157,7 +156,6 @@ class Sentence:
                     e = EntitySimple(entity_clean, e_parts, e_type, locations)
                     entities_info.add(e)
 
-
             # create an hash table:
             # - key is the starting index in the tokenized sentence of an entity
             # - value the corresponding Entity instance
@@ -171,10 +169,10 @@ class Sentence:
             # and greater than 'min_tokens'
             # the arguments match the seeds semantic types
             sorted_keys = list(sorted(locations))
-            for i in range(len(sorted_keys)-1):
-                distance = sorted_keys[i+1] - sorted_keys[i]
+            for i in range(len(sorted_keys) - 1):
+                distance = sorted_keys[i + 1] - sorted_keys[i]
                 e1 = locations[sorted_keys[i]]
-                e2 = locations[sorted_keys[i+1]]
+                e2 = locations[sorted_keys[i + 1]]
 
                 if max_tokens >= distance >= min_tokens and e1.type == e1_type \
                         and e2.type == e2_type:
@@ -198,8 +196,8 @@ class Sentence:
                     before = self.tagged_text[:sorted_keys[i]]
                     before = before[-window_size:]
                     between = self.tagged_text[sorted_keys[i] +
-                                               len(e1.parts):sorted_keys[i+1]]
-                    after = self.tagged_text[sorted_keys[i+1]+len(e2.parts):]
+                                               len(e1.parts):sorted_keys[i + 1]]
+                    after = self.tagged_text[sorted_keys[i + 1] + len(e2.parts):]
                     after = after[:window_size]
 
                     # ignore relationships where BET context is only stopwords

@@ -1,7 +1,6 @@
 import fileinput
 import json
 import logging
-import operator
 import os
 import pickle
 from collections import defaultdict
@@ -12,7 +11,6 @@ import numpy as np
 import pandas as pd
 from box import Box
 from nltk.corpus import wordnet as wn
-from sklearn.cluster import KMeans
 from sklearn.covariance import EllipticEnvelope
 from visual_size_comparison.config import VisualConfig
 from visual_size_comparison.propagation import Pair
@@ -27,6 +25,7 @@ logger = logging.getLogger(__name__)
 
 N_WORD2VEC = 100
 CONTAMINATION_FRAC = .3
+
 
 def read_weights(parameters_fname: str):
     """Read the weights for context vectors during clustering."""
@@ -44,8 +43,8 @@ def read_weights(parameters_fname: str):
 
 
 class BackoffSettings:
-    def __init__(self, use_direct = False, use_word2vec: bool = False, use_hypernyms: bool = False,
-                 use_hyponyms: bool = False, use_head_noun: bool = False, use_median_size = False, use_regex = False):
+    def __init__(self, use_direct=False, use_word2vec: bool = False, use_hypernyms: bool = False,
+                 use_hyponyms: bool = False, use_head_noun: bool = False, use_median_size=False, use_regex=False):
         self.use_regex = use_regex
         self.use_median_size = use_median_size
         self.use_direct = use_direct
@@ -75,8 +74,6 @@ class BackoffSettings:
         return str(enabled)
 
 
-
-
 def predict_sizes(all_sizes: dict, objects: list, cfg: BackoffSettings, median: float) -> Dict[str, float]:
     """Predict the final size for objects using provided sizes for the objects and their related objects.
 
@@ -92,7 +89,7 @@ def predict_sizes(all_sizes: dict, objects: list, cfg: BackoffSettings, median: 
     return predictions
 
 
-def predict_size(all_sizes: dict, cfg: BackoffSettings, object: str, median_size = None, regex_size = None) -> (float, str):
+def predict_size(all_sizes: dict, cfg: BackoffSettings, object: str, median_size=None, regex_size=None) -> (float, str):
     """Predict a size for an object using a combination of fallback mechanisms."""
     try:
         sims_dict = all_sizes[object]
@@ -257,7 +254,7 @@ def find_similar_words(word2vec_model, unseen_objects, n_word2vec=N_WORD2VEC, us
         if use_word2vec:
             try:
                 most_similar = word2vec_model.most_similar(positive=entity.split(),
-                                                        topn=n_word2vec)  # TODO maybe use a bigram model? Because now those can not be entered and not be given as similar words
+                                                           topn=n_word2vec)  # TODO maybe use a bigram model? Because now those can not be entered and not be given as similar words
             except KeyError:
                 logger.warning(f'{entity} not in word2vec')
                 most_similar = list()
@@ -310,7 +307,6 @@ def find_similar_words(word2vec_model, unseen_objects, n_word2vec=N_WORD2VEC, us
 def predict_using_tuples(tuples_bootstrap, unseen_objects, maximum=True):
     collated = defaultdict(list)
     for t in tuples_bootstrap:
-
         collated[t.e1].append(t.e2)
         logger.info(f'Confidence: {t.confidence}')
 
