@@ -1,6 +1,8 @@
-Bootstrapping Relationship Extraction with Distributional Semantics
+Bootstrapping Relationship Extraction with Distributional Semantics - Size Extraction
 ===================================================================
-THIS REPOSITORY IS A FORK OF THE REPOSITORY BELONGING TO THE FIRST OF THE BELOW PAPERS
+**THIS REPOSITORY IS A FORK OF THE REPOSITORY BELONGING TO THE FIRST OF THE BELOW PAPERS. I have updated the readme with my project.**
+
+
 
 BREDS is a bootstrapping system for relationship extraction relying on word vector representations (i.e., word embeddings). For more details please refer to:
 
@@ -20,16 +22,6 @@ Architecture: system description
 
 Dependencies
 ============
-
-You need to have Python 3.6.5 and the following libraries installed:
-
-**Numpy**: http://www.numpy.org/
-
-**NLTK**: http://www.nltk.org/
-
-**Gensim**: https://radimrehurek.com/gensim/
-
-which you can install issuing the following command:
 
     pip install -r requirements.txt
 
@@ -69,11 +61,25 @@ python -m spacy download en_core_web_sm
 Usage:
 =====
 
-    python breds.py parameters sentences positive_seeds negative_seeds similarity confidence
+Train breds: `breds.py`
+
+Run breds on point comparisons: `POINT.py`
+
+Run breds on size comparisons: `bootstrapping_comparison.py`
+
+Run visual propagation: `visual_propagation.py`
+
+Run visual range creation: `visual_propagation_ranges.py`
+
+Run coreference resolution: `parse_coref.py`
+
+Run combined system on visual and linguistic system outputs (i.e. after `bootstrapping_comparison.py` and `visual_propagation.py`): `combine_visual_linguistic.py`
+
+
 
 **parameters**
 
-A sample configuration is provided in `parameters.cfg`. The file contains values for differentes parameters:
+A sample configuration is provided in `config.yml`. The file contains values for differentes parameters:
 
     max_tokens_away=6           # maximum number of tokens between the two entities
     min_tokens_away=1           # minimum number of tokens between the two entities
